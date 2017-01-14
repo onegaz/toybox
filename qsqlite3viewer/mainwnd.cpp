@@ -111,7 +111,7 @@ void MainWnd::itemClicked(QListWidgetItem* item)
   {
       SQLite::Database    db(db_path->text().toStdString().c_str());
       std::stringstream ss;
-      ss << "SELECT * FROM " << table_name << " LIMIT 1"; // only check first 20 records to figure out column title and width
+      ss << "SELECT * FROM " << table_name << " LIMIT 1"; // only check first 1 row to figure out column title
       SQLite::Statement   query(db, ss.str());
       while (query.executeStep())
       {
@@ -185,5 +185,5 @@ void MainWnd::clickedSlot() {
       }
     return;
   }
-
 }
+// this tool used https://github.com/SRombauts/SQLiteCpp
