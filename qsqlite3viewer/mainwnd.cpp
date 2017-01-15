@@ -79,7 +79,7 @@ void MainWnd::showTable(std::deque<std::string>& headers, std::deque<std::string
   int columncnt(headers.size());
   table_data->setColumnCount(columncnt);
       qDebug() << __func__ ;
-std::vector<size_t> columnsize(headers.size());
+  std::vector<size_t> columnsize(headers.size());
   for(int col=0; col<headers.size(); col++) {
 		table_data->setHorizontalHeaderItem(col, new QStandardItem(headers[col].c_str()));
 		columnsize[col] =  headers[col].length();
@@ -162,7 +162,7 @@ void MainWnd::clickedSlot() {
 		close();
 		return;
 	}
-  if (clickedButton == choose_db) {
+  if (clickedButton == choose_db) { // display list of tables in selected sqlite3 database
     QString file1Name = QFileDialog::getOpenFileName(this,
        tr("Open sqlite3 database file"), getenv("HOME"), tr("*"));
        db_path->setText(file1Name);

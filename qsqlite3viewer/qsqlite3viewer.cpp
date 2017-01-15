@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-//#include <codecvt>
 #include <boost/locale/encoding_utf.hpp>
 #include <string>
 #include <boost/locale.hpp>
@@ -20,8 +19,4 @@ int main(int argc, char* argv[])
     MainWnd w;
     w.show();
     return a.exec();
-    // Terminal > Set Character Encoding > Add or remove > Encodings > GB18030 Chinese Simplified
-    // Terminal > Set Character Encoding > Chinese Simplified(GB18030)
-    // find out list of locale on CentOS 7: locale -a | grep zh
-    return 0;
 }

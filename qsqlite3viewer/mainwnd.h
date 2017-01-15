@@ -16,24 +16,26 @@
 #include <QtCore/QDebug>
 #include <deque>
 #include <string>
-class MainWnd: public QMainWindow {
-	Q_OBJECT
-public:
-	MainWnd(QWidget *parent = 0, Qt::WFlags flags = 0);
-	virtual ~MainWnd();
-  void showTableList(std::deque<std::string>& tblist);
-  void showTable(std::deque<std::string>& headers, std::deque<std::string>& data);
-public slots:
- void clickedSlot();
- void itemClicked(QListWidgetItem* item);
-private:
- QLineEdit* db_path;
- QPushButton* choose_db;
- QPushButton* button_about;
- QPushButton* button_exit;
- QListWidget * table_list;
- QTableView *table_view;
- QStandardItemModel *table_data;
+class MainWnd : public QMainWindow
+{
+    Q_OBJECT
+  public:
+    MainWnd(QWidget *parent = 0, Qt::WFlags flags = 0);
+    virtual ~MainWnd();
+    void showTableList(std::deque<std::string> &tblist);
+    void showTable(std::deque<std::string> &headers, std::deque<std::string> &data);
+  public slots:
+    void clickedSlot();
+    void itemClicked(QListWidgetItem *item);
+
+  private:
+    QLineEdit *db_path;
+    QPushButton *choose_db;
+    QPushButton *button_about;
+    QPushButton *button_exit;
+    QListWidget *table_list;
+    QTableView *table_view;
+    QStandardItemModel *table_data;
 };
 
 #endif
