@@ -1,0 +1,35 @@
+<html>
+    <head>
+    </head>
+    <body>
+        Format text for jira<br/>
+        <textarea id="inputtext" rows="9" style="height: 40%;width:100%"></textarea><br/>
+        <input type="button" value="Jira Format" id="btn_jiraformat"   />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="Clear" id="btn_clear"   /> <br/>
+        <textarea id="outputtext" rows="9" style="height: 40%;width:100%"></textarea><br/><br/>
+    <div id="divDeveloperNotes" style="display: none;">
+        <pre>
+process text for jira via Notepad ++
+Find what: ([{#|*\[])		([\-{#|*\[])
+Replace with: \\\1
+
+process text for jira with “Regex Util eclipse plugin” http://regex-util.sourceforge.net/update/
+Find: ([#*\-\[])
+Replace:	\\$1
+            
+        </pre>
+        <pre>
+$ npm install --save electron
+
+/cygdrive/c/apps/nodejs/npm start
+
+check out from git
+npm install
+npm start
+        </pre>
+    </div>
+        <script>
+        let {myremote} = require("./action.js")
+        </script>  
+    </body>
+</html>

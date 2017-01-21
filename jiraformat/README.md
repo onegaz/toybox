@@ -1,0 +1,1 @@
+This tool convert text to format compitable with JIRA.

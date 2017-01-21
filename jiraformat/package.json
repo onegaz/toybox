@@ -1,0 +1,15 @@
+{
+  "name": "jiraformat",
+  "version": "1.0.0",
+  "description": "escape characters to make jira happy",
+  "main": "index.js",
+  "scripts": {
+    "test": "electron index.js",
+    "start": "electron index.js"
+  },
+  "author": "onegaz",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^1.4.15"
+  }
+}
