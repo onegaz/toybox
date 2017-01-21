@@ -16,11 +16,11 @@ function createWindow() {
   win.loadURL(`file://${__dirname}/index.html`);
 
   // Open the DevTools.
-//   win.webContents.openDevTools(false);
+   win.webContents.openDevTools(false);
 // Disable the DevTools.
-win.webContents.on("devtools-opened", () => {
-win.webContents.closeDevTools();
-});
+// win.webContents.on("devtools-opened", () => {
+// win.webContents.closeDevTools();
+// });
   // Emitted when the window is closed.
   win.on('closed', () => {
     // Dereference the window object, usually you would store windows
