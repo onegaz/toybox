@@ -1,0 +1,15 @@
+{
+  "name": "simplemake",
+  "version": "1.0.0",
+  "description": "electron app create Makefile for C++ project",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron main.js",
+    "start": "electron main.js"
+  },
+  "author": "onega",
+  "license": "ISC",
+  "devDependencies": {
+    "electron-prebuilt": "^1.4.13"
+  }
+}

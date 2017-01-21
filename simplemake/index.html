@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<html>
+ <head>
+ <title>Simple C++ build tool generate Makefile in gcc syntax</title>
+ </head>
+ <body>
+Description: Makefile button generates Makefile. <br/>
+make button execute <strong>make</strong> command. <br/>
+clean button execute <strong>make clean</strong> command. <br/>
+clear button clear build output messages.  <br/>
+        <table>
+            <tr>
+                <td> <input type="button" value="C/C++ source files" id="select-cpp-src"/>
+                </td>
+                <td>  <textarea placeholder="C/C++ source files" id="cpp-src" rows="5" cols="80"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td> <input type="button" id="select-includes" value="INCLUDEs"/>
+                </td>
+                <td> <textarea id="includes" rows="5" cols="80"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td> <input type="button" id="select-libs" value="Library paths"/>
+                </td>
+                <td>  <textarea id="libs" rows="5" cols="80"></textarea>
+                </td>
+            </tr>            
+            <tr>
+                <td> CXXFLAGS:
+                </td>
+                <td> <textarea  id="cxxflags" rows="2" cols="80">-g -pthread -std=c++11</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td> LDFLAGS:
+                </td>
+                <td> <textarea id="ldflags" rows="2" cols="80"> -L/usr/local/lib </textarea>
+                </td>
+            </tr>    
+            <tr>
+                <td> Target:
+                </td>
+                <td>
+                    <input type="text" id="target" value="target.exe">  </input>                    
+                </td>
+            </tr>                  
+            <tr>
+                <td>  
+                </td>
+                <td> 
+                    <input type="button" id="Makefile" value="makefile"/> &nbsp;&nbsp;&nbsp;&nbsp; 
+                    <input type="button" id="build" value="build"/> &nbsp;&nbsp;&nbsp;&nbsp;  
+                    <input type="button" id="clean" value="clean"/> &nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="button" id="clear" value="clear"/>
+                </td>
+            </tr>  
+            <tr>
+                <td colspan="2">
+                    <textarea id="buildoutput" rows="9" style="width: 100%; height: 100%;" ></textarea>                    
+                </td>
+            </tr>                     
+        </table>
+    <div id="divDeveloperNotes" style="display: none;">
+<pre>$ /cygdrive/c/apps/nodejs/npm test
+> my_app_name@0.1.0 test C:\workspace\electron\aa
+> electron main.js
+$ npm start
+$ node_modules/electron-prebuilt/dist/electron main.js
+</pre>
+        <pre>
+$ npm install --save electron
+
+/cygdrive/c/apps/nodejs/npm start
+check out from git
+npm install
+npm start
+        </pre>
+    </div>        
+        <script>
+            require('./index.js')
+        </script>
+ </body>
+</html>
