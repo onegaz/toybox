@@ -1,0 +1,419 @@
+[onega@localhost hellohadoop]$ make
+g++ -o wordcount -I/home/onega/bin/hadoop-2.7.3/include -pthread -std=c++11 hellohadoop.cpp -lhadooppipes -lhadooputils -pthread -lcrypto -L/home/onega/bin/hadoop-2.7.3/lib/native
+
+[onega@localhost hadoop-2.7.3]$ bin/hdfs dfs -ls /bin
+ls: `/bin': No such file or directory
+[onega@localhost hadoop-2.7.3]$ bin/hdfs dfs -mkdir /bin
+[onega@localhost hadoop-2.7.3]$ bin/hdfs dfs -put bin/wordcount /bin/wordcount
+[onega@localhost hadoop-2.7.3]$ bin/hdfs dfs -ls /bin
+Found 1 items
+-rw-r--r--   1 onega supergroup     843592 2017-01-28 17:34 /bin/wordcount
+
+[onega@localhost hadoop-2.7.3]$ bin/hdfs dfs -mkdir /input1
+[onega@localhost hadoop-2.7.3]$ bin/hdfs dfs -put etc/hadoop/*.xml /input1
+[onega@localhost hadoop-2.7.3]$ bin/hdfs dfs -ls /input1
+Found 8 items
+-rw-r--r--   1 onega supergroup       4436 2017-01-28 17:38 /input1/capacity-scheduler.xml
+-rw-r--r--   1 onega supergroup        870 2017-01-28 17:38 /input1/core-site.xml
+-rw-r--r--   1 onega supergroup       9683 2017-01-28 17:38 /input1/hadoop-policy.xml
+-rw-r--r--   1 onega supergroup        859 2017-01-28 17:38 /input1/hdfs-site.xml
+-rw-r--r--   1 onega supergroup        620 2017-01-28 17:38 /input1/httpfs-site.xml
+-rw-r--r--   1 onega supergroup       3518 2017-01-28 17:38 /input1/kms-acls.xml
+-rw-r--r--   1 onega supergroup       5511 2017-01-28 17:38 /input1/kms-site.xml
+-rw-r--r--   1 onega supergroup        690 2017-01-28 17:38 /input1/yarn-site.xml
+
+[onega@localhost hadoop-2.7.3]$ bin/hdfs dfs -mkdir /output1
+[onega@localhost hadoop-2.7.3]$ bin/hadoop pipes -D hadoop.pipes.java.recordreader=true -D hadoop.pipes.java.recordwriter=true -input /input1 -output /output1 -program /bin/wordcount
+DEPRECATED: Use of this script to execute mapred command is deprecated.
+Instead use the mapred command for it.
+
+17/01/28 17:41:44 INFO Configuration.deprecation: session.id is deprecated. Instead, use dfs.metrics.session-id
+17/01/28 17:41:44 INFO jvm.JvmMetrics: Initializing JVM Metrics with processName=JobTracker, sessionId=
+17/01/28 17:41:44 INFO jvm.JvmMetrics: Cannot initialize JVM Metrics with processName=JobTracker, sessionId= - already initialized
+Exception in thread "main" org.apache.hadoop.mapred.FileAlreadyExistsException: Output directory hdfs://localhost:9000/output1 already exists
+	at org.apache.hadoop.mapred.FileOutputFormat.checkOutputSpecs(FileOutputFormat.java:131)
+	at org.apache.hadoop.mapreduce.JobSubmitter.checkSpecs(JobSubmitter.java:268)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:139)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1698)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1698)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:870)
+	at org.apache.hadoop.mapred.pipes.Submitter.runJob(Submitter.java:264)
+	at org.apache.hadoop.mapred.pipes.Submitter.run(Submitter.java:503)
+	at org.apache.hadoop.mapred.pipes.Submitter.main(Submitter.java:518)
+[onega@localhost hadoop-2.7.3]$ bin/hdfs dfs -rmdir /output1
+[onega@localhost hadoop-2.7.3]$ bin/hadoop pipes -D hadoop.pipes.java.recordreader=true -D hadoop.pipes.java.recordwriter=true -input /input1 -output /output1 -program /bin/wordcount
+DEPRECATED: Use of this script to execute mapred command is deprecated.
+Instead use the mapred command for it.
+
+17/01/28 17:42:18 INFO Configuration.deprecation: session.id is deprecated. Instead, use dfs.metrics.session-id
+17/01/28 17:42:18 INFO jvm.JvmMetrics: Initializing JVM Metrics with processName=JobTracker, sessionId=
+17/01/28 17:42:18 INFO jvm.JvmMetrics: Cannot initialize JVM Metrics with processName=JobTracker, sessionId= - already initialized
+17/01/28 17:42:19 WARN mapreduce.JobResourceUploader: No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+17/01/28 17:42:19 INFO mapred.FileInputFormat: Total input paths to process : 8
+17/01/28 17:42:19 INFO mapreduce.JobSubmitter: number of splits:8
+17/01/28 17:42:19 INFO Configuration.deprecation: hadoop.pipes.java.recordreader is deprecated. Instead, use mapreduce.pipes.isjavarecordreader
+17/01/28 17:42:19 INFO Configuration.deprecation: hadoop.pipes.java.recordwriter is deprecated. Instead, use mapreduce.pipes.isjavarecordwriter
+17/01/28 17:42:19 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_local1062847419_0001
+17/01/28 17:42:20 INFO mapred.LocalDistributedCacheManager: Creating symlink: /tmp/hadoop-onega/mapred/local/1485654139865/wordcount <- /home/onega/bin/hadoop-2.7.3/wordcount
+17/01/28 17:42:20 INFO mapred.LocalDistributedCacheManager: Localized hdfs://localhost:9000/bin/wordcount as file:/tmp/hadoop-onega/mapred/local/1485654139865/wordcount
+17/01/28 17:42:20 INFO mapreduce.Job: The url to track the job: http://localhost:8080/
+17/01/28 17:42:20 INFO mapreduce.Job: Running job: job_local1062847419_0001
+17/01/28 17:42:20 INFO mapred.LocalJobRunner: OutputCommitter set in config null
+17/01/28 17:42:20 INFO mapred.LocalJobRunner: OutputCommitter is org.apache.hadoop.mapred.FileOutputCommitter
+17/01/28 17:42:20 INFO output.FileOutputCommitter: File Output Committer Algorithm version is 1
+17/01/28 17:42:20 INFO mapred.LocalJobRunner: Waiting for map tasks
+17/01/28 17:42:20 INFO mapred.LocalJobRunner: Starting task: attempt_local1062847419_0001_m_000000_0
+17/01/28 17:42:20 INFO output.FileOutputCommitter: File Output Committer Algorithm version is 1
+17/01/28 17:42:20 INFO mapred.Task:  Using ResourceCalculatorProcessTree : [ ]
+17/01/28 17:42:20 INFO mapred.MapTask: Processing split: hdfs://localhost:9000/input1/hadoop-policy.xml:0+9683
+17/01/28 17:42:20 INFO mapred.MapTask: numReduceTasks: 1
+17/01/28 17:42:20 INFO mapred.MapTask: (EQUATOR) 0 kvi 26214396(104857584)
+17/01/28 17:42:20 INFO mapred.MapTask: mapreduce.task.io.sort.mb: 100
+17/01/28 17:42:20 INFO mapred.MapTask: soft limit at 83886080
+17/01/28 17:42:20 INFO mapred.MapTask: bufstart = 0; bufvoid = 104857600
+17/01/28 17:42:20 INFO mapred.MapTask: kvstart = 26214396; length = 6553600
+17/01/28 17:42:20 INFO mapred.MapTask: Map output collector class = org.apache.hadoop.mapred.MapTask$MapOutputBuffer
+17/01/28 17:42:20 INFO mapred.LocalJobRunner: Starting task: attempt_local1062847419_0001_m_000001_0
+17/01/28 17:42:20 INFO output.FileOutputCommitter: File Output Committer Algorithm version is 1
+17/01/28 17:42:20 INFO mapred.Task:  Using ResourceCalculatorProcessTree : [ ]
+17/01/28 17:42:20 INFO mapred.MapTask: Processing split: hdfs://localhost:9000/input1/kms-site.xml:0+5511
+17/01/28 17:42:20 INFO mapred.MapTask: numReduceTasks: 1
+17/01/28 17:42:20 INFO mapred.MapTask: (EQUATOR) 0 kvi 26214396(104857584)
+17/01/28 17:42:20 INFO mapred.MapTask: mapreduce.task.io.sort.mb: 100
+17/01/28 17:42:20 INFO mapred.MapTask: soft limit at 83886080
+17/01/28 17:42:20 INFO mapred.MapTask: bufstart = 0; bufvoid = 104857600
+17/01/28 17:42:20 INFO mapred.MapTask: kvstart = 26214396; length = 6553600
+17/01/28 17:42:20 INFO mapred.MapTask: Map output collector class = org.apache.hadoop.mapred.MapTask$MapOutputBuffer
+17/01/28 17:42:20 INFO mapred.LocalJobRunner: Starting task: attempt_local1062847419_0001_m_000002_0
+17/01/28 17:42:20 INFO output.FileOutputCommitter: File Output Committer Algorithm version is 1
+17/01/28 17:42:20 INFO mapred.Task:  Using ResourceCalculatorProcessTree : [ ]
+17/01/28 17:42:20 INFO mapred.MapTask: Processing split: hdfs://localhost:9000/input1/capacity-scheduler.xml:0+4436
+17/01/28 17:42:20 INFO mapred.MapTask: numReduceTasks: 1
+17/01/28 17:42:20 INFO mapred.MapTask: (EQUATOR) 0 kvi 26214396(104857584)
+17/01/28 17:42:20 INFO mapred.MapTask: mapreduce.task.io.sort.mb: 100
+17/01/28 17:42:20 INFO mapred.MapTask: soft limit at 83886080
+17/01/28 17:42:20 INFO mapred.MapTask: bufstart = 0; bufvoid = 104857600
+17/01/28 17:42:20 INFO mapred.MapTask: kvstart = 26214396; length = 6553600
+17/01/28 17:42:20 INFO mapred.MapTask: Map output collector class = org.apache.hadoop.mapred.MapTask$MapOutputBuffer
+17/01/28 17:42:20 INFO mapred.LocalJobRunner: Starting task: attempt_local1062847419_0001_m_000003_0
+17/01/28 17:42:20 INFO output.FileOutputCommitter: File Output Committer Algorithm version is 1
+17/01/28 17:42:20 INFO mapred.Task:  Using ResourceCalculatorProcessTree : [ ]
+17/01/28 17:42:20 INFO mapred.MapTask: Processing split: hdfs://localhost:9000/input1/kms-acls.xml:0+3518
+17/01/28 17:42:20 INFO mapred.MapTask: numReduceTasks: 1
+17/01/28 17:42:20 INFO mapred.MapTask: (EQUATOR) 0 kvi 26214396(104857584)
+17/01/28 17:42:20 INFO mapred.MapTask: mapreduce.task.io.sort.mb: 100
+17/01/28 17:42:20 INFO mapred.MapTask: soft limit at 83886080
+17/01/28 17:42:20 INFO mapred.MapTask: bufstart = 0; bufvoid = 104857600
+17/01/28 17:42:20 INFO mapred.MapTask: kvstart = 26214396; length = 6553600
+17/01/28 17:42:20 INFO mapred.MapTask: Map output collector class = org.apache.hadoop.mapred.MapTask$MapOutputBuffer
+17/01/28 17:42:20 INFO mapred.LocalJobRunner: Starting task: attempt_local1062847419_0001_m_000004_0
+17/01/28 17:42:20 INFO output.FileOutputCommitter: File Output Committer Algorithm version is 1
+17/01/28 17:42:20 INFO mapred.Task:  Using ResourceCalculatorProcessTree : [ ]
+17/01/28 17:42:20 INFO mapred.MapTask: Processing split: hdfs://localhost:9000/input1/core-site.xml:0+870
+17/01/28 17:42:20 INFO mapred.MapTask: numReduceTasks: 1
+17/01/28 17:42:21 INFO mapred.LocalJobRunner: Starting task: attempt_local1062847419_0001_m_000005_0
+17/01/28 17:42:21 INFO output.FileOutputCommitter: File Output Committer Algorithm version is 1
+17/01/28 17:42:21 INFO mapred.Task:  Using ResourceCalculatorProcessTree : [ ]
+17/01/28 17:42:21 INFO mapred.MapTask: Processing split: hdfs://localhost:9000/input1/hdfs-site.xml:0+859
+17/01/28 17:42:21 INFO mapred.MapTask: numReduceTasks: 1
+17/01/28 17:42:21 INFO mapred.LocalJobRunner: Starting task: attempt_local1062847419_0001_m_000006_0
+17/01/28 17:42:21 INFO mapreduce.Job: Job job_local1062847419_0001 running in uber mode : false
+17/01/28 17:42:21 INFO mapreduce.Job:  map 0% reduce 0%
+17/01/28 17:42:21 INFO output.FileOutputCommitter: File Output Committer Algorithm version is 1
+17/01/28 17:42:21 INFO mapred.Task:  Using ResourceCalculatorProcessTree : [ ]
+17/01/28 17:42:21 INFO mapred.MapTask: Processing split: hdfs://localhost:9000/input1/yarn-site.xml:0+690
+17/01/28 17:42:21 INFO mapred.MapTask: numReduceTasks: 1
+17/01/28 17:42:21 INFO mapred.LocalJobRunner: Starting task: attempt_local1062847419_0001_m_000007_0
+17/01/28 17:42:21 INFO output.FileOutputCommitter: File Output Committer Algorithm version is 1
+17/01/28 17:42:21 INFO mapred.Task:  Using ResourceCalculatorProcessTree : [ ]
+17/01/28 17:42:21 INFO mapred.MapTask: Processing split: hdfs://localhost:9000/input1/httpfs-site.xml:0+620
+17/01/28 17:42:21 INFO mapred.MapTask: numReduceTasks: 1
+17/01/28 17:42:21 INFO mapred.LocalJobRunner: map task executor complete.
+17/01/28 17:42:21 WARN mapred.LocalJobRunner: job_local1062847419_0001
+java.lang.Exception: java.lang.NullPointerException
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.runTasks(LocalJobRunner.java:462)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:522)
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.mapred.pipes.Application.<init>(Application.java:104)
+	at org.apache.hadoop.mapred.pipes.PipesMapRunner.run(PipesMapRunner.java:69)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:453)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job$MapTaskRunnable.run(LocalJobRunner.java:243)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+17/01/28 17:42:22 INFO mapreduce.Job: Job job_local1062847419_0001 failed with state FAILED due to: NA
+17/01/28 17:42:22 INFO mapreduce.Job: Counters: 0
+Exception in thread "main" java.io.IOException: Job failed!
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:873)
+	at org.apache.hadoop.mapred.pipes.Submitter.runJob(Submitter.java:264)
+	at org.apache.hadoop.mapred.pipes.Submitter.run(Submitter.java:503)
+	at org.apache.hadoop.mapred.pipes.Submitter.main(Submitter.java:518)
+[onega@localhost hadoop-2.7.3]$ 
+
+[onega@localhost hadoop-2.7.3]$ bin/mapred
+Usage: mapred [--config confdir] [--loglevel loglevel] COMMAND
+       where COMMAND is one of:
+  pipes                run a Pipes job
+  job                  manipulate MapReduce jobs
+  queue                get information regarding JobQueues
+  classpath            prints the class path needed for running
+                       mapreduce subcommands
+  historyserver        run job history servers as a standalone daemon
+  distcp <srcurl> <desturl> copy file or directories recursively
+  archive -archiveName NAME -p <parent path> <src>* <dest> create a hadoop archive
+  hsadmin              job history server admin interface
+
+Most commands print help when invoked w/o parameters.
+
+bin/mapred pipes -D mapreduce.pipes.isjavarecordreader=true -D mapreduce.pipes.isjavarecordwriter=true -input /input1/hadoop-policy.xml -output /output1 -program /bin/wordcount
+
+export HADOOP_HOME=/home/onega/bin/hadoop-2.7.3
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib"
+
+Create bin/hadoop-2.7.3/etc/hadoop/mapred-site.xml
+
+onega     8531  0.5  4.4 2835180 266612 ?      Sl   19:29   0:11 /usr/lib/jvm/java/bin/java -Dproc_namenode -Xmx1000m -Djava.library.path=/home/onega/bin/hadoop-2.7.3/lib -Djava.net.preferIPv4Stack=true -Dhadoop.log.dir=/home/onega/bin/hadoop-2.7.3/logs -Dhadoop.log.file=hadoop.log -Dhadoop.home.dir=/home/onega/bin/hadoop-2.7.3 -Dhadoop.id.str=onega -Dhadoop.root.logger=INFO,console -Dhadoop.policy.file=hadoop-policy.xml -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Stack=true -Dhadoop.log.dir=/home/onega/bin/hadoop-2.7.3/logs -Dhadoop.log.file=hadoop-onega-namenode-localhost.localdomain.log -Dhadoop.home.dir=/home/onega/bin/hadoop-2.7.3 -Dhadoop.id.str=onega -Dhadoop.root.logger=INFO,RFA -Dhadoop.policy.file=hadoop-policy.xml -Djava.net.preferIPv4Stack=true -Dhadoop.security.logger=INFO,RFAS -Dhdfs.audit.logger=INFO,NullAppender -Dhadoop.security.logger=INFO,RFAS -Dhdfs.audit.logger=INFO,NullAppender -Dhadoop.security.logger=INFO,RFAS -Dhdfs.audit.logger=INFO,NullAppender -Dhadoop.security.logger=INFO,RFAS org.apache.hadoop.hdfs.server.namenode.NameNode
+
+backup 3 files 
+[onega@localhost ~]$ ls bin/hadoop-2.7.3/etc/hadoop/*orig
+bin/hadoop-2.7.3/etc/hadoop/core-site.xml.orig  bin/hadoop-2.7.3/etc/hadoop/hdfs-site.xml.orig  bin/hadoop-2.7.3/etc/hadoop/yarn-site.xml.orig
+
+bin/hadoop-2.7.3/etc/hadoop/core-site.xml
+<configuration>
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://localhost:9000</value>
+</property>
+</configuration>
+
+bin/hadoop-2.7.3/etc/hadoop/hdfs-site.xml
+<configuration>
+  <property>
+      <name>dfs.replication</name>
+      <value>1</value>
+  </property>
+</configuration>
+
+bin/hadoop-2.7.3/etc/hadoop/yarn-site.xml
+<configuration>
+<!-- Site specific YARN configuration properties -->
+<property>
+<name>yarn.nodemanager.aux-services</name>
+<value>mapreduce_shuffle</value>
+</property>
+<property>
+<name>yarn.nodemanager.aux-services.mapreduce_shuffle.class</name>
+<value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+</configuration>
+
+add the following to ~/.bashrc 
+export JAVA_HOME=/usr/lib/jvm/java
+export HADOOP_HOME=/home/onega/bin/hadoop-2.7.3
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib"
+
+[onega@localhost ~]$ bin/hadoop-2.7.3/sbin/start-all.sh 
+This script is Deprecated. Instead use start-dfs.sh and start-yarn.sh
+17/01/28 20:17:23 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Starting namenodes on [localhost]
+localhost: starting namenode, logging to /home/onega/bin/hadoop-2.7.3/logs/hadoop-onega-namenode-localhost.localdomain.out
+localhost: starting datanode, logging to /home/onega/bin/hadoop-2.7.3/logs/hadoop-onega-datanode-localhost.localdomain.out
+Starting secondary namenodes [0.0.0.0]
+0.0.0.0: starting secondarynamenode, logging to /home/onega/bin/hadoop-2.7.3/logs/hadoop-onega-secondarynamenode-localhost.localdomain.out
+17/01/28 20:17:44 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+starting yarn daemons
+starting resourcemanager, logging to /home/onega/bin/hadoop-2.7.3/logs/yarn-onega-resourcemanager-localhost.localdomain.out
+localhost: starting nodemanager, logging to /home/onega/bin/hadoop-2.7.3/logs/yarn-onega-nodemanager-localhost.localdomain.out
+
+[onega@localhost hellohadoop]$ ./start.sh 
+17/01/28 20:19:09 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+17/01/28 20:19:09 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Total number of applications (application-types: [] and states: [SUBMITTED, ACCEPTED, RUNNING]):0
+                Application-Id	    Application-Name	    Application-Type	      User	     Queue	             State	       Final-State	       Progress	                       Tracking-URL
+17/01/28 20:19:17 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+17/01/28 20:19:18 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+17/01/28 20:19:18 WARN mapreduce.JobResourceUploader: No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+17/01/28 20:19:18 INFO mapred.FileInputFormat: Total input paths to process : 1
+17/01/28 20:19:20 INFO mapreduce.JobSubmitter: number of splits:2
+17/01/28 20:19:20 INFO Configuration.deprecation: mapred.job.name is deprecated. Instead, use mapreduce.job.name
+17/01/28 20:19:20 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1485663468626_0001
+17/01/28 20:19:20 INFO mapred.YARNRunner: Job jar is not present. Not adding any jar to the list of resources.
+17/01/28 20:19:21 INFO impl.YarnClientImpl: Submitted application application_1485663468626_0001
+17/01/28 20:19:21 INFO mapreduce.Job: The url to track the job: http://localhost:8088/proxy/application_1485663468626_0001/
+17/01/28 20:19:21 INFO mapreduce.Job: Running job: job_1485663468626_0001
+17/01/28 20:19:36 INFO mapreduce.Job: Job job_1485663468626_0001 running in uber mode : false
+17/01/28 20:19:36 INFO mapreduce.Job:  map 0% reduce 0%
+17/01/28 20:19:51 INFO mapreduce.Job:  map 50% reduce 0%
+17/01/28 20:19:52 INFO mapreduce.Job:  map 100% reduce 0%
+17/01/28 20:20:05 INFO mapreduce.Job:  map 100% reduce 100%
+17/01/28 20:20:07 INFO mapreduce.Job: Job job_1485663468626_0001 completed successfully
+17/01/28 20:20:07 INFO mapreduce.Job: Counters: 49
+	File System Counters
+		FILE: Number of bytes read=13526
+		FILE: Number of bytes written=387678
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=13975
+		HDFS: Number of bytes written=3716
+		HDFS: Number of read operations=9
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=2
+		Launched reduce tasks=1
+		Data-local map tasks=2
+		Total time spent by all maps in occupied slots (ms)=26500
+		Total time spent by all reduces in occupied slots (ms)=12040
+		Total time spent by all map tasks (ms)=26500
+		Total time spent by all reduce tasks (ms)=12040
+		Total vcore-milliseconds taken by all map tasks=26500
+		Total vcore-milliseconds taken by all reduce tasks=12040
+		Total megabyte-milliseconds taken by all map tasks=27136000
+		Total megabyte-milliseconds taken by all reduce tasks=12328960
+	Map-Reduce Framework
+		Map input records=226
+		Map output records=1131
+		Map output bytes=11258
+		Map output materialized bytes=13532
+		Input split bytes=196
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=239
+		Reduce shuffle bytes=13532
+		Reduce input records=1131
+		Reduce output records=239
+		Spilled Records=2262
+		Shuffled Maps =2
+		Failed Shuffles=0
+		Merged Map outputs=2
+		GC time elapsed (ms)=349
+		CPU time spent (ms)=2280
+		Physical memory (bytes) snapshot=687448064
+		Virtual memory (bytes) snapshot=6309539840
+		Total committed heap usage (bytes)=525860864
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=13779
+	File Output Format Counters 
+		Bytes Written=3716
+17/01/28 20:20:07 INFO util.ExitUtil: Exiting with status 0
+[onega@localhost hellohadoop]$ 
+
+useful links 
+http://intercontineo.com/article/8743212203/
+https://github.com/QwertyManiac/cdh4-hadoop-streaming-cpp
+http://dongxicheng.org/mapreduce/hadoop-streaming-programming/
+
+[onega@localhost hellohadoop]$ ./streaming.sh 
+17/01/29 10:05:55 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+17/01/29 10:05:55 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Total number of applications (application-types: [] and states: [SUBMITTED, ACCEPTED, RUNNING]):0
+                Application-Id	    Application-Name	    Application-Type	      User	     Queue	             State	       Final-State	       Progress	                       Tracking-URL
+rm: `/output1/*': No such file or directory
+17/01/29 10:06:03 INFO fs.TrashPolicyDefault: Namenode trash configuration: Deletion interval = 0 minutes, Emptier interval = 0 minutes.
+Deleted /bin/hellostreamingmapper
+17/01/29 10:06:05 INFO fs.TrashPolicyDefault: Namenode trash configuration: Deletion interval = 0 minutes, Emptier interval = 0 minutes.
+Deleted /bin/hellostreamingreducer
+packageJobJar: [/tmp/hadoop-unjar6555157740176071910/] [] /tmp/streamjob6820821225707415708.jar tmpDir=null
+17/01/29 10:06:15 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+17/01/29 10:06:15 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+17/01/29 10:06:16 INFO mapred.FileInputFormat: Total input paths to process : 1
+17/01/29 10:06:17 INFO mapreduce.JobSubmitter: number of splits:2
+17/01/29 10:06:17 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1485663468626_0006
+17/01/29 10:06:17 INFO impl.YarnClientImpl: Submitted application application_1485663468626_0006
+17/01/29 10:06:17 INFO mapreduce.Job: The url to track the job: http://localhost:8088/proxy/application_1485663468626_0006/
+17/01/29 10:06:17 INFO mapreduce.Job: Running job: job_1485663468626_0006
+17/01/29 10:06:24 INFO mapreduce.Job: Job job_1485663468626_0006 running in uber mode : false
+17/01/29 10:06:24 INFO mapreduce.Job:  map 0% reduce 0%
+17/01/29 10:06:31 INFO mapreduce.Job:  map 100% reduce 0%
+17/01/29 10:06:38 INFO mapreduce.Job:  map 100% reduce 100%
+17/01/29 10:06:39 INFO mapreduce.Job: Job job_1485663468626_0006 completed successfully
+17/01/29 10:06:39 INFO mapreduce.Job: Counters: 49
+	File System Counters
+		FILE: Number of bytes read=13526
+		FILE: Number of bytes written=388848
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=13975
+		HDFS: Number of bytes written=3716
+		HDFS: Number of read operations=9
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=2
+		Launched reduce tasks=1
+		Data-local map tasks=2
+		Total time spent by all maps in occupied slots (ms)=8718
+		Total time spent by all reduces in occupied slots (ms)=5107
+		Total time spent by all map tasks (ms)=8718
+		Total time spent by all reduce tasks (ms)=5107
+		Total vcore-milliseconds taken by all map tasks=8718
+		Total vcore-milliseconds taken by all reduce tasks=5107
+		Total megabyte-milliseconds taken by all map tasks=8927232
+		Total megabyte-milliseconds taken by all reduce tasks=5229568
+	Map-Reduce Framework
+		Map input records=226
+		Map output records=1131
+		Map output bytes=11258
+		Map output materialized bytes=13532
+		Input split bytes=196
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=239
+		Reduce shuffle bytes=13532
+		Reduce input records=1131
+		Reduce output records=239
+		Spilled Records=2262
+		Shuffled Maps =2
+		Failed Shuffles=0
+		Merged Map outputs=2
+		GC time elapsed (ms)=267
+		CPU time spent (ms)=1900
+		Physical memory (bytes) snapshot=684302336
+		Virtual memory (bytes) snapshot=6318088192
+		Total committed heap usage (bytes)=517996544
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=13779
+	File Output Format Counters 
+		Bytes Written=3716
+17/01/29 10:06:39 INFO streaming.StreamJob: Output directory: /output1
+
+[onega@localhost hellohadoop]$ sudo grep hadoop /var/log/messages
+[sudo] password for onega: 
+Jan 29 10:18:01 localhost hadoop-streaming[31847]: /home/onega/github/onegaz/toybox/hellohadoop/hellostreamingmapper pid 31847 started by user 1000 Built with g++ 4.8.5 took 65 milliseconds
+Jan 29 10:18:01 localhost hadoop-streaming[31853]: /home/onega/github/onegaz/toybox/hellohadoop/hellostreamingmapper pid 31853 started by user 1000 Built with g++ 4.8.5 took 9 milliseconds
+Jan 29 10:18:07 localhost hadoop-streaming[31986]: /home/onega/github/onegaz/toybox/hellohadoop/hellostreamingreducer pid 31986 started by user 1000 Built with g++ 4.8.5 took 107 milliseconds
+
+[onega@localhost ~]$ bin/hadoop-2.7.3/bin/hdfs dfs -get /output1/part-00000 /home/onega/github/onegaz/toybox/hellohadoop
+17/01/29 10:21:51 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
