@@ -1,0 +1,573 @@
+// git clone https://github.com/google/snappy.git
+// [onega@localhost snappy]$ ./autogen.sh 
+// libtoolize: putting auxiliary files in AC_CONFIG_AUX_DIR, `.'.
+// libtoolize: copying file `./ltmain.sh'
+// libtoolize: putting macros in AC_CONFIG_MACRO_DIR, `m4'.
+// libtoolize: copying file `m4/libtool.m4'
+// libtoolize: copying file `m4/ltoptions.m4'
+// libtoolize: copying file `m4/ltsugar.m4'
+// libtoolize: copying file `m4/ltversion.m4'
+// libtoolize: copying file `m4/lt~obsolete.m4'
+// configure.ac:17: installing './config.guess'
+// configure.ac:17: installing './config.sub'
+// configure.ac:15: installing './install-sh'
+// configure.ac:15: installing './missing'
+// Makefile.am: installing './INSTALL'
+// /usr/share/automake-1.13/am/ltlibrary.am: warning: 'libsnappy.la': linking libtool libraries using a non-POSIX
+// /usr/share/automake-1.13/am/ltlibrary.am: archiver requires 'AM_PROG_AR' in 'configure.ac'
+// Makefile.am:4:   while processing Libtool library 'libsnappy.la'
+// Makefile.am: installing './depcomp'
+// parallel-tests: installing './test-driver'
+// ./configure 
+// make 
+[onega@localhost kafka-0.10.1.1-src]$ tar xf ~/Downloads/kafka_2.11-0.10.1.1.tgz -C ~/bin
+[onega@localhost kafka_2.11-0.10.1.1]$ bin/zookeeper-server-start.sh config/zookeeper.properties
+[2017-01-29 14:03:03,665] INFO Reading configuration from: config/zookeeper.properties (org.apache.zookeeper.server.quorum.QuorumPeerConfig)
+[2017-01-29 14:03:03,667] INFO autopurge.snapRetainCount set to 3 (org.apache.zookeeper.server.DatadirCleanupManager)
+[2017-01-29 14:03:03,668] INFO autopurge.purgeInterval set to 0 (org.apache.zookeeper.server.DatadirCleanupManager)
+[2017-01-29 14:03:03,668] INFO Purge task is not scheduled. (org.apache.zookeeper.server.DatadirCleanupManager)
+[2017-01-29 14:03:03,668] WARN Either no config or no quorum defined in config, running  in standalone mode (org.apache.zookeeper.server.quorum.QuorumPeerMain)
+[2017-01-29 14:03:03,694] INFO Reading configuration from: config/zookeeper.properties (org.apache.zookeeper.server.quorum.QuorumPeerConfig)
+[2017-01-29 14:03:03,695] INFO Starting server (org.apache.zookeeper.server.ZooKeeperServerMain)
+[2017-01-29 14:03:03,707] INFO Server environment:zookeeper.version=3.4.8--1, built on 02/06/2016 03:18 GMT (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,707] INFO Server environment:host.name=localhost (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,707] INFO Server environment:java.version=1.8.0_60 (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,707] INFO Server environment:java.vendor=Oracle Corporation (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,707] INFO Server environment:java.home=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,707] INFO Server environment:java.class.path=:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/aopalliance-repackaged-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/argparse4j-0.5.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-api-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-file-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-json-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-runtime-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/guava-18.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-api-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-locator-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-utils-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-annotations-2.6.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-core-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-databind-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-jaxrs-base-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-jaxrs-json-provider-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-module-jaxb-annotations-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javassist-3.18.2-GA.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.annotation-api-1.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.inject-1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.inject-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.servlet-api-3.1.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.ws.rs-api-2.0.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-client-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-common-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-container-servlet-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-container-servlet-core-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-guava-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-media-jaxb-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-server-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-continuation-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-http-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-io-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-security-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-server-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-servlet-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-servlets-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-util-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jopt-simple-4.9.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1-sources.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1-test-sources.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-clients-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-log4j-appender-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-streams-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-streams-examples-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-tools-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/log4j-1.2.17.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/lz4-1.3.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/metrics-core-2.2.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/osgi-resource-locator-1.0.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/reflections-0.9.10.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/rocksdbjni-4.9.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/scala-library-2.11.8.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/scala-parser-combinators_2.11-1.0.4.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/slf4j-api-1.7.21.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/slf4j-log4j12-1.7.21.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/snappy-java-1.1.2.6.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/validation-api-1.1.0.Final.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/zkclient-0.9.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/zookeeper-3.4.8.jar (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,707] INFO Server environment:java.library.path=:/usr/local/lib:/usr/local/lib64:/usr/local/lib:/usr/local/lib64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,707] INFO Server environment:java.io.tmpdir=/tmp (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,708] INFO Server environment:java.compiler=<NA> (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,708] INFO Server environment:os.name=Linux (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,708] INFO Server environment:os.arch=amd64 (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,708] INFO Server environment:os.version=3.10.0-123.el7.x86_64 (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,708] INFO Server environment:user.name=onega (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,708] INFO Server environment:user.home=/home/onega (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,708] INFO Server environment:user.dir=/home/onega/bin/kafka_2.11-0.10.1.1 (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,721] INFO tickTime set to 3000 (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,721] INFO minSessionTimeout set to -1 (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,721] INFO maxSessionTimeout set to -1 (org.apache.zookeeper.server.ZooKeeperServer)
+[2017-01-29 14:03:03,744] INFO binding to port 0.0.0.0/0.0.0.0:2181 (org.apache.zookeeper.server.NIOServerCnxnFactory)
+
+
+
+[onega@localhost kafka_2.11-0.10.1.1]$ bin/kafka-server-start.sh config/server.properties
+[2017-01-29 14:06:17,100] INFO KafkaConfig values: 
+	advertised.host.name = null
+	advertised.listeners = null
+	advertised.port = null
+	authorizer.class.name = 
+	auto.create.topics.enable = true
+	auto.leader.rebalance.enable = true
+	background.threads = 10
+	broker.id = 0
+	broker.id.generation.enable = true
+	broker.rack = null
+	compression.type = producer
+	connections.max.idle.ms = 600000
+	controlled.shutdown.enable = true
+	controlled.shutdown.max.retries = 3
+	controlled.shutdown.retry.backoff.ms = 5000
+	controller.socket.timeout.ms = 30000
+	default.replication.factor = 1
+	delete.topic.enable = false
+	fetch.purgatory.purge.interval.requests = 1000
+	group.max.session.timeout.ms = 300000
+	group.min.session.timeout.ms = 6000
+	host.name = 
+	inter.broker.protocol.version = 0.10.1-IV2
+	leader.imbalance.check.interval.seconds = 300
+	leader.imbalance.per.broker.percentage = 10
+	listeners = null
+	log.cleaner.backoff.ms = 15000
+	log.cleaner.dedupe.buffer.size = 134217728
+	log.cleaner.delete.retention.ms = 86400000
+	log.cleaner.enable = true
+	log.cleaner.io.buffer.load.factor = 0.9
+	log.cleaner.io.buffer.size = 524288
+	log.cleaner.io.max.bytes.per.second = 1.7976931348623157E308
+	log.cleaner.min.cleanable.ratio = 0.5
+	log.cleaner.min.compaction.lag.ms = 0
+	log.cleaner.threads = 1
+	log.cleanup.policy = [delete]
+	log.dir = /tmp/kafka-logs
+	log.dirs = /tmp/kafka-logs
+	log.flush.interval.messages = 9223372036854775807
+	log.flush.interval.ms = null
+	log.flush.offset.checkpoint.interval.ms = 60000
+	log.flush.scheduler.interval.ms = 9223372036854775807
+	log.index.interval.bytes = 4096
+	log.index.size.max.bytes = 10485760
+	log.message.format.version = 0.10.1-IV2
+	log.message.timestamp.difference.max.ms = 9223372036854775807
+	log.message.timestamp.type = CreateTime
+	log.preallocate = false
+	log.retention.bytes = -1
+	log.retention.check.interval.ms = 300000
+	log.retention.hours = 168
+	log.retention.minutes = null
+	log.retention.ms = null
+	log.roll.hours = 168
+	log.roll.jitter.hours = 0
+	log.roll.jitter.ms = null
+	log.roll.ms = null
+	log.segment.bytes = 1073741824
+	log.segment.delete.delay.ms = 60000
+	max.connections.per.ip = 2147483647
+	max.connections.per.ip.overrides = 
+	message.max.bytes = 1000012
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.sample.window.ms = 30000
+	min.insync.replicas = 1
+	num.io.threads = 8
+	num.network.threads = 3
+	num.partitions = 1
+	num.recovery.threads.per.data.dir = 1
+	num.replica.fetchers = 1
+	offset.metadata.max.bytes = 4096
+	offsets.commit.required.acks = -1
+	offsets.commit.timeout.ms = 5000
+	offsets.load.buffer.size = 5242880
+	offsets.retention.check.interval.ms = 600000
+	offsets.retention.minutes = 1440
+	offsets.topic.compression.codec = 0
+	offsets.topic.num.partitions = 50
+	offsets.topic.replication.factor = 3
+	offsets.topic.segment.bytes = 104857600
+	port = 9092
+	principal.builder.class = class org.apache.kafka.common.security.auth.DefaultPrincipalBuilder
+	producer.purgatory.purge.interval.requests = 1000
+	queued.max.requests = 500
+	quota.consumer.default = 9223372036854775807
+	quota.producer.default = 9223372036854775807
+	quota.window.num = 11
+	quota.window.size.seconds = 1
+	replica.fetch.backoff.ms = 1000
+	replica.fetch.max.bytes = 1048576
+	replica.fetch.min.bytes = 1
+	replica.fetch.response.max.bytes = 10485760
+	replica.fetch.wait.max.ms = 500
+	replica.high.watermark.checkpoint.interval.ms = 5000
+	replica.lag.time.max.ms = 10000
+	replica.socket.receive.buffer.bytes = 65536
+	replica.socket.timeout.ms = 30000
+	replication.quota.window.num = 11
+	replication.quota.window.size.seconds = 1
+	request.timeout.ms = 30000
+	reserved.broker.max.id = 1000
+	sasl.enabled.mechanisms = [GSSAPI]
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.principal.to.local.rules = [DEFAULT]
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.mechanism.inter.broker.protocol = GSSAPI
+	security.inter.broker.protocol = PLAINTEXT
+	socket.receive.buffer.bytes = 102400
+	socket.request.max.bytes = 104857600
+	socket.send.buffer.bytes = 102400
+	ssl.cipher.suites = null
+	ssl.client.auth = none
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.1, TLSv1]
+	ssl.endpoint.identification.algorithm = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLS
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	unclean.leader.election.enable = true
+	zookeeper.connect = localhost:2181
+	zookeeper.connection.timeout.ms = 6000
+	zookeeper.session.timeout.ms = 6000
+	zookeeper.set.acl = false
+	zookeeper.sync.time.ms = 2000
+ (kafka.server.KafkaConfig)
+[2017-01-29 14:06:17,160] INFO starting (kafka.server.KafkaServer)
+[2017-01-29 14:06:17,177] INFO [ThrottledRequestReaper-Fetch], Starting  (kafka.server.ClientQuotaManager$ThrottledRequestReaper)
+[2017-01-29 14:06:17,181] INFO Connecting to zookeeper on localhost:2181 (kafka.server.KafkaServer)
+[2017-01-29 14:06:17,192] INFO [ThrottledRequestReaper-Produce], Starting  (kafka.server.ClientQuotaManager$ThrottledRequestReaper)
+[2017-01-29 14:06:17,205] INFO Client environment:zookeeper.version=3.4.8--1, built on 02/06/2016 03:18 GMT (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:host.name=localhost (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:java.version=1.8.0_60 (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:java.vendor=Oracle Corporation (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:java.home=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:java.class.path=:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/aopalliance-repackaged-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/argparse4j-0.5.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-api-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-file-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-json-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-runtime-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/guava-18.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-api-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-locator-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-utils-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-annotations-2.6.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-core-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-databind-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-jaxrs-base-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-jaxrs-json-provider-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-module-jaxb-annotations-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javassist-3.18.2-GA.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.annotation-api-1.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.inject-1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.inject-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.servlet-api-3.1.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.ws.rs-api-2.0.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-client-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-common-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-container-servlet-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-container-servlet-core-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-guava-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-media-jaxb-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-server-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-continuation-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-http-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-io-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-security-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-server-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-servlet-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-servlets-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-util-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jopt-simple-4.9.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1-sources.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1-test-sources.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-clients-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-log4j-appender-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-streams-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-streams-examples-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-tools-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/log4j-1.2.17.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/lz4-1.3.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/metrics-core-2.2.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/osgi-resource-locator-1.0.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/reflections-0.9.10.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/rocksdbjni-4.9.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/scala-library-2.11.8.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/scala-parser-combinators_2.11-1.0.4.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/slf4j-api-1.7.21.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/slf4j-log4j12-1.7.21.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/snappy-java-1.1.2.6.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/validation-api-1.1.0.Final.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/zkclient-0.9.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/zookeeper-3.4.8.jar (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:java.library.path=:/usr/local/lib:/usr/local/lib64:/usr/local/lib:/usr/local/lib64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:java.io.tmpdir=/tmp (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:java.compiler=<NA> (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:os.name=Linux (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:os.arch=amd64 (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:os.version=3.10.0-123.el7.x86_64 (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:user.name=onega (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:user.home=/home/onega (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,205] INFO Client environment:user.dir=/home/onega/bin/kafka_2.11-0.10.1.1 (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,206] INFO Initiating client connection, connectString=localhost:2181 sessionTimeout=6000 watcher=org.I0Itec.zkclient.ZkClient@9225652 (org.apache.zookeeper.ZooKeeper)
+[2017-01-29 14:06:17,210] INFO Starting ZkClient event thread. (org.I0Itec.zkclient.ZkEventThread)
+[2017-01-29 14:06:17,236] INFO Waiting for keeper state SyncConnected (org.I0Itec.zkclient.ZkClient)
+[2017-01-29 14:06:17,245] INFO Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2181. Will not attempt to authenticate using SASL (unknown error) (org.apache.zookeeper.ClientCnxn)
+[2017-01-29 14:06:17,325] INFO Socket connection established to localhost/0:0:0:0:0:0:0:1:2181, initiating session (org.apache.zookeeper.ClientCnxn)
+[2017-01-29 14:06:17,513] INFO Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2181, sessionid = 0x159ec40c0fa0000, negotiated timeout = 6000 (org.apache.zookeeper.ClientCnxn)
+[2017-01-29 14:06:17,515] INFO zookeeper state changed (SyncConnected) (org.I0Itec.zkclient.ZkClient)
+[2017-01-29 14:06:17,718] INFO Cluster ID = AjdUvqYYSUuIlPPijxMgfQ (kafka.server.KafkaServer)
+[2017-01-29 14:06:17,782] INFO Log directory '/tmp/kafka-logs' not found, creating it. (kafka.log.LogManager)
+[2017-01-29 14:06:17,801] INFO Loading logs. (kafka.log.LogManager)
+[2017-01-29 14:06:17,809] INFO Logs loading complete in 8 ms. (kafka.log.LogManager)
+[2017-01-29 14:06:17,963] INFO Starting log cleanup with a period of 300000 ms. (kafka.log.LogManager)
+[2017-01-29 14:06:17,965] INFO Starting log flusher with a default period of 9223372036854775807 ms. (kafka.log.LogManager)
+[2017-01-29 14:06:18,010] WARN No meta.properties file under dir /tmp/kafka-logs/meta.properties (kafka.server.BrokerMetadataCheckpoint)
+[2017-01-29 14:06:18,071] INFO Awaiting socket connections on 0.0.0.0:9092. (kafka.network.Acceptor)
+[2017-01-29 14:06:18,094] INFO [Socket Server on Broker 0], Started 1 acceptor threads (kafka.network.SocketServer)
+[2017-01-29 14:06:18,116] INFO [ExpirationReaper-0], Starting  (kafka.server.DelayedOperationPurgatory$ExpiredOperationReaper)
+[2017-01-29 14:06:18,117] INFO [ExpirationReaper-0], Starting  (kafka.server.DelayedOperationPurgatory$ExpiredOperationReaper)
+[2017-01-29 14:06:18,185] INFO Creating /controller (is it secure? false) (kafka.utils.ZKCheckedEphemeral)
+[2017-01-29 14:06:18,207] INFO Result of znode creation is: OK (kafka.utils.ZKCheckedEphemeral)
+[2017-01-29 14:06:18,208] INFO 0 successfully elected as leader (kafka.server.ZookeeperLeaderElector)
+[2017-01-29 14:06:18,362] INFO [ExpirationReaper-0], Starting  (kafka.server.DelayedOperationPurgatory$ExpiredOperationReaper)
+[2017-01-29 14:06:18,369] INFO [ExpirationReaper-0], Starting  (kafka.server.DelayedOperationPurgatory$ExpiredOperationReaper)
+[2017-01-29 14:06:18,414] INFO [GroupCoordinator 0]: Starting up. (kafka.coordinator.GroupCoordinator)
+[2017-01-29 14:06:18,420] INFO [ExpirationReaper-0], Starting  (kafka.server.DelayedOperationPurgatory$ExpiredOperationReaper)
+[2017-01-29 14:06:18,427] INFO [GroupCoordinator 0]: Startup complete. (kafka.coordinator.GroupCoordinator)
+[2017-01-29 14:06:18,438] INFO [Group Metadata Manager on Broker 0]: Removed 0 expired offsets in 1 milliseconds. (kafka.coordinator.GroupMetadataManager)
+[2017-01-29 14:06:18,473] INFO Will not load MX4J, mx4j-tools.jar is not in the classpath (kafka.utils.Mx4jLoader$)
+[2017-01-29 14:06:18,509] INFO Creating /brokers/ids/0 (is it secure? false) (kafka.utils.ZKCheckedEphemeral)
+[2017-01-29 14:06:18,543] INFO Result of znode creation is: OK (kafka.utils.ZKCheckedEphemeral)
+[2017-01-29 14:06:18,544] INFO Registered broker 0 at path /brokers/ids/0 with addresses: PLAINTEXT -> EndPoint(localhost,9092,PLAINTEXT) (kafka.utils.ZkUtils)
+[2017-01-29 14:06:18,545] WARN No meta.properties file under dir /tmp/kafka-logs/meta.properties (kafka.server.BrokerMetadataCheckpoint)
+[2017-01-29 14:06:18,618] INFO Kafka version : 0.10.1.1 (org.apache.kafka.common.utils.AppInfoParser)
+[2017-01-29 14:06:18,618] INFO Kafka commitId : f10ef2720b03b247 (org.apache.kafka.common.utils.AppInfoParser)
+[2017-01-29 14:06:18,619] INFO [Kafka Server 0], started (kafka.server.KafkaServer)
+[2017-01-29 14:06:18,627] INFO New leader is 0 (kafka.server.ZookeeperLeaderElector$LeaderChangeListener)
+
+
+
+[onega@localhost kafka_2.11-0.10.1.1]$ ps aux | grep kafka
+onega     4302  0.5  1.0 3058536 64412 pts/1   Sl+  14:03   0:01 /usr/lib/jvm/java/bin/java -Xmx512M -Xms512M -server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC -Djava.awt.headless=true -Xloggc:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../logs/zookeeper-gc.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dkafka.logs.dir=/home/onega/bin/kafka_2.11-0.10.1.1/bin/../logs -Dlog4j.configuration=file:bin/../config/log4j.properties -cp :/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/aopalliance-repackaged-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/argparse4j-0.5.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-api-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-file-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-json-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-runtime-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/guava-18.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-api-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-locator-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-utils-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-annotations-2.6.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-core-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-databind-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-jaxrs-base-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-jaxrs-json-provider-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-module-jaxb-annotations-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javassist-3.18.2-GA.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.annotation-api-1.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.inject-1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.inject-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.servlet-api-3.1.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.ws.rs-api-2.0.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-client-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-common-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-container-servlet-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-container-servlet-core-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-guava-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-media-jaxb-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-server-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-continuation-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-http-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-io-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-security-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-server-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-servlet-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-servlets-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-util-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jopt-simple-4.9.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1-sources.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1-test-sources.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-clients-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-log4j-appender-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-streams-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-streams-examples-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/k
+onega     4730  0.2  0.5 974156 34136 ?        Sl   14:04   0:00 /usr/share/code/code /usr/share/code/resources/app/out/bootstrap git /home/onega/github/onegaz/toybox/hellokafka utf8 /usr/share/code/code 1.8.3.1
+onega     4959  3.1  4.8 3670388 286320 pts/3  Sl+  14:06   0:04 /usr/lib/jvm/java/bin/java -Xmx1G -Xms1G -server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC -Djava.awt.headless=true -Xloggc:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../logs/kafkaServer-gc.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dkafka.logs.dir=/home/onega/bin/kafka_2.11-0.10.1.1/bin/../logs -Dlog4j.configuration=file:bin/../config/log4j.properties -cp :/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/aopalliance-repackaged-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/argparse4j-0.5.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-api-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-file-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-json-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-runtime-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/guava-18.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-api-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-locator-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-utils-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-annotations-2.6.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-core-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-databind-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-jaxrs-base-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-jaxrs-json-provider-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-module-jaxb-annotations-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javassist-3.18.2-GA.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.annotation-api-1.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.inject-1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.inject-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.servlet-api-3.1.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.ws.rs-api-2.0.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-client-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-common-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-container-servlet-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-container-servlet-core-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-guava-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-media-jaxb-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-server-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-continuation-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-http-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-io-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-security-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-server-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-servlet-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-servlets-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-util-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jopt-simple-4.9.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1-sources.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1-test-sources.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-clients-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-log4j-appender-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-streams-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-streams-examples-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kaf
+onega     5857  2.4  0.9 3057496 55484 pts/4   Sl+  14:07   0:01 /usr/lib/jvm/java/bin/java -Xmx512M -server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC -Djava.awt.headless=true -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dkafka.logs.dir=/home/onega/bin/kafka_2.11-0.10.1.1/bin/../logs -Dlog4j.configuration=file:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../config/tools-log4j.properties -cp :/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/aopalliance-repackaged-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/argparse4j-0.5.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-api-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-file-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-json-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/connect-runtime-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/guava-18.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-api-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-locator-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/hk2-utils-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-annotations-2.6.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-core-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-databind-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-jaxrs-base-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-jaxrs-json-provider-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jackson-module-jaxb-annotations-2.6.3.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javassist-3.18.2-GA.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.annotation-api-1.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.inject-1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.inject-2.4.0-b34.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.servlet-api-3.1.0.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/javax.ws.rs-api-2.0.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-client-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-common-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-container-servlet-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-container-servlet-core-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-guava-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-media-jaxb-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jersey-server-2.22.2.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-continuation-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-http-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-io-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-security-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-server-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-servlet-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-servlets-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jetty-util-9.2.15.v20160210.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/jopt-simple-4.9.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1-sources.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka_2.11-0.10.1.1-test-sources.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-clients-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-log4j-appender-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-streams-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-streams-examples-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/kafka-tools-0.10.1.1.jar:/home/onega/bin/kafka_2.11-0.10.1.1/bin/../libs/log4j-1.2.17.jar:/home/onega/bin/kafka_2.11-0.
+onega     6209  0.0  0.0 112648   972 pts/5    R+   14:08   0:00 grep --color=auto kafka
+[onega@localhost kafka_2.11-0.10.1.1]$ 
+
+
+[onega@localhost kafka_2.11-0.10.1.1]$ bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic test
+Created topic "test".
+[onega@localhost kafka_2.11-0.10.1.1]$ bin/kafka-topics.sh --list --zookeeper localhost:2181
+test
+[onega@localhost kafka_2.11-0.10.1.1]$ bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+first message
+second message
+^C[onega@localhost kafka_2.11-0.10.1.1]$ bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
+first message
+second message
+^CProcessed a total of 2 messages
+
+[onega@localhost librdkafka]$ ./configure
+checking for OS or distribution... ok (CentOS)
+checking for C compiler from CC env... failed
+checking for gcc (by command)... ok
+checking for C++ compiler from CXX env... failed
+checking for C++ compiler (g++)... ok
+checking executable ld... ok
+checking executable nm... ok
+checking executable objdump... ok
+checking executable strip... ok
+checking for pkgconfig (by command)... ok
+checking for install (by command)... ok
+checking for PIC (by compile)... ok
+checking for GNU-compatible linker options... ok
+checking for GNU linker-script ld flag... ok
+checking for __atomic_32 (by compile)... ok
+checking for __atomic_64 (by compile)... ok
+checking for socket (by compile)... ok
+parsing version '0x00090401'... ok (0.9.4)
+checking for libpthread (by pkg-config)... failed
+checking for libpthread (by compile)... ok
+checking for zlib (by pkg-config)... ok
+checking for zlib (by compile)... ok
+checking for libcrypto (by pkg-config)... ok
+checking for libcrypto (by compile)... ok
+checking for liblz4 (by pkg-config)... failed
+checking for liblz4 (by compile)... failed (disable)
+checking for libssl (by pkg-config)... ok
+checking for libssl (by compile)... ok
+checking for libsasl2 (by pkg-config)... failed
+checking for libsasl2 (by compile)... failed (disable)
+checking for libsasl (by pkg-config)... failed
+checking for libsasl (by compile)... failed (disable)
+checking for regex (by compile)... ok
+checking for librt (by pkg-config)... failed
+checking for librt (by compile)... ok
+checking for strndup (by compile)... ok
+checking for nm (by env NM)... ok (cached)
+checking for python (by command)... ok
+Generated Makefile.config
+Generated config.h
+
+Configuration summary:
+  prefix                   /usr/local
+  ARCH                     x86_64
+  CPU                      generic
+  GEN_PKG_CONFIG           y
+  ENABLE_DEVEL             n
+  ENABLE_VALGRIND          n
+  ENABLE_REFCNT_DEBUG      n
+  ENABLE_SHAREDPTR_DEBUG   n
+  ENABLE_LZ4               y
+  ENABLE_SSL               y
+  ENABLE_SASL              y
+  MKL_APP_NAME             librdkafka
+  MKL_APP_DESC_ONELINE     The Apache Kafka C/C++ library
+  MKL_DISTRO               CentOS
+  CC                       gcc
+  CXX                      g++
+  LD                       ld
+  NM                       nm
+  OBJDUMP                  objdump
+  STRIP                    strip
+  CPPFLAGS                 -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith
+  PKG_CONFIG               pkg-config
+  INSTALL                  install
+  LIB_LDFLAGS              -shared -Wl,-soname,$(LIBFILENAME)
+  LDFLAG_LINKERSCRIPT      -Wl,--version-script=
+  RDKAFKA_VERSION_STR      0.9.4
+  MKL_APP_VERSION          0.9.4
+  LIBS                     -lpthread -lz   -lz -lcrypto   -lcrypto -lssl -lcrypto   -lssl -lrt
+  CFLAGS                        
+  CXXFLAGS                 -Wno-non-virtual-dtor
+  SYMDUMPER                $(NM) -D
+  exec_prefix              /usr/local
+  bindir                   /usr/local/bin
+  sbindir                  /usr/local/sbin
+  libexecdir               /usr/local/libexec
+  datadir                  /usr/local/share
+  sysconfdir               /usr/local/etc
+  sharedstatedir           /usr/local/com
+  localstatedir            /usr/local/var
+  libdir                   /usr/local/lib
+  includedir               /usr/local/include
+  infodir                  /usr/local/info
+  mandir                   /usr/local/man
+Generated config.cache
+
+Now type 'make' to build
+[onega@localhost librdkafka]$ 
+
+
+[onega@localhost librdkafka]$ make
+make[1]: Entering directory `/home/onega/src/librdkafka/src'
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka.c -o rdkafka.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_broker.c -o rdkafka_broker.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_msg.c -o rdkafka_msg.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_topic.c -o rdkafka_topic.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_conf.c -o rdkafka_conf.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_timer.c -o rdkafka_timer.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_offset.c -o rdkafka_offset.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_transport.c -o rdkafka_transport.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_buf.c -o rdkafka_buf.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_queue.c -o rdkafka_queue.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_op.c -o rdkafka_op.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_request.c -o rdkafka_request.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_cgrp.c -o rdkafka_cgrp.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_pattern.c -o rdkafka_pattern.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_partition.c -o rdkafka_partition.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_subscription.c -o rdkafka_subscription.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_assignor.c -o rdkafka_assignor.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_range_assignor.c -o rdkafka_range_assignor.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_roundrobin_assignor.c -o rdkafka_roundrobin_assignor.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_feature.c -o rdkafka_feature.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdcrc32.c -o rdcrc32.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdaddr.c -o rdaddr.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdrand.c -o rdrand.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdlist.c -o rdlist.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c tinycthread.c -o tinycthread.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdlog.c -o rdlog.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdstring.c -o rdstring.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_event.c -o rdkafka_event.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_metadata.c -o rdkafka_metadata.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdregex.c -o rdregex.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdports.c -o rdports.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdkafka_metadata_cache.c -o rdkafka_metadata_cache.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdavl.c -o rdavl.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c snappy.c -o snappy.o
+gcc -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -DLIBRDKAFKA_GIT_VERSION="\"v0.9.2-282-gf90429\""  -c rdgz.c -o rdgz.o
+Generating linker script librdkafka.lds from rdkafka.h
+Creating shared library librdkafka.so.1
+gcc  -shared -Wl,-soname,librdkafka.so.1 -Wl,--version-script=librdkafka.lds rdkafka.o rdkafka_broker.o rdkafka_msg.o rdkafka_topic.o rdkafka_conf.o rdkafka_timer.o rdkafka_offset.o rdkafka_transport.o rdkafka_buf.o rdkafka_queue.o rdkafka_op.o rdkafka_request.o rdkafka_cgrp.o rdkafka_pattern.o rdkafka_partition.o rdkafka_subscription.o rdkafka_assignor.o rdkafka_range_assignor.o rdkafka_roundrobin_assignor.o rdkafka_feature.o rdcrc32.o rdaddr.o rdrand.o rdlist.o tinycthread.o rdlog.o rdstring.o rdkafka_event.o rdkafka_metadata.o rdregex.o rdports.o rdkafka_metadata_cache.o rdavl.o snappy.o rdgz.o -o librdkafka.so.1 -lpthread -lz   -lz -lcrypto   -lcrypto -lssl -lcrypto   -lssl -lrt
+Creating static library librdkafka.a
+ar rcs librdkafka.a rdkafka.o rdkafka_broker.o rdkafka_msg.o rdkafka_topic.o rdkafka_conf.o rdkafka_timer.o rdkafka_offset.o rdkafka_transport.o rdkafka_buf.o rdkafka_queue.o rdkafka_op.o rdkafka_request.o rdkafka_cgrp.o rdkafka_pattern.o rdkafka_partition.o rdkafka_subscription.o rdkafka_assignor.o rdkafka_range_assignor.o rdkafka_roundrobin_assignor.o rdkafka_feature.o rdcrc32.o rdaddr.o rdrand.o rdlist.o tinycthread.o rdlog.o rdstring.o rdkafka_event.o rdkafka_metadata.o rdregex.o rdports.o rdkafka_metadata_cache.o rdavl.o snappy.o rdgz.o
+Creating librdkafka.so symlink
+rm -f "librdkafka.so" && ln -s "librdkafka.so.1" "librdkafka.so"
+Generating pkg-config file rdkafka.pc
+Checking librdkafka integrity
+librdkafka.so.1                OK
+librdkafka.a                   OK
+Symbol visibility              OK
+make[1]: Leaving directory `/home/onega/src/librdkafka/src'
+make[1]: Entering directory `/home/onega/src/librdkafka/src-cpp'
+g++ -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -c RdKafka.cpp -o RdKafka.o
+g++ -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -c ConfImpl.cpp -o ConfImpl.o
+g++ -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -c HandleImpl.cpp -o HandleImpl.o
+g++ -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -c ConsumerImpl.cpp -o ConsumerImpl.o
+g++ -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -c ProducerImpl.cpp -o ProducerImpl.o
+g++ -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -c KafkaConsumerImpl.cpp -o KafkaConsumerImpl.o
+g++ -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -c TopicImpl.cpp -o TopicImpl.o
+g++ -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -c TopicPartitionImpl.cpp -o TopicPartitionImpl.o
+g++ -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -c MessageImpl.cpp -o MessageImpl.o
+g++ -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -c QueueImpl.cpp -o QueueImpl.o
+g++ -MD -MP -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -c MetadataImpl.cpp -o MetadataImpl.o
+Generating linker script librdkafka++.lds from rdkafkacpp.h
+Creating shared library librdkafka++.so.1
+gcc  -shared -Wl,-soname,librdkafka++.so.1 RdKafka.o ConfImpl.o HandleImpl.o ConsumerImpl.o ProducerImpl.o KafkaConsumerImpl.o TopicImpl.o TopicPartitionImpl.o MessageImpl.o QueueImpl.o MetadataImpl.o -o librdkafka++.so.1 -L../src -lrdkafka -lstdc++
+Creating static library librdkafka++.a
+ar rcs librdkafka++.a RdKafka.o ConfImpl.o HandleImpl.o ConsumerImpl.o ProducerImpl.o KafkaConsumerImpl.o TopicImpl.o TopicPartitionImpl.o MessageImpl.o QueueImpl.o MetadataImpl.o
+Creating librdkafka++.so symlink
+rm -f "librdkafka++.so" && ln -s "librdkafka++.so.1" "librdkafka++.so"
+Generating pkg-config file rdkafka++.pc
+Checking librdkafka++ integrity
+librdkafka++.so.1              OK
+librdkafka++.a                 OK
+make[1]: Leaving directory `/home/onega/src/librdkafka/src-cpp'
+make -C examples
+make[1]: Entering directory `/home/onega/src/librdkafka/examples'
+gcc -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith  -I../src rdkafka_example.c -o rdkafka_example  \
+	../src/librdkafka.a -lpthread -lz   -lz -lcrypto   -lcrypto -lssl -lcrypto   -lssl -lrt
+# rdkafka_example is ready
+#
+# Run producer (write messages on stdin)
+./rdkafka_example -P -t <topic> -p <partition>
+
+# or consumer
+./rdkafka_example -C -t <topic> -p <partition>
+
+#
+# More usage options:
+./rdkafka_example -h
+gcc -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith  -I../src rdkafka_performance.c -o rdkafka_performance  \
+	../src/librdkafka.a -lpthread -lz   -lz -lcrypto   -lcrypto -lssl -lcrypto   -lssl -lrt
+# rdkafka_performance is ready
+#
+# Run producer
+./rdkafka_performance -P -t <topic> -p <partition> -s <msgsize>
+
+# or consumer
+./rdkafka_performance -C -t <topic> -p <partition>
+
+#
+# More usage options:
+./rdkafka_performance -h
+g++ -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -I../src-cpp rdkafka_example.cpp -o rdkafka_example_cpp  \
+	../src-cpp/librdkafka++.a ../src/librdkafka.a -lpthread -lz   -lz -lcrypto   -lcrypto -lssl -lcrypto   -lssl -lrt -lstdc++
+gcc -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith  -I../src rdkafka_consumer_example.c -o rdkafka_consumer_example  \
+	../src/librdkafka.a -lpthread -lz   -lz -lcrypto   -lcrypto -lssl -lcrypto   -lssl -lrt
+# rdkafka_consumer_example is ready
+#
+./rdkafka_consumer_example <topic[:part]> <topic2[:part]> ..
+
+#
+# More usage options:
+./rdkafka_consumer_example -h
+g++ -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -I../src-cpp rdkafka_consumer_example.cpp -o rdkafka_consumer_example_cpp  \
+	../src-cpp/librdkafka++.a ../src/librdkafka.a -lpthread -lz   -lz -lcrypto   -lcrypto -lssl -lcrypto   -lssl -lrt -lstdc++
+g++ -g -O2 -fPIC -Wall -Wsign-compare -Wfloat-equal -Wpointer-arith -Wno-non-virtual-dtor -I../src-cpp kafkatest_verifiable_client.cpp -o kafkatest_verifiable_client  \
+	../src-cpp/librdkafka++.a ../src/librdkafka.a -lpthread -lz   -lz -lcrypto   -lcrypto -lssl -lcrypto   -lssl -lrt -lstdc++
+make[1]: Leaving directory `/home/onega/src/librdkafka/examples'
+Updating
+CONFIGURATION.md CONFIGURATION.md.tmp differ: byte 349, line 6
+Checking  integrity
+CONFIGURATION.md               OK
+examples/rdkafka_example       OK
+examples/rdkafka_performance   OK
+examples/rdkafka_example_cpp   OK
+make[1]: Entering directory `/home/onega/src/librdkafka/src'
+Checking librdkafka integrity
+librdkafka.so.1                OK
+librdkafka.a                   OK
+Symbol visibility              OK
+make[1]: Leaving directory `/home/onega/src/librdkafka/src'
+make[1]: Entering directory `/home/onega/src/librdkafka/src-cpp'
+Checking librdkafka++ integrity
+librdkafka++.so.1              OK
+librdkafka++.a                 OK
+make[1]: Leaving directory `/home/onega/src/librdkafka/src-cpp'
+[onega@localhost librdkafka]$ 
+
+
+[onega@localhost hellokafka]$ make
+g++ -o hellokafka -g -pthread -I/home/onega/src/libkafka-asio/lib -I/home/onega/src/snappy -std=c++11 hellokafka.cpp -L/home/onega/src/snappy/.libs -lsnappy -lboost_system -lz
+[onega@localhost hellokafka]$ ./hellokafka 
+tid 24815 Successfully produced message! 0
+tid 24815 Successfully produced message! 1
+tid 24815 Successfully produced message! 2
+tid 24815 Successfully produced message! 3
+produce_messages exit from tid 24816 message_count is 3
+^C
+[onega@localhost hellokafka]$ ./hellokafka 
+tid 24870 Successfully produced message! 1
+tid 24870 Successfully produced message! 2
+tid 24870 Successfully produced message! 3
+tid 24870 Successfully produced message! 4
+0
+Received messages in thread 24870
+first message
+second message
+message from produce_messages in thread 19779 at 30-01-2017 04:53:28
+message from produce_messages in thread 19779 at 30-01-2017 04:53:28
+message from produce_messages in thread 19779 at 30-01-2017 04:53:28
+message from produce_messages in thread 19779 at 30-01-2017 04:53:28
+message from produce_messages in thread 20817 at 30-01-2017 05:03:04
+message from produce_messages in thread 20817 at 30-01-2017 05:03:04
+message from produce_messages in thread 20817 at 30-01-2017 05:03:04
+message from produce_messages in thread 20817 at 30-01-2017 05:03:04
+message from produce_messages in thread 21070 at 30-01-2017 05:06:10
+message from produce_messages in thread 21070 at 30-01-2017 05:06:10
+message from produce_messages in thread 21070 at 30-01-2017 05:06:10
+message from produce_messages in thread 21070 at 30-01-2017 05:06:10
+message from produce_messages in thread 21233 at 30-01-2017 05:08:24
+message from produce_messages in thread 21233 at 30-01-2017 05:08:24
+message from produce_messages in thread 21233 at 30-01-2017 05:08:24
+message from produce_messages in thread 21233 at 30-01-2017 05:08:24
+message from produce_messages in thread 22597 at 30-01-2017 05:22:33
+message from produce_messages in thread 22597 at 30-01-2017 05:22:33
+message from produce_messages in thread 22597 at 30-01-2017 05:22:33
+message from produce_messages in thread 22597 at 30-01-2017 05:22:33
+message from produce_messages in thread 22806 at 30-01-2017 05:26:31
+message from produce_messages in thread 22806 at 30-01-2017 05:26:31
+message from produce_messages in thread 22806 at 30-01-2017 05:26:31
+message from produce_messages in thread 22806 at 30-01-2017 05:26:31
+message from produce_messages in thread 23069 at 30-01-2017 05:30:17
+message from produce_messages in thread 23069 at 30-01-2017 05:30:17
+message from produce_messages in thread 23069 at 30-01-2017 05:30:17
+message from produce_messages in thread 23069 at 30-01-2017 05:30:17
+message from produce_messages in thread 23760 at 30-01-2017 05:39:43
+message from produce_messages in thread 23760 at 30-01-2017 05:39:43
+message from produce_messages in thread 23760 at 30-01-2017 05:39:43
+message from produce_messages in thread 23760 at 30-01-2017 05:39:43
+message from produce_messages in thread 24270 at 30-01-2017 05:46:27
+message from produce_messages in thread 24270 at 30-01-2017 05:46:27
+message from produce_messages in thread 24270 at 30-01-2017 05:46:27
+message from produce_messages in thread 24270 at 30-01-2017 05:46:27
+message from produce_messages in thread 24480 at 01-30-2017 05:48:56
+message from produce_messages in thread 24480 at 01-30-2017 05:48:56
+message from produce_messages in thread 24480 at 01-30-2017 05:48:56
+message from produce_messages in thread 24480 at 01-30-2017 05:48:56
+message from produce_messages in thread 24816 at 01-30-2017 05:52:38
+message from produce_messages in thread 24816 at 01-30-2017 05:52:38
+message from produce_messages in thread 24816 at 01-30-2017 05:52:38
+message from produce_messages in thread 24816 at 01-30-2017 05:52:38
+message from produce_messages in thread 24871 at 01-30-2017 05:53:26
+message from produce_messages in thread 24871 at 01-30-2017 05:53:26
+message from produce_messages in thread 24871 at 01-30-2017 05:53:26
+message from produce_messages in thread 24871 at 01-30-2017 05:53:26
+consumer_thread 24873 exit
+produce_messages exit from tid 24871 message_count is 4
+boost::asio thread 24870 exit
+/home/onega/github/onegaz/toybox/hellokafka/hellokafka pid 24869 exit. Built with g++ 4.8.5
