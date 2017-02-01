@@ -1,0 +1,665 @@
+Update /home/onega/bin/hbase-1.3.0/conf/hbase-site.xml
+
+add hbase.zookeeper.znode.parent to resolve the issue /hbase not exist in zookeeper, see http://hbase.apache.org/0.94/book/zookeeper.html
+http://hbase.apache.org/book.html#quickstart
+
+[onega@localhost ~]$ bin/hbase-1.3.0/bin/start-hbase.sh
+starting master, logging to /home/onega/bin/hbase-1.3.0/bin/../logs/hbase-onega-master-localhost.localdomain.out
+OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
+OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=128m; support was removed in 8.0
+[onega@localhost ~]$ jps
+4756 HMaster
+16949 Jps
+11001 ThriftServer
+5165 Main
+
+location of .META table is currently stored in the Zookeeper and its name become hbase:meta
+
+[onega@localhost main]$ tar tvf ~/Downloads/hbase-1.3.0-src.tar.gz | grep "hbase\.thrift"
+-rw-r--r-- mantonov/admin   854 2016-09-20 23:00 hbase-1.3.0/hbase-hadoop2-compat/src/main/resources/META-INF/services/org.apache.hadoop.hbase.thrift.MetricsThriftServerSourceFactory
+-rw-r--r-- mantonov/admin    16237 2016-09-20 23:00 hbase-1.3.0/hbase-thrift/src/main/resources/org/apache/hadoop/hbase/thrift2/hbase.thrift
+
+[onega@localhost hellohbase]$ thrift --gen cpp /home/onega/src/hbase-1.3.0/hbase-thrift/src/main/resources/org/apache/hadoop/hbase/thrift2/hbase.thrift
+
+[onega@localhost hellohbase]$ find gen-cpp/
+gen-cpp/
+gen-cpp/hbase_types.h
+gen-cpp/hbase_types.cpp
+gen-cpp/hbase_constants.h
+gen-cpp/hbase_constants.cpp
+gen-cpp/THBaseService.h
+gen-cpp/THBaseService.cpp
+gen-cpp/THBaseService_server.skeleton.cpp
+
+[onega@localhost hbase-1.3.0]$ bin/start-hbase.sh 
+starting master, logging to /home/onega/bin/hbase-1.3.0/bin/../logs/hbase-onega-master-localhost.localdomain.out
+OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
+OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=128m; support was removed in 8.0
+[onega@localhost hbase-1.3.0]$ bin/hbase shell
+2017-01-30 23:01:03,689 WARN  [main] util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/home/onega/bin/hbase-1.3.0/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+HBase Shell; enter 'help<RETURN>' for list of supported commands.
+Type "exit<RETURN>" to leave the HBase Shell
+Version 1.3.0, re359c76e8d9fd0d67396456f92bcbad9ecd7a710, Tue Jan  3 05:31:38 MSK 2017
+
+hbase(main):001:0> create 'mytable1', 'mycolumnfamily'
+
+Here is some help for this command:
+Creates a table. Pass a table name, and a set of column family
+specifications (at least one), and, optionally, table configuration.
+Column specification can be a simple string (name), or a dictionary
+(dictionaries are described below in main help output), necessarily 
+including NAME attribute. 
+Examples:
+
+Create a table with namespace=ns1 and table qualifier=t1
+  hbase> create 'ns1:t1', {NAME => 'f1', VERSIONS => 5}
+
+Create a table with namespace=default and table qualifier=t1
+  hbase> create 't1', {NAME => 'f1'}, {NAME => 'f2'}, {NAME => 'f3'}
+  hbase> # The above in shorthand would be the following:
+  hbase> create 't1', 'f1', 'f2', 'f3'
+  hbase> create 't1', {NAME => 'f1', VERSIONS => 1, TTL => 2592000, BLOCKCACHE => true}
+  hbase> create 't1', {NAME => 'f1', CONFIGURATION => {'hbase.hstore.blockingStoreFiles' => '10'}}
+  
+Table configuration options can be put at the end.
+Examples:
+
+  hbase> create 'ns1:t1', 'f1', SPLITS => ['10', '20', '30', '40']
+  hbase> create 't1', 'f1', SPLITS => ['10', '20', '30', '40']
+  hbase> create 't1', 'f1', SPLITS_FILE => 'splits.txt', OWNER => 'johndoe'
+  hbase> create 't1', {NAME => 'f1', VERSIONS => 5}, METADATA => { 'mykey' => 'myvalue' }
+  hbase> # Optionally pre-split the table into NUMREGIONS, using
+  hbase> # SPLITALGO ("HexStringSplit", "UniformSplit" or classname)
+  hbase> create 't1', 'f1', {NUMREGIONS => 15, SPLITALGO => 'HexStringSplit'}
+  hbase> create 't1', 'f1', {NUMREGIONS => 15, SPLITALGO => 'HexStringSplit', REGION_REPLICATION => 2, CONFIGURATION => {'hbase.hregion.scan.loadColumnFamiliesOnDemand' => 'true'}}
+  hbase> create 't1', {NAME => 'f1', DFS_REPLICATION => 1}
+
+You can also keep around a reference to the created table:
+
+  hbase> t1 = create 't1', 'f1'
+
+Which gives you a reference to the table named 't1', on which you can then
+call methods.
+
+tar xf ~/Downloads/zookeeper-3.4.9.tar.gz -C ~/bin  # not needed, hbase can start its own zookeeper
+
+[onega@localhost ~]$ bin/hbase-1.3.0/bin/hbase shell
+2017-01-31 09:16:43,952 WARN  [main] util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/home/onega/bin/hbase-1.3.0/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+HBase Shell; enter 'help<RETURN>' for list of supported commands.
+Type "exit<RETURN>" to leave the HBase Shell
+Version 1.3.0, re359c76e8d9fd0d67396456f92bcbad9ecd7a710, Tue Jan  3 05:31:38 MSK 2017
+
+hbase(main):001:0> create 't1', 'f1', 'f2', 'f3'
+0 row(s) in 1.5430 seconds
+
+=> Hbase::Table - t1
+hbase(main):002:0> 
+
+hbase(main):002:0> put 't1', 'row1', 'f1:a', 'value1 in f1:a'
+0 row(s) in 0.2980 seconds
+
+hbase(main):003:0> put 't1', 'row1', 'f2:a', 'value1 in f2:a'
+0 row(s) in 0.1130 seconds
+
+hbase(main):004:0> put 't1', 'row2', 'f1:a', 'value2 in f1:a row2', 'f3:c', 'value3 in f3:3 row2'
+
+ERROR: no method 'add' for arguments (org.jruby.java.proxies.ArrayJavaProxy,org.jruby.java.proxies.ArrayJavaProxy,org.jruby.RubyString,org.jruby.java.proxies.ArrayJavaProxy) on Java::OrgApacheHadoopHbaseClient::Put
+  available overloads:
+    (byte[],java.nio.ByteBuffer,long,java.nio.ByteBuffer)
+    (byte[],byte[],long,byte[])
+
+Here is some help for this command:
+Put a cell 'value' at specified table/row/column and optionally
+timestamp coordinates.  To put a cell value into table 'ns1:t1' or 't1'
+at row 'r1' under column 'c1' marked with the time 'ts1', do:
+
+  hbase> put 'ns1:t1', 'r1', 'c1', 'value'
+  hbase> put 't1', 'r1', 'c1', 'value'
+  hbase> put 't1', 'r1', 'c1', 'value', ts1
+  hbase> put 't1', 'r1', 'c1', 'value', {ATTRIBUTES=>{'mykey'=>'myvalue'}}
+  hbase> put 't1', 'r1', 'c1', 'value', ts1, {ATTRIBUTES=>{'mykey'=>'myvalue'}}
+  hbase> put 't1', 'r1', 'c1', 'value', ts1, {VISIBILITY=>'PRIVATE|SECRET'}
+
+The same commands also can be run on a table reference. Suppose you had a reference
+t to table 't1', the corresponding command would be:
+
+  hbase> t.put 'r1', 'c1', 'value', ts1, {ATTRIBUTES=>{'mykey'=>'myvalue'}}
+
+
+hbase(main):005:0> scan 't1'
+ROW                                          COLUMN+CELL                                                                                                                    
+ row1                                        column=f1:a, timestamp=1485884395895, value=value1 in f1:a                                                                     
+ row1                                        column=f2:a, timestamp=1485884418466, value=value1 in f2:a                                                                     
+1 row(s) in 0.0710 seconds
+
+hbase(main):006:0> 
+
+[onega@localhost ~]$ bin/hbase-1.3.0/bin/hbase thrift start -p 9090 --infoport 9095
+2017-01-31 09:49:56,820 INFO  [main] util.VersionInfo: HBase 1.3.0
+2017-01-31 09:49:56,821 INFO  [main] util.VersionInfo: Source code repository git://mantonov-mbp1/Users/mantonov/hbase revision=e359c76e8d9fd0d67396456f92bcbad9ecd7a710
+2017-01-31 09:49:56,821 INFO  [main] util.VersionInfo: Compiled by mantonov on Tue Jan  3 05:31:38 MSK 2017
+2017-01-31 09:49:56,821 INFO  [main] util.VersionInfo: From source with checksum 281caa908ebc7f06fc44830a66dc5d43
+2017-01-31 09:49:57,714 INFO  [main] thrift.ThriftServerRunner: Using default thrift server type
+2017-01-31 09:49:57,714 INFO  [main] thrift.ThriftServerRunner: Using thrift server type threadpool
+2017-01-31 09:49:57,793 WARN  [main] util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/home/onega/bin/hbase-1.3.0/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+2017-01-31 09:49:58,792 INFO  [main] impl.MetricsConfig: loaded properties from hadoop-metrics2-hbase.properties
+2017-01-31 09:49:59,039 INFO  [main] impl.MetricsSystemImpl: Scheduled snapshot period at 10 second(s).
+2017-01-31 09:49:59,039 INFO  [main] impl.MetricsSystemImpl: HBase metrics system started
+2017-01-31 09:49:59,360 INFO  [main] mortbay.log: Logging to org.slf4j.impl.Log4jLoggerAdapter(org.mortbay.log) via org.mortbay.log.Slf4jLog
+2017-01-31 09:49:59,366 INFO  [main] http.HttpRequestLog: Http request log for http.requests.thrift is not defined
+2017-01-31 09:49:59,393 INFO  [main] http.HttpServer: Added global filter 'safety' (class=org.apache.hadoop.hbase.http.HttpServer$QuotingInputFilter)
+2017-01-31 09:49:59,394 INFO  [main] http.HttpServer: Added global filter 'clickjackingprevention' (class=org.apache.hadoop.hbase.http.ClickjackingPreventionFilter)
+2017-01-31 09:49:59,398 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context thrift
+2017-01-31 09:49:59,398 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context logs
+2017-01-31 09:49:59,398 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context static
+2017-01-31 09:49:59,426 INFO  [main] http.HttpServer: Jetty bound to port 9095
+2017-01-31 09:49:59,426 INFO  [main] mortbay.log: jetty-6.1.26
+2017-01-31 09:50:00,512 INFO  [main] mortbay.log: Started SelectChannelConnector@0.0.0.0:9095
+2017-01-31 09:50:00,619 INFO  [main] thrift.ThriftServerRunner: starting TBoundedThreadPoolServer on /0.0.0.0:9090 with readTimeout 60000ms; min worker threads=16, max worker threads=1000, max queued requests=1000
+
+[onega@localhost ~]$ /home/onega/github/onegaz/toybox/hellohbase/hellohbase 
+ERROR(exception): No more data to read.
+
+Solution:
+[onega@localhost ~]$ bin/hbase-1.3.0/bin/hbase thrift2 -threadpool start 
+2017-01-31 11:00:27,271 WARN  [main] util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/home/onega/bin/hbase-1.3.0/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+2017-01-31 11:00:28,021 INFO  [main] impl.MetricsConfig: loaded properties from hadoop-metrics2-hbase.properties
+2017-01-31 11:00:28,216 INFO  [main] impl.MetricsSystemImpl: Scheduled snapshot period at 10 second(s).
+2017-01-31 11:00:28,216 INFO  [main] impl.MetricsSystemImpl: HBase metrics system started
+2017-01-31 11:00:28,525 INFO  [main] mortbay.log: Logging to org.slf4j.impl.Log4jLoggerAdapter(org.mortbay.log) via org.mortbay.log.Slf4jLog
+2017-01-31 11:00:28,531 INFO  [main] http.HttpRequestLog: Http request log for http.requests.thrift is not defined
+2017-01-31 11:00:28,547 INFO  [main] http.HttpServer: Added global filter 'safety' (class=org.apache.hadoop.hbase.http.HttpServer$QuotingInputFilter)
+2017-01-31 11:00:28,547 INFO  [main] http.HttpServer: Added global filter 'clickjackingprevention' (class=org.apache.hadoop.hbase.http.ClickjackingPreventionFilter)
+2017-01-31 11:00:28,551 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context thrift
+2017-01-31 11:00:28,551 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context logs
+2017-01-31 11:00:28,551 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context static
+2017-01-31 11:00:28,591 INFO  [main] http.HttpServer: Jetty bound to port 9095
+2017-01-31 11:00:28,592 INFO  [main] mortbay.log: jetty-6.1.26
+2017-01-31 11:00:29,090 INFO  [main] mortbay.log: Started SelectChannelConnector@0.0.0.0:9095
+2017-01-31 11:00:29,092 INFO  [main] thrift2.ThriftServer: starting HBase ThreadPool Thrift server on 0.0.0.0/0.0.0.0:9090
+2017-01-31 11:00:55,777 INFO  [pool-2-thread-1] zookeeper.RecoverableZooKeeper: Process identifier=hconnection-0x19dddf11 connecting to ZooKeeper ensemble=localhost:2222
+2017-01-31 11:00:55,786 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:zookeeper.version=3.4.6-1569965, built on 02/20/2014 09:09 GMT
+2017-01-31 11:00:55,786 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:host.name=localhost
+2017-01-31 11:00:55,786 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:java.version=1.8.0_60
+2017-01-31 11:00:55,786 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:java.vendor=Oracle Corporation
+2017-01-31 11:00:55,786 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:java.home=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre
+2017-01-31 11:00:55,787 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:java.class.path=/home/onega/bin/hbase-1.3.0/bin/../conf:/usr/lib/jvm/java/lib/tools.jar:/home/onega/bin/hbase-1.3.0/bin/..:/home/onega/bin/hbase-1.3.0/bin/../lib/activation-1.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/aopalliance-1.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/apacheds-i18n-2.0.0-M15.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/apacheds-kerberos-codec-2.0.0-M15.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/api-asn1-api-1.0.0-M20.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/api-util-1.0.0-M20.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/asm-3.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/avro-1.7.4.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-beanutils-1.7.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-beanutils-core-1.8.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-cli-1.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-codec-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-collections-3.2.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-compress-1.4.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-configuration-1.6.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-daemon-1.0.13.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-digester-1.8.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-el-1.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-httpclient-3.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-io-2.4.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-lang-2.6.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-logging-1.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-math-2.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-math3-3.1.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-net-3.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/disruptor-3.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/findbugs-annotations-1.3.9-1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/guava-12.0.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/guice-3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/guice-servlet-3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-annotations-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-auth-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-client-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-common-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-hdfs-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-mapreduce-client-app-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-mapreduce-client-common-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-mapreduce-client-core-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-mapreduce-client-jobclient-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-mapreduce-client-shuffle-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-yarn-api-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-yarn-client-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-yarn-common-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-yarn-server-common-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-annotations-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-annotations-1.3.0-tests.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-client-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-common-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-common-1.3.0-tests.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-examples-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-external-blockcache-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-hadoop2-compat-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-hadoop-compat-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-it-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-it-1.3.0-tests.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-prefix-tree-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-procedure-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-protocol-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-resource-bundle-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-rest-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-server-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-server-1.3.0-tests.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-shell-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-thrift-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/htrace-core-3.1.0-incubating.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/httpclient-4.2.5.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/httpcore-4.4.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jackson-core-asl-1.9.13.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jackson-jaxrs-1.9.13.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jackson-mapper-asl-1.9.13.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jackson-xc-1.9.13.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jamon-runtime-2.4.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jasper-compiler-5.5.23.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jasper-runtime-5.5.23.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/javax.inject-1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/java-xmlbuilder-0.4.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jaxb-api-2.2.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jaxb-impl-2.2.3-1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jcodings-1.0.8.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jersey-client-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jersey-core-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jersey-guice-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jersey-json-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jersey-server-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jets3t-0.9.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jettison-1.3.3.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jetty-6.1.26.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jetty-sslengine-6.1.26.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jetty-util-6.1.26.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/joni-2.1.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jruby-complete-1.6.8.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jsch-0.1.42.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jsp-2.1-6.1.14.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jsp-api-2.1-6.1.14.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/junit-4.12.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/leveldbjni-all-1.8.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/libthrift-0.9.3.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/log4j-1.2.17.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/metrics-core-2.2.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/netty-all-4.0.23.Final.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/paranamer-2.3.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/protobuf-java-2.5.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/servlet-api-2.5-6.1.14.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/servlet-api-2.5.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/slf4j-api-1.7.7.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/slf4j-log4j12-1.7.5.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/snappy-java-1.0.4.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/spymemcached-2.11.6.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/xmlenc-0.52.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/xz-1.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/zookeeper-3.4.6.jar:/home/onega/bin/hadoop-2.7.3/etc/hadoop:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jaxb-impl-2.2.3-1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jaxb-api-2.2.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/stax-api-1.0-2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/activation-1.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jackson-core-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jackson-mapper-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jackson-jaxrs-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jackson-xc-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jersey-server-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/asm-3.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/log4j-1.2.17.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jets3t-0.9.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/httpclient-4.2.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/httpcore-4.2.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/java-xmlbuilder-0.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-lang-2.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-configuration-1.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-digester-1.8.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-beanutils-1.7.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-beanutils-core-1.8.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/slf4j-api-1.7.10.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/avro-1.7.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/paranamer-2.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/snappy-java-1.0.4.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-compress-1.4.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/xz-1.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/protobuf-java-2.5.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/gson-2.2.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/hadoop-auth-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/apacheds-kerberos-codec-2.0.0-M15.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/apacheds-i18n-2.0.0-M15.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/api-asn1-api-1.0.0-M20.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/api-util-1.0.0-M20.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/zookeeper-3.4.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/netty-3.6.2.Final.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/curator-framework-2.7.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/curator-client-2.7.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jsch-0.1.42.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/curator-recipes-2.7.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/htrace-core-3.1.0-incubating.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/junit-4.11.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/hamcrest-core-1.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/mockito-all-1.8.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/hadoop-annotations-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/guava-11.0.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jsr305-3.0.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-cli-1.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-math3-3.1.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/xmlenc-0.52.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-httpclient-3.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-logging-1.1.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-codec-1.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-io-2.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-net-3.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-collections-3.2.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/servlet-api-2.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jetty-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jetty-util-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jsp-api-2.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jersey-core-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jersey-json-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jettison-1.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/hadoop-common-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/hadoop-common-2.7.3-tests.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/hadoop-nfs-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-codec-1.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/log4j-1.2.17.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-logging-1.1.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/netty-3.6.2.Final.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/guava-11.0.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jsr305-3.0.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-cli-1.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/xmlenc-0.52.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-io-2.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/servlet-api-2.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jetty-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jetty-util-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jersey-core-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jackson-core-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jackson-mapper-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jersey-server-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/asm-3.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-lang-2.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/protobuf-java-2.5.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/htrace-core-3.1.0-incubating.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-daemon-1.0.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/netty-all-4.0.23.Final.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/xercesImpl-2.9.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/xml-apis-1.3.04.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/leveldbjni-all-1.8.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/hadoop-hdfs-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/hadoop-hdfs-2.7.3-tests.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/hadoop-hdfs-nfs-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/zookeeper-3.4.6-tests.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-lang-2.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/guava-11.0.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jsr305-3.0.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-logging-1.1.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/protobuf-java-2.5.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-cli-1.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/log4j-1.2.17.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jaxb-api-2.2.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/stax-api-1.0-2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/activation-1.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-compress-1.4.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/xz-1.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/servlet-api-2.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-codec-1.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jetty-util-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jersey-core-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jersey-client-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jackson-core-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jackson-mapper-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jackson-jaxrs-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jackson-xc-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/guice-servlet-3.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/guice-3.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/javax.inject-1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/aopalliance-1.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-io-2.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jersey-server-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/asm-3.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jersey-json-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jettison-1.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jaxb-impl-2.2.3-1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jersey-guice-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/zookeeper-3.4.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/netty-3.6.2.Final.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/leveldbjni-all-1.8.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-collections-3.2.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jetty-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-api-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-common-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-common-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-nodemanager-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-web-proxy-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-applicationhistoryservice-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-resourcemanager-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-tests-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-client-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-sharedcachemanager-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-applications-distributedshell-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-applications-unmanaged-am-launcher-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-registry-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/protobuf-java-2.5.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/avro-1.7.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/jackson-core-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/jackson-mapper-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/paranamer-2.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/snappy-java-1.0.4.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/commons-compress-1.4.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/xz-1.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/hadoop-annotations-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/commons-io-2.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/jersey-core-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/jersey-server-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/asm-3.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/log4j-1.2.17.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/netty-3.6.2.Final.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/leveldbjni-all-1.8.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/guice-3.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/javax.inject-1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/aopalliance-1.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/jersey-guice-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/guice-servlet-3.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/junit-4.11.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/hamcrest-core-1.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-shuffle-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-app-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-plugins-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.7.3-tests.jar:/home/onega/bin/hadoop-2.7.3/contrib/capacity-scheduler/*.jar
+2017-01-31 11:00:55,789 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:java.library.path=/home/onega/bin/hadoop-2.7.3/lib
+2017-01-31 11:00:55,789 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:java.io.tmpdir=/tmp
+2017-01-31 11:00:55,789 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:java.compiler=<NA>
+2017-01-31 11:00:55,789 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:os.name=Linux
+2017-01-31 11:00:55,789 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:os.arch=amd64
+2017-01-31 11:00:55,789 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:os.version=3.10.0-123.el7.x86_64
+2017-01-31 11:00:55,789 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:user.name=onega
+2017-01-31 11:00:55,789 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:user.home=/home/onega
+2017-01-31 11:00:55,789 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Client environment:user.dir=/home/onega
+2017-01-31 11:00:55,790 INFO  [pool-2-thread-1] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2222 sessionTimeout=90000 watcher=org.apache.hadoop.hbase.zookeeper.PendingWatcher@31ae3dbd
+2017-01-31 11:00:55,813 INFO  [pool-2-thread-1-SendThread(localhost:2222)] zookeeper.ClientCnxn: Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2222. Will not attempt to authenticate using SASL (unknown error)
+2017-01-31 11:00:55,815 INFO  [pool-2-thread-1-SendThread(localhost:2222)] zookeeper.ClientCnxn: Socket connection established to localhost/0:0:0:0:0:0:0:1:2222, initiating session
+2017-01-31 11:00:55,829 INFO  [pool-2-thread-1-SendThread(localhost:2222)] zookeeper.ClientCnxn: Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2222, sessionid = 0x159f586e7d70007, negotiated timeout = 40000
+
+[onega@localhost ~]$ /home/onega/github/onegaz/toybox/hellohbase/hellohbase --help
+Allowed options:
+  -h [ --help ]             produce help message
+  --port arg (=9090)        thrift2 Port number to connect
+  --server arg (=localhost) HBase thrift2 server address
+  --table arg (=t2)         Specify table name to access
+  --row arg (=row2)         Specify row
+  --scan                    Perform scan on table if this option is specified
+  --put                     Insert rows to table if this option is specified
+
+[onega@localhost ~]$ /home/onega/github/onegaz/toybox/hellohbase/hellohbase --scan
+read_hbase start, connect to hbase thrift2 interface localhost:9090
+TColumnValue(family=cf, qualifier=a, value=row2-cf-a, timestamp=1485885530812, tags=<null>)
+scan_table start
+pid-14758-0	TColumnValue(family=cf, qualifier=a, value=value from writedb 1000, timestamp=1485892193264, tags=<null>)
+pid-14758-1	TColumnValue(family=cf, qualifier=a, value=value from writedb 1001, timestamp=1485892193264, tags=<null>)
+pid-14758-2	TColumnValue(family=cf, qualifier=a, value=value from writedb 1002, timestamp=1485892193264, tags=<null>)
+row1	TColumnValue(family=cf, qualifier=a, value=row1-cf:a'
+, timestamp=1485885513179, tags=<null>)
+row2	TColumnValue(family=cf, qualifier=a, value=row2-cf-a, timestamp=1485885530812, tags=<null>)
+scan_table end
+read_hbase end
+/home/onega/github/onegaz/toybox/hellohbase/hellohbase pid 16782 exit. Built with g++ 4.8.5
+
+
+[onega@localhost ~]$ bin/hbase-1.3.0/bin/hbase zkcli
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/home/onega/bin/hbase-1.3.0/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+Connecting to localhost:2222
+2017-01-31 15:04:21,155 INFO  [main] zookeeper.ZooKeeper: Client environment:zookeeper.version=3.4.6-1569965, built on 02/20/2014 09:09 GMT
+2017-01-31 15:04:21,157 INFO  [main] zookeeper.ZooKeeper: Client environment:host.name=localhost
+2017-01-31 15:04:21,157 INFO  [main] zookeeper.ZooKeeper: Client environment:java.version=1.8.0_60
+2017-01-31 15:04:21,157 INFO  [main] zookeeper.ZooKeeper: Client environment:java.vendor=Oracle Corporation
+2017-01-31 15:04:21,157 INFO  [main] zookeeper.ZooKeeper: Client environment:java.home=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre
+2017-01-31 15:04:21,157 INFO  [main] zookeeper.ZooKeeper: Client environment:java.class.path=/home/onega/bin/hbase-1.3.0/bin/../conf:/usr/lib/jvm/java/lib/tools.jar:/home/onega/bin/hbase-1.3.0/bin/..:/home/onega/bin/hbase-1.3.0/bin/../lib/activation-1.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/aopalliance-1.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/apacheds-i18n-2.0.0-M15.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/apacheds-kerberos-codec-2.0.0-M15.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/api-asn1-api-1.0.0-M20.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/api-util-1.0.0-M20.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/asm-3.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/avro-1.7.4.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-beanutils-1.7.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-beanutils-core-1.8.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-cli-1.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-codec-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-collections-3.2.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-compress-1.4.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-configuration-1.6.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-daemon-1.0.13.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-digester-1.8.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-el-1.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-httpclient-3.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-io-2.4.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-lang-2.6.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-logging-1.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-math-2.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-math3-3.1.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/commons-net-3.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/disruptor-3.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/findbugs-annotations-1.3.9-1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/guava-12.0.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/guice-3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/guice-servlet-3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-annotations-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-auth-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-client-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-common-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-hdfs-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-mapreduce-client-app-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-mapreduce-client-common-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-mapreduce-client-core-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-mapreduce-client-jobclient-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-mapreduce-client-shuffle-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-yarn-api-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-yarn-client-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-yarn-common-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hadoop-yarn-server-common-2.5.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-annotations-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-annotations-1.3.0-tests.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-client-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-common-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-common-1.3.0-tests.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-examples-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-external-blockcache-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-hadoop2-compat-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-hadoop-compat-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-it-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-it-1.3.0-tests.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-prefix-tree-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-procedure-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-protocol-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-resource-bundle-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-rest-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-server-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-server-1.3.0-tests.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-shell-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/hbase-thrift-1.3.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/htrace-core-3.1.0-incubating.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/httpclient-4.2.5.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/httpcore-4.4.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jackson-core-asl-1.9.13.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jackson-jaxrs-1.9.13.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jackson-mapper-asl-1.9.13.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jackson-xc-1.9.13.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jamon-runtime-2.4.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jasper-compiler-5.5.23.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jasper-runtime-5.5.23.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/javax.inject-1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/java-xmlbuilder-0.4.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jaxb-api-2.2.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jaxb-impl-2.2.3-1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jcodings-1.0.8.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jersey-client-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jersey-core-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jersey-guice-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jersey-json-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jersey-server-1.9.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jets3t-0.9.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jettison-1.3.3.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jetty-6.1.26.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jetty-sslengine-6.1.26.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jetty-util-6.1.26.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/joni-2.1.2.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jruby-complete-1.6.8.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jsch-0.1.42.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jsp-2.1-6.1.14.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/jsp-api-2.1-6.1.14.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/junit-4.12.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/leveldbjni-all-1.8.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/libthrift-0.9.3.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/log4j-1.2.17.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/metrics-core-2.2.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/netty-all-4.0.23.Final.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/paranamer-2.3.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/protobuf-java-2.5.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/servlet-api-2.5-6.1.14.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/servlet-api-2.5.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/slf4j-api-1.7.7.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/slf4j-log4j12-1.7.5.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/snappy-java-1.0.4.1.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/spymemcached-2.11.6.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/xmlenc-0.52.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/xz-1.0.jar:/home/onega/bin/hbase-1.3.0/bin/../lib/zookeeper-3.4.6.jar:/home/onega/bin/hadoop-2.7.3/etc/hadoop:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jaxb-impl-2.2.3-1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jaxb-api-2.2.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/stax-api-1.0-2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/activation-1.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jackson-core-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jackson-mapper-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jackson-jaxrs-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jackson-xc-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jersey-server-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/asm-3.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/log4j-1.2.17.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jets3t-0.9.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/httpclient-4.2.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/httpcore-4.2.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/java-xmlbuilder-0.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-lang-2.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-configuration-1.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-digester-1.8.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-beanutils-1.7.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-beanutils-core-1.8.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/slf4j-api-1.7.10.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/avro-1.7.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/paranamer-2.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/snappy-java-1.0.4.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-compress-1.4.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/xz-1.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/protobuf-java-2.5.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/gson-2.2.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/hadoop-auth-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/apacheds-kerberos-codec-2.0.0-M15.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/apacheds-i18n-2.0.0-M15.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/api-asn1-api-1.0.0-M20.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/api-util-1.0.0-M20.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/zookeeper-3.4.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/netty-3.6.2.Final.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/curator-framework-2.7.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/curator-client-2.7.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jsch-0.1.42.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/curator-recipes-2.7.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/htrace-core-3.1.0-incubating.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/junit-4.11.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/hamcrest-core-1.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/mockito-all-1.8.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/hadoop-annotations-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/guava-11.0.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jsr305-3.0.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-cli-1.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-math3-3.1.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/xmlenc-0.52.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-httpclient-3.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-logging-1.1.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-codec-1.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-io-2.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-net-3.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/commons-collections-3.2.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/servlet-api-2.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jetty-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jetty-util-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jsp-api-2.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jersey-core-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jersey-json-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/lib/jettison-1.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/hadoop-common-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/hadoop-common-2.7.3-tests.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/common/hadoop-nfs-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-codec-1.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/log4j-1.2.17.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-logging-1.1.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/netty-3.6.2.Final.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/guava-11.0.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jsr305-3.0.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-cli-1.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/xmlenc-0.52.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-io-2.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/servlet-api-2.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jetty-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jetty-util-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jersey-core-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jackson-core-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jackson-mapper-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/jersey-server-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/asm-3.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-lang-2.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/protobuf-java-2.5.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/htrace-core-3.1.0-incubating.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/commons-daemon-1.0.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/netty-all-4.0.23.Final.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/xercesImpl-2.9.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/xml-apis-1.3.04.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/lib/leveldbjni-all-1.8.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/hadoop-hdfs-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/hadoop-hdfs-2.7.3-tests.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/hdfs/hadoop-hdfs-nfs-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/zookeeper-3.4.6-tests.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-lang-2.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/guava-11.0.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jsr305-3.0.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-logging-1.1.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/protobuf-java-2.5.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-cli-1.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/log4j-1.2.17.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jaxb-api-2.2.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/stax-api-1.0-2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/activation-1.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-compress-1.4.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/xz-1.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/servlet-api-2.5.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-codec-1.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jetty-util-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jersey-core-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jersey-client-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jackson-core-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jackson-mapper-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jackson-jaxrs-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jackson-xc-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/guice-servlet-3.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/guice-3.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/javax.inject-1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/aopalliance-1.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-io-2.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jersey-server-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/asm-3.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jersey-json-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jettison-1.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jaxb-impl-2.2.3-1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jersey-guice-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/zookeeper-3.4.6.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/netty-3.6.2.Final.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/leveldbjni-all-1.8.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/commons-collections-3.2.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/lib/jetty-6.1.26.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-api-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-common-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-common-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-nodemanager-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-web-proxy-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-applicationhistoryservice-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-resourcemanager-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-tests-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-client-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-server-sharedcachemanager-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-applications-distributedshell-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-applications-unmanaged-am-launcher-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/yarn/hadoop-yarn-registry-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/protobuf-java-2.5.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/avro-1.7.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/jackson-core-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/jackson-mapper-asl-1.9.13.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/paranamer-2.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/snappy-java-1.0.4.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/commons-compress-1.4.1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/xz-1.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/hadoop-annotations-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/commons-io-2.4.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/jersey-core-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/jersey-server-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/asm-3.2.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/log4j-1.2.17.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/netty-3.6.2.Final.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/leveldbjni-all-1.8.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/guice-3.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/javax.inject-1.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/aopalliance-1.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/jersey-guice-1.9.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/guice-servlet-3.0.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/junit-4.11.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/lib/hamcrest-core-1.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-shuffle-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-app-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-plugins-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar:/home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.7.3-tests.jar:/home/onega/bin/hadoop-2.7.3/contrib/capacity-scheduler/*.jar
+2017-01-31 15:04:21,166 INFO  [main] zookeeper.ZooKeeper: Client environment:java.library.path=/home/onega/bin/hadoop-2.7.3/lib
+2017-01-31 15:04:21,166 INFO  [main] zookeeper.ZooKeeper: Client environment:java.io.tmpdir=/tmp
+2017-01-31 15:04:21,166 INFO  [main] zookeeper.ZooKeeper: Client environment:java.compiler=<NA>
+2017-01-31 15:04:21,166 INFO  [main] zookeeper.ZooKeeper: Client environment:os.name=Linux
+2017-01-31 15:04:21,166 INFO  [main] zookeeper.ZooKeeper: Client environment:os.arch=amd64
+2017-01-31 15:04:21,166 INFO  [main] zookeeper.ZooKeeper: Client environment:os.version=3.10.0-123.el7.x86_64
+2017-01-31 15:04:21,166 INFO  [main] zookeeper.ZooKeeper: Client environment:user.name=onega
+2017-01-31 15:04:21,166 INFO  [main] zookeeper.ZooKeeper: Client environment:user.home=/home/onega
+2017-01-31 15:04:21,166 INFO  [main] zookeeper.ZooKeeper: Client environment:user.dir=/home/onega
+2017-01-31 15:04:21,167 INFO  [main] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2222 sessionTimeout=30000 watcher=org.apache.zookeeper.ZooKeeperMain$MyWatcher@1442d7b5
+2017-01-31 15:04:21,202 INFO  [main-SendThread(localhost:2222)] zookeeper.ClientCnxn: Opening socket connection to server localhost/127.0.0.1:2222. Will not attempt to authenticate using SASL (unknown error)
+Welcome to ZooKeeper!
+2017-01-31 15:04:21,250 INFO  [main-SendThread(localhost:2222)] zookeeper.ClientCnxn: Socket connection established to localhost/127.0.0.1:2222, initiating session
+JLine support is enabled
+2017-01-31 15:04:21,290 INFO  [main-SendThread(localhost:2222)] zookeeper.ClientCnxn: Session establishment complete on server localhost/127.0.0.1:2222, sessionid = 0x159f586e7d7000d, negotiated timeout = 30000
+
+WATCHER::
+
+WatchedEvent state:SyncConnected type:None path:null
+[zk: localhost:2222(CONNECTED) 0] ls
+[zk: localhost:2222(CONNECTED) 1] ls /
+[zookeeper, hbase]
+[zk: localhost:2222(CONNECTED) 2] ls /hbase
+[replication, meta-region-server, rs, splitWAL, backup-masters, table-lock, flush-table-proc, region-in-transition, online-snapshot, master, switch, running, recovering-regions, draining, namespace, hbaseid, table]
+[zk: localhost:2222(CONNECTED) 3] ls /hbase/table
+[hbase:meta, hbase:namespace, t1, t2]
+[zk: localhost:2222(CONNECTED) 4] 
+[zk: localhost:2222(CONNECTED) 5] get /hbase/table/t1
+�master:57234��͆��PBUF
+cZxid = 0x50
+ctime = Tue Jan 31 09:17:18 PST 2017
+mZxid = 0x56
+mtime = Tue Jan 31 09:17:18 PST 2017
+pZxid = 0x50
+cversion = 0
+dataVersion = 2
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 31
+numChildren = 0
+[zk: localhost:2222(CONNECTED) 6] get /hbase/table/t2
+�master:57234��I�cz~xPBUF
+cZxid = 0x5b
+ctime = Tue Jan 31 09:57:42 PST 2017
+mZxid = 0x61
+mtime = Tue Jan 31 09:57:42 PST 2017
+pZxid = 0x5b
+cversion = 0
+dataVersion = 2
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 31
+numChildren = 0
+
+[onega@localhost ~]$ jps
+4756 HMaster
+22456 Jps
+11001 ThriftServer
+22076 ZooKeeperMainServer
+5165 Main
+
+
+[onega@localhost ~]$ cd /home/onega/bin/zookeeper-3.4.9/src
+[onega@localhost src]$ ls
+c  contrib  docs  java  lastRevision.bat  lastRevision.sh  LICENSE.txt  NOTICE.txt  packages  recipes  zookeeper.jute
+[onega@localhost src]$ cd c
+[onega@localhost c]$ ls
+acinclude.m4  autom4te.cache  Cli.vcproj    config.h.in  configure.ac  include     LICENSE      Makefile.in  README  zookeeper.sln
+aclocal.m4    c-doc.Doxyfile  compile       config.sub   depcomp       INSTALL     ltmain.sh    missing      src     zookeeper.vcproj
+aminclude.am  ChangeLog       config.guess  configure    generated     install-sh  Makefile.am  NOTICE.txt   tests
+[onega@localhost c]$ ./configure 
+checking for doxygen... /usr/bin/doxygen
+checking for perl... /usr/bin/perl
+checking for dot... /usr/bin/dot
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for a thread-safe mkdir -p... /usr/bin/mkdir -p
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking for cppunit-config... no
+checking for Cppunit - version >= 1.10.2... no
+checking for generated/zookeeper.jute.c... yes
+checking for generated/zookeeper.jute.h... yes
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking whether gcc understands -c and -o together... yes
+checking for style of include used by make... GNU
+checking dependency style of gcc... gcc3
+checking for g++... g++
+checking whether we are using the GNU C++ compiler... yes
+checking whether g++ accepts -g... yes
+checking dependency style of g++... gcc3
+checking whether ln -s works... yes
+checking build system type... x86_64-unknown-linux-gnu
+checking host system type... x86_64-unknown-linux-gnu
+checking how to print strings... printf
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by gcc... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /usr/bin/nm -B
+checking the name lister (/usr/bin/nm -B) interface... BSD nm
+checking the maximum length of command line arguments... 1572864
+checking whether the shell understands some XSI constructs... yes
+checking whether the shell understands "+="... yes
+checking how to convert x86_64-unknown-linux-gnu file names to x86_64-unknown-linux-gnu format... func_convert_file_noop
+checking how to convert x86_64-unknown-linux-gnu file names to toolchain format... func_convert_file_noop
+checking for /usr/bin/ld option to reload object files... -r
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for ar... ar
+checking for archiver @FILE support... @
+checking for strip... strip
+checking for ranlib... ranlib
+checking command to parse /usr/bin/nm -B output from gcc object... ok
+checking for sysroot... no
+checking for mt... no
+checking if : is a manifest tool... no
+checking how to run the C preprocessor... gcc -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if gcc supports -fno-rtti -fno-exceptions... no
+checking for gcc option to produce PIC... -fPIC -DPIC
+checking if gcc PIC flag -fPIC -DPIC works... yes
+checking if gcc static flag -static works... no
+checking if gcc supports -c -o file.o... yes
+checking if gcc supports -c -o file.o... (cached) yes
+checking whether the gcc linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking whether -lc should be explicitly linked in... no
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking how to run the C++ preprocessor... g++ -E
+checking for ld used by g++... /usr/bin/ld -m elf_x86_64
+checking if the linker (/usr/bin/ld -m elf_x86_64) is GNU ld... yes
+checking whether the g++ linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking for g++ option to produce PIC... -fPIC -DPIC
+checking if g++ PIC flag -fPIC -DPIC works... yes
+checking if g++ static flag -static works... no
+checking if g++ supports -c -o file.o... yes
+checking if g++ supports -c -o file.o... (cached) yes
+checking whether the g++ linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking dynamic linker characteristics... (cached) GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking for pthread_mutex_lock in -lpthread... yes
+configure: building with SyncAPI support
+checking for ANSI C header files... (cached) yes
+checking arpa/inet.h usability... yes
+checking arpa/inet.h presence... yes
+checking for arpa/inet.h... yes
+checking fcntl.h usability... yes
+checking fcntl.h presence... yes
+checking for fcntl.h... yes
+checking netdb.h usability... yes
+checking netdb.h presence... yes
+checking for netdb.h... yes
+checking netinet/in.h usability... yes
+checking netinet/in.h presence... yes
+checking for netinet/in.h... yes
+checking for stdlib.h... (cached) yes
+checking for string.h... (cached) yes
+checking sys/socket.h usability... yes
+checking sys/socket.h presence... yes
+checking for sys/socket.h... yes
+checking sys/time.h usability... yes
+checking sys/time.h presence... yes
+checking for sys/time.h... yes
+checking for unistd.h... (cached) yes
+checking sys/utsname.h usability... yes
+checking sys/utsname.h presence... yes
+checking for sys/utsname.h... yes
+checking for an ANSI C-conforming const... yes
+checking for inline... inline
+checking whether time.h and sys/time.h may both be included... yes
+checking for nfds_t... yes
+checking whether to enable ipv6... yes
+checking for getcwd... yes
+checking for gethostbyname... yes
+checking for gethostname... yes
+checking for getlogin... yes
+checking for getpwuid_r... yes
+checking for gettimeofday... yes
+checking for getuid... yes
+checking for memmove... yes
+checking for memset... yes
+checking for poll... yes
+checking for socket... yes
+checking for strchr... yes
+checking for strdup... yes
+checking for strerror... yes
+checking for strtol... yes
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating config.h
+config.status: executing depfiles commands
+config.status: executing libtool commands
+[onega@localhost c]$ 
+
+[onega@localhost c]$ ls
+acinclude.m4  autom4te.cache  Cli.vcproj    config.h     config.status  configure.ac  include     libtool    Makefile     missing     src       zookeeper.sln
+aclocal.m4    c-doc.Doxyfile  compile       config.h.in  config.sub     depcomp       INSTALL     LICENSE    Makefile.am  NOTICE.txt  stamp-h1  zookeeper.vcproj
+aminclude.am  ChangeLog       config.guess  config.log   configure      generated     install-sh  ltmain.sh  Makefile.in  README      tests
+[onega@localhost c]$ make
+make  all-am
+make[1]: Entering directory `/home/onega/bin/zookeeper-3.4.9/src/c'
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -Wall -Werror  -g -O2 -D_GNU_SOURCE -MT zookeeper.lo -MD -MP -MF .deps/zookeeper.Tpo -c -o zookeeper.lo `test -f 'src/zookeeper.c' || echo './'`src/zookeeper.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT zookeeper.lo -MD -MP -MF .deps/zookeeper.Tpo -c src/zookeeper.c  -fPIC -DPIC -o .libs/zookeeper.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT zookeeper.lo -MD -MP -MF .deps/zookeeper.Tpo -c src/zookeeper.c -o zookeeper.o >/dev/null 2>&1
+mv -f .deps/zookeeper.Tpo .deps/zookeeper.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -Wall -Werror  -g -O2 -D_GNU_SOURCE -MT recordio.lo -MD -MP -MF .deps/recordio.Tpo -c -o recordio.lo `test -f 'src/recordio.c' || echo './'`src/recordio.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT recordio.lo -MD -MP -MF .deps/recordio.Tpo -c src/recordio.c  -fPIC -DPIC -o .libs/recordio.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT recordio.lo -MD -MP -MF .deps/recordio.Tpo -c src/recordio.c -o recordio.o >/dev/null 2>&1
+mv -f .deps/recordio.Tpo .deps/recordio.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -Wall -Werror  -g -O2 -D_GNU_SOURCE -MT zookeeper.jute.lo -MD -MP -MF .deps/zookeeper.jute.Tpo -c -o zookeeper.jute.lo `test -f 'generated/zookeeper.jute.c' || echo './'`generated/zookeeper.jute.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT zookeeper.jute.lo -MD -MP -MF .deps/zookeeper.jute.Tpo -c generated/zookeeper.jute.c  -fPIC -DPIC -o .libs/zookeeper.jute.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT zookeeper.jute.lo -MD -MP -MF .deps/zookeeper.jute.Tpo -c generated/zookeeper.jute.c -o zookeeper.jute.o >/dev/null 2>&1
+mv -f .deps/zookeeper.jute.Tpo .deps/zookeeper.jute.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -Wall -Werror  -g -O2 -D_GNU_SOURCE -MT zk_log.lo -MD -MP -MF .deps/zk_log.Tpo -c -o zk_log.lo `test -f 'src/zk_log.c' || echo './'`src/zk_log.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT zk_log.lo -MD -MP -MF .deps/zk_log.Tpo -c src/zk_log.c  -fPIC -DPIC -o .libs/zk_log.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT zk_log.lo -MD -MP -MF .deps/zk_log.Tpo -c src/zk_log.c -o zk_log.o >/dev/null 2>&1
+mv -f .deps/zk_log.Tpo .deps/zk_log.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -Wall -Werror  -g -O2 -D_GNU_SOURCE -MT zk_hashtable.lo -MD -MP -MF .deps/zk_hashtable.Tpo -c -o zk_hashtable.lo `test -f 'src/zk_hashtable.c' || echo './'`src/zk_hashtable.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT zk_hashtable.lo -MD -MP -MF .deps/zk_hashtable.Tpo -c src/zk_hashtable.c  -fPIC -DPIC -o .libs/zk_hashtable.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT zk_hashtable.lo -MD -MP -MF .deps/zk_hashtable.Tpo -c src/zk_hashtable.c -o zk_hashtable.o >/dev/null 2>&1
+mv -f .deps/zk_hashtable.Tpo .deps/zk_hashtable.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -Wall -Werror  -g -O2 -D_GNU_SOURCE -MT st_adaptor.lo -MD -MP -MF .deps/st_adaptor.Tpo -c -o st_adaptor.lo `test -f 'src/st_adaptor.c' || echo './'`src/st_adaptor.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT st_adaptor.lo -MD -MP -MF .deps/st_adaptor.Tpo -c src/st_adaptor.c  -fPIC -DPIC -o .libs/st_adaptor.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT st_adaptor.lo -MD -MP -MF .deps/st_adaptor.Tpo -c src/st_adaptor.c -o st_adaptor.o >/dev/null 2>&1
+mv -f .deps/st_adaptor.Tpo .deps/st_adaptor.Plo
+/bin/sh ./libtool  --tag=CC   --mode=link gcc -Wall -Werror  -g -O2 -D_GNU_SOURCE   -o libzkst.la  zookeeper.lo recordio.lo zookeeper.jute.lo zk_log.lo zk_hashtable.lo st_adaptor.lo -lm 
+libtool: link: ar cru .libs/libzkst.a .libs/zookeeper.o .libs/recordio.o .libs/zookeeper.jute.o .libs/zk_log.o .libs/zk_hashtable.o .libs/st_adaptor.o 
+libtool: link: ranlib .libs/libzkst.a
+libtool: link: ( cd ".libs" && rm -f "libzkst.la" && ln -s "../libzkst.la" "libzkst.la" )
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -Wall -Werror  -g -O2 -D_GNU_SOURCE -MT hashtable_itr.lo -MD -MP -MF .deps/hashtable_itr.Tpo -c -o hashtable_itr.lo `test -f 'src/hashtable/hashtable_itr.c' || echo './'`src/hashtable/hashtable_itr.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT hashtable_itr.lo -MD -MP -MF .deps/hashtable_itr.Tpo -c src/hashtable/hashtable_itr.c  -fPIC -DPIC -o .libs/hashtable_itr.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT hashtable_itr.lo -MD -MP -MF .deps/hashtable_itr.Tpo -c src/hashtable/hashtable_itr.c -o hashtable_itr.o >/dev/null 2>&1
+mv -f .deps/hashtable_itr.Tpo .deps/hashtable_itr.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -Wall -Werror  -g -O2 -D_GNU_SOURCE -MT hashtable.lo -MD -MP -MF .deps/hashtable.Tpo -c -o hashtable.lo `test -f 'src/hashtable/hashtable.c' || echo './'`src/hashtable/hashtable.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT hashtable.lo -MD -MP -MF .deps/hashtable.Tpo -c src/hashtable/hashtable.c  -fPIC -DPIC -o .libs/hashtable.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -Wall -Werror -g -O2 -D_GNU_SOURCE -MT hashtable.lo -MD -MP -MF .deps/hashtable.Tpo -c src/hashtable/hashtable.c -o hashtable.o >/dev/null 2>&1
+mv -f .deps/hashtable.Tpo .deps/hashtable.Plo
+/bin/sh ./libtool  --tag=CC   --mode=link gcc -Wall -Werror  -g -O2 -D_GNU_SOURCE   -o libhashtable.la  hashtable_itr.lo hashtable.lo  
+libtool: link: ar cru .libs/libhashtable.a .libs/hashtable_itr.o .libs/hashtable.o 
+libtool: link: ranlib .libs/libhashtable.a
+libtool: link: ( cd ".libs" && rm -f "libhashtable.la" && ln -s "../libhashtable.la" "libhashtable.la" )
+/bin/sh ./libtool  --tag=CC   --mode=link gcc -Wall -Werror  -g -O2 -D_GNU_SOURCE -no-undefined -version-info 2  -export-symbols-regex '(zoo_|zookeeper_|zhandle|Z|format_log_message|log_message|logLevel|deallocate_|allocate_|zerror|is_unrecoverable)'  -o libzookeeper_st.la -rpath /usr/local/lib  libzkst.la libhashtable.la 
+libtool: link: /usr/bin/nm -B   ./.libs/libzkst.a ./.libs/libhashtable.a | sed -n -e 's/^.*[	 ]\([ABCDGIRSTW][ABCDGIRSTW]*\)[	 ][	 ]*\([_A-Za-z][_A-Za-z0-9]*\)$/\1 \2 \2/p' | sed '/ __gnu_lto/d' | /usr/bin/sed 's/.* //' | sort | uniq > .libs/libzookeeper_st.exp
+libtool: link: /usr/bin/grep -E -e "(zoo_|zookeeper_|zhandle|Z|format_log_message|log_message|logLevel|deallocate_|allocate_|zerror|is_unrecoverable)" ".libs/libzookeeper_st.exp" > ".libs/libzookeeper_st.expT"
+libtool: link: mv -f ".libs/libzookeeper_st.expT" ".libs/libzookeeper_st.exp"
+libtool: link: echo "{ global:" > .libs/libzookeeper_st.ver
+libtool: link:  cat .libs/libzookeeper_st.exp | sed -e "s/\(.*\)/\1;/" >> .libs/libzookeeper_st.ver
+libtool: link:  echo "local: *; };" >> .libs/libzookeeper_st.ver
+libtool: link:  gcc -shared  -fPIC -DPIC  -Wl,--whole-archive ./.libs/libzkst.a ./.libs/libhashtable.a -Wl,--no-whole-archive  -lm  -O2   -Wl,-soname -Wl,libzookeeper_st.so.2 -Wl,-version-script -Wl,.libs/libzookeeper_st.ver -o .libs/libzookeeper_st.so.2.0.0
+libtool: link: (cd ".libs" && rm -f "libzookeeper_st.so.2" && ln -s "libzookeeper_st.so.2.0.0" "libzookeeper_st.so.2")
+libtool: link: (cd ".libs" && rm -f "libzookeeper_st.so" && ln -s "libzookeeper_st.so.2.0.0" "libzookeeper_st.so")
+libtool: link: (cd .libs/libzookeeper_st.lax/libzkst.a && ar x "/home/onega/bin/zookeeper-3.4.9/src/c/./.libs/libzkst.a")
+libtool: link: (cd .libs/libzookeeper_st.lax/libhashtable.a && ar x "/home/onega/bin/zookeeper-3.4.9/src/c/./.libs/libhashtable.a")
+libtool: link: ar cru .libs/libzookeeper_st.a   .libs/libzookeeper_st.lax/libzkst.a/recordio.o .libs/libzookeeper_st.lax/libzkst.a/st_adaptor.o .libs/libzookeeper_st.lax/libzkst.a/zk_hashtable.o .libs/libzookeeper_st.lax/libzkst.a/zk_log.o .libs/libzookeeper_st.lax/libzkst.a/zookeeper.jute.o .libs/libzookeeper_st.lax/libzkst.a/zookeeper.o  .libs/libzookeeper_st.lax/libhashtable.a/hashtable.o .libs/libzookeeper_st.lax/libhashtable.a/hashtable_itr.o 
+libtool: link: ranlib .libs/libzookeeper_st.a
+libtool: link: rm -fr .libs/libzookeeper_st.lax
+libtool: link: ( cd ".libs" && rm -f "libzookeeper_st.la" && ln -s "../libzookeeper_st.la" "libzookeeper_st.la" )
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zookeeper.lo -MD -MP -MF .deps/libzkmt_la-zookeeper.Tpo -c -o libzkmt_la-zookeeper.lo `test -f 'src/zookeeper.c' || echo './'`src/zookeeper.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zookeeper.lo -MD -MP -MF .deps/libzkmt_la-zookeeper.Tpo -c src/zookeeper.c  -fPIC -DPIC -o .libs/libzkmt_la-zookeeper.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zookeeper.lo -MD -MP -MF .deps/libzkmt_la-zookeeper.Tpo -c src/zookeeper.c -o libzkmt_la-zookeeper.o >/dev/null 2>&1
+mv -f .deps/libzkmt_la-zookeeper.Tpo .deps/libzkmt_la-zookeeper.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-recordio.lo -MD -MP -MF .deps/libzkmt_la-recordio.Tpo -c -o libzkmt_la-recordio.lo `test -f 'src/recordio.c' || echo './'`src/recordio.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-recordio.lo -MD -MP -MF .deps/libzkmt_la-recordio.Tpo -c src/recordio.c  -fPIC -DPIC -o .libs/libzkmt_la-recordio.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-recordio.lo -MD -MP -MF .deps/libzkmt_la-recordio.Tpo -c src/recordio.c -o libzkmt_la-recordio.o >/dev/null 2>&1
+mv -f .deps/libzkmt_la-recordio.Tpo .deps/libzkmt_la-recordio.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zookeeper.jute.lo -MD -MP -MF .deps/libzkmt_la-zookeeper.jute.Tpo -c -o libzkmt_la-zookeeper.jute.lo `test -f 'generated/zookeeper.jute.c' || echo './'`generated/zookeeper.jute.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zookeeper.jute.lo -MD -MP -MF .deps/libzkmt_la-zookeeper.jute.Tpo -c generated/zookeeper.jute.c  -fPIC -DPIC -o .libs/libzkmt_la-zookeeper.jute.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zookeeper.jute.lo -MD -MP -MF .deps/libzkmt_la-zookeeper.jute.Tpo -c generated/zookeeper.jute.c -o libzkmt_la-zookeeper.jute.o >/dev/null 2>&1
+mv -f .deps/libzkmt_la-zookeeper.jute.Tpo .deps/libzkmt_la-zookeeper.jute.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zk_log.lo -MD -MP -MF .deps/libzkmt_la-zk_log.Tpo -c -o libzkmt_la-zk_log.lo `test -f 'src/zk_log.c' || echo './'`src/zk_log.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zk_log.lo -MD -MP -MF .deps/libzkmt_la-zk_log.Tpo -c src/zk_log.c  -fPIC -DPIC -o .libs/libzkmt_la-zk_log.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zk_log.lo -MD -MP -MF .deps/libzkmt_la-zk_log.Tpo -c src/zk_log.c -o libzkmt_la-zk_log.o >/dev/null 2>&1
+mv -f .deps/libzkmt_la-zk_log.Tpo .deps/libzkmt_la-zk_log.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zk_hashtable.lo -MD -MP -MF .deps/libzkmt_la-zk_hashtable.Tpo -c -o libzkmt_la-zk_hashtable.lo `test -f 'src/zk_hashtable.c' || echo './'`src/zk_hashtable.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zk_hashtable.lo -MD -MP -MF .deps/libzkmt_la-zk_hashtable.Tpo -c src/zk_hashtable.c  -fPIC -DPIC -o .libs/libzkmt_la-zk_hashtable.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-zk_hashtable.lo -MD -MP -MF .deps/libzkmt_la-zk_hashtable.Tpo -c src/zk_hashtable.c -o libzkmt_la-zk_hashtable.o >/dev/null 2>&1
+mv -f .deps/libzkmt_la-zk_hashtable.Tpo .deps/libzkmt_la-zk_hashtable.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-mt_adaptor.lo -MD -MP -MF .deps/libzkmt_la-mt_adaptor.Tpo -c -o libzkmt_la-mt_adaptor.lo `test -f 'src/mt_adaptor.c' || echo './'`src/mt_adaptor.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-mt_adaptor.lo -MD -MP -MF .deps/libzkmt_la-mt_adaptor.Tpo -c src/mt_adaptor.c  -fPIC -DPIC -o .libs/libzkmt_la-mt_adaptor.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I./include -I./tests -I./generated -DTHREADED -g -O2 -D_GNU_SOURCE -MT libzkmt_la-mt_adaptor.lo -MD -MP -MF .deps/libzkmt_la-mt_adaptor.Tpo -c src/mt_adaptor.c -o libzkmt_la-mt_adaptor.o >/dev/null 2>&1
+mv -f .deps/libzkmt_la-mt_adaptor.Tpo .deps/libzkmt_la-mt_adaptor.Plo
+/bin/sh ./libtool  --tag=CC   --mode=link gcc -DTHREADED -g -O2 -D_GNU_SOURCE   -o libzkmt.la  libzkmt_la-zookeeper.lo libzkmt_la-recordio.lo libzkmt_la-zookeeper.jute.lo libzkmt_la-zk_log.lo libzkmt_la-zk_hashtable.lo libzkmt_la-mt_adaptor.lo -lm 
+libtool: link: ar cru .libs/libzkmt.a .libs/libzkmt_la-zookeeper.o .libs/libzkmt_la-recordio.o .libs/libzkmt_la-zookeeper.jute.o .libs/libzkmt_la-zk_log.o .libs/libzkmt_la-zk_hashtable.o .libs/libzkmt_la-mt_adaptor.o 
+libtool: link: ranlib .libs/libzkmt.a
+libtool: link: ( cd ".libs" && rm -f "libzkmt.la" && ln -s "../libzkmt.la" "libzkmt.la" )
+/bin/sh ./libtool  --tag=CC   --mode=link gcc -Wall -Werror  -g -O2 -D_GNU_SOURCE -no-undefined -version-info 2  -export-symbols-regex '(zoo_|zookeeper_|zhandle|Z|format_log_message|log_message|logLevel|deallocate_|allocate_|zerror|is_unrecoverable)'  -o libzookeeper_mt.la -rpath /usr/local/lib  libzkmt.la libhashtable.la -lpthread 
+libtool: link: /usr/bin/nm -B   ./.libs/libzkmt.a ./.libs/libhashtable.a | sed -n -e 's/^.*[	 ]\([ABCDGIRSTW][ABCDGIRSTW]*\)[	 ][	 ]*\([_A-Za-z][_A-Za-z0-9]*\)$/\1 \2 \2/p' | sed '/ __gnu_lto/d' | /usr/bin/sed 's/.* //' | sort | uniq > .libs/libzookeeper_mt.exp
+libtool: link: /usr/bin/grep -E -e "(zoo_|zookeeper_|zhandle|Z|format_log_message|log_message|logLevel|deallocate_|allocate_|zerror|is_unrecoverable)" ".libs/libzookeeper_mt.exp" > ".libs/libzookeeper_mt.expT"
+libtool: link: mv -f ".libs/libzookeeper_mt.expT" ".libs/libzookeeper_mt.exp"
+libtool: link: echo "{ global:" > .libs/libzookeeper_mt.ver
+libtool: link:  cat .libs/libzookeeper_mt.exp | sed -e "s/\(.*\)/\1;/" >> .libs/libzookeeper_mt.ver
+libtool: link:  echo "local: *; };" >> .libs/libzookeeper_mt.ver
+libtool: link:  gcc -shared  -fPIC -DPIC  -Wl,--whole-archive ./.libs/libzkmt.a ./.libs/libhashtable.a -Wl,--no-whole-archive  -lm -lpthread  -O2   -Wl,-soname -Wl,libzookeeper_mt.so.2 -Wl,-version-script -Wl,.libs/libzookeeper_mt.ver -o .libs/libzookeeper_mt.so.2.0.0
+libtool: link: (cd ".libs" && rm -f "libzookeeper_mt.so.2" && ln -s "libzookeeper_mt.so.2.0.0" "libzookeeper_mt.so.2")
+libtool: link: (cd ".libs" && rm -f "libzookeeper_mt.so" && ln -s "libzookeeper_mt.so.2.0.0" "libzookeeper_mt.so")
+libtool: link: (cd .libs/libzookeeper_mt.lax/libzkmt.a && ar x "/home/onega/bin/zookeeper-3.4.9/src/c/./.libs/libzkmt.a")
+libtool: link: (cd .libs/libzookeeper_mt.lax/libhashtable.a && ar x "/home/onega/bin/zookeeper-3.4.9/src/c/./.libs/libhashtable.a")
+libtool: link: ar cru .libs/libzookeeper_mt.a   .libs/libzookeeper_mt.lax/libzkmt.a/libzkmt_la-mt_adaptor.o .libs/libzookeeper_mt.lax/libzkmt.a/libzkmt_la-recordio.o .libs/libzookeeper_mt.lax/libzkmt.a/libzkmt_la-zk_hashtable.o .libs/libzookeeper_mt.lax/libzkmt.a/libzkmt_la-zk_log.o .libs/libzookeeper_mt.lax/libzkmt.a/libzkmt_la-zookeeper.jute.o .libs/libzookeeper_mt.lax/libzkmt.a/libzkmt_la-zookeeper.o  .libs/libzookeeper_mt.lax/libhashtable.a/hashtable.o .libs/libzookeeper_mt.lax/libhashtable.a/hashtable_itr.o 
+libtool: link: ranlib .libs/libzookeeper_mt.a
+libtool: link: rm -fr .libs/libzookeeper_mt.lax
+libtool: link: ( cd ".libs" && rm -f "libzookeeper_mt.la" && ln -s "../libzookeeper_mt.la" "libzookeeper_mt.la" )
+gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -Wall -Werror  -g -O2 -D_GNU_SOURCE -MT cli.o -MD -MP -MF .deps/cli.Tpo -c -o cli.o `test -f 'src/cli.c' || echo './'`src/cli.c
+mv -f .deps/cli.Tpo .deps/cli.Po
+/bin/sh ./libtool  --tag=CC   --mode=link gcc -Wall -Werror  -g -O2 -D_GNU_SOURCE   -o cli_st cli.o libzookeeper_st.la 
+libtool: link: gcc -Wall -Werror -g -O2 -D_GNU_SOURCE -o .libs/cli_st cli.o  ./.libs/libzookeeper_st.so -Wl,-rpath -Wl,/usr/local/lib
+gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -DTHREADED -g -O2 -D_GNU_SOURCE -MT cli_mt-cli.o -MD -MP -MF .deps/cli_mt-cli.Tpo -c -o cli_mt-cli.o `test -f 'src/cli.c' || echo './'`src/cli.c
+mv -f .deps/cli_mt-cli.Tpo .deps/cli_mt-cli.Po
+/bin/sh ./libtool  --tag=CC   --mode=link gcc -DTHREADED -g -O2 -D_GNU_SOURCE   -o cli_mt cli_mt-cli.o libzookeeper_mt.la 
+libtool: link: gcc -DTHREADED -g -O2 -D_GNU_SOURCE -o .libs/cli_mt cli_mt-cli.o  ./.libs/libzookeeper_mt.so -Wl,-rpath -Wl,/usr/local/lib
+gcc -DHAVE_CONFIG_H -I.  -I./include -I./tests -I./generated   -DTHREADED -g -O2 -D_GNU_SOURCE -MT load_gen-load_gen.o -MD -MP -MF .deps/load_gen-load_gen.Tpo -c -o load_gen-load_gen.o `test -f 'src/load_gen.c' || echo './'`src/load_gen.c
+mv -f .deps/load_gen-load_gen.Tpo .deps/load_gen-load_gen.Po
+/bin/sh ./libtool  --tag=CC   --mode=link gcc -DTHREADED -g -O2 -D_GNU_SOURCE   -o load_gen load_gen-load_gen.o libzookeeper_mt.la 
+libtool: link: gcc -DTHREADED -g -O2 -D_GNU_SOURCE -o .libs/load_gen load_gen-load_gen.o  ./.libs/libzookeeper_mt.so -Wl,-rpath -Wl,/usr/local/lib
+make[1]: Leaving directory `/home/onega/bin/zookeeper-3.4.9/src/c'
+[onega@localhost c]$ pwd
+/home/onega/bin/zookeeper-3.4.9/src/c
+[onega@localhost c]$ find /home/onega/bin/zookeeper-3.4.9 -name "*.so"
+/home/onega/bin/zookeeper-3.4.9/src/c/.libs/libzookeeper_st.so
+/home/onega/bin/zookeeper-3.4.9/src/c/.libs/libzookeeper_mt.so
+[onega@localhost c]$ 
+
+[onega@localhost ~]$ LD_LIBRARY_PATH=/home/onega/bin/zookeeper-3.4.9/src/c/.libs:$LD_LIBRARY_PATH /home/onega/github/onegaz/toybox/hellohbase/hellohbase --list
+list_hbase_tables start, connect to zookeeper localhost:2222
+/hbase/table/hbase:meta
+/hbase/table/hbase:namespace
+/hbase/table/t1
+/hbase/table/t2
+list_hbase_tables end
+read_hbase start, connect to hbase thrift2 interface localhost:9090
+TColumnValue(family=cf, qualifier=a, value=row2-cf-a, timestamp=1485885530812, tags=<null>)
+read_hbase end
+/home/onega/github/onegaz/toybox/hellohbase/hellohbase pid 28466 exit. Built with g++ 4.8.5
+[onega@localhost ~]$ LD_LIBRARY_PATH=/home/onega/bin/zookeeper-3.4.9/src/c/.libs:$LD_LIBRARY_PATH /home/onega/github/onegaz/toybox/hellohbase/hellohbase --list --scan
+list_hbase_tables start, connect to zookeeper localhost:2222
+/hbase/table/hbase:meta
+/hbase/table/hbase:namespace
+/hbase/table/t1
+/hbase/table/t2
+list_hbase_tables end
+read_hbase start, connect to hbase thrift2 interface localhost:9090
+TColumnValue(family=cf, qualifier=a, value=row2-cf-a, timestamp=1485885530812, tags=<null>)
+scan_table start
+pid-14758-0	TColumnValue(family=cf, qualifier=a, value=value from writedb 1000, timestamp=1485892193264, tags=<null>)
+pid-14758-1	TColumnValue(family=cf, qualifier=a, value=value from writedb 1001, timestamp=1485892193264, tags=<null>)
+pid-14758-2	TColumnValue(family=cf, qualifier=a, value=value from writedb 1002, timestamp=1485892193264, tags=<null>)
+row1	TColumnValue(family=cf, qualifier=a, value=row1-cf:a'
+, timestamp=1485885513179, tags=<null>)
+row2	TColumnValue(family=cf, qualifier=a, value=row2-cf-a, timestamp=1485885530812, tags=<null>)
+scan_table end
+read_hbase end
+/home/onega/github/onegaz/toybox/hellohbase/hellohbase pid 28478 exit. Built with g++ 4.8.5
+
+[onega@localhost ~]$ valgrind --tool=memcheck --leak-check=full /home/onega/github/onegaz/toybox/hellohbase/hellohbase --list
+==31906== Memcheck, a memory error detector
+==31906== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==31906== Using Valgrind-3.9.0 and LibVEX; rerun with -h for copyright info
+==31906== Command: /home/onega/github/onegaz/toybox/hellohbase/hellohbase --list
+==31906== 
+list_hbase_tables start, connect to zookeeper localhost:2222
+/hbase/table/hbase:meta
+/hbase/table/hbase:namespace
+/hbase/table/t1
+/hbase/table/t2
+list_hbase_tables end
+read_hbase start, connect to hbase thrift2 interface localhost:9090
+TColumnValue(family=cf, qualifier=a, value=row2-cf-a, timestamp=1485885530812, tags=<null>)
+read_hbase end
+/home/onega/github/onegaz/toybox/hellohbase/hellohbase pid 31906 exit. Built with g++ 4.8.5
+==31906== 
+==31906== HEAP SUMMARY:
+==31906==     in use at exit: 0 bytes in 0 blocks
+==31906==   total heap usage: 345 allocs, 345 frees, 25,670 bytes allocated
+==31906== 
+==31906== All heap blocks were freed -- no leaks are possible
+==31906== 
+==31906== For counts of detected and suppressed errors, rerun with: -v
+==31906== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 3 from 3)
