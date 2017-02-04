@@ -1,20 +1,16 @@
-#include <string>
 #include "Cassandra.h"
 #include "transport/TSocket.h"
 #include "transport/TBufferTransports.h"
 #include "protocol/TBinaryProtocol.h"
 #include <iostream>
-#include <sys/time.h>
 #include <sstream>
 
-using namespace apache::thrift;
 using namespace apache::thrift::transport;
-using namespace apache::thrift::protocol;
 using namespace org::apache::cassandra;
 
 void batch_insert_cassandra(CassandraClient& cass) {
     struct timeval tv;
-    gettimeofday(&tv, NULL);  
+    gettimeofday(&tv, NULL);  // #include <sys/time.h>
     auto get_insert_cql = [](int seconds, int tv_usec) {
       std::stringstream ss;
       ss << "insert into user_profiles (user_id, first_name, last_name, year_of_birth) ";
@@ -57,7 +53,7 @@ int main(int argc, char *argv[]){
 
     boost::shared_ptr<TTransport> socket = boost::shared_ptr<TSocket>(new TSocket("127.0.0.1", rpc_port));
     boost::shared_ptr<TTransport> tr = boost::shared_ptr<TFramedTransport>(new TFramedTransport (socket));
-    boost::shared_ptr<TProtocol> p = boost::shared_ptr<TBinaryProtocol>(new TBinaryProtocol(tr));
+    boost::shared_ptr<apache::thrift::protocol::TProtocol> p = boost::shared_ptr<apache::thrift::protocol::TBinaryProtocol>(new apache::thrift::protocol::TBinaryProtocol(tr));
     CassandraClient cass(p);
     tr->open();
     auto execute_cql_select = [](CassandraClient& cass, const std::string& query) {
@@ -96,3 +92,5 @@ int main(int argc, char *argv[]){
   std::cout << argv[0] << " exit" << std::endl;
   return 0;
 }
+
+// it works with /usr/local/lib/libthrift.so.0.9.3 or /usr/local/lib/libthrift-0.10.0.so
