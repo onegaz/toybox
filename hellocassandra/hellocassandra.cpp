@@ -61,7 +61,6 @@ int main(int argc, char *argv[]){
       // std::string query="select * from hellocassdra_keyspace.user_profiles";
       cass.execute_cql3_query( _return, query, Compression::NONE, ConsistencyLevel::ONE);
       std::cout << "num " << _return.num << ", rows " << _return.rows.size() << std::endl;
-      // _return.printTo(std::cout);
       for(auto row: _return.rows) {
         for( auto column: row.columns) {
           std::cout << column.value << "\t";
@@ -71,10 +70,17 @@ int main(int argc, char *argv[]){
       // std::cout << _return << std::endl;   
       std::cout << std::endl;   
     };
-    // SELECT * FROM system_schema.keyspaces;
-    execute_cql_select(cass, "SELECT * FROM system_schema.keyspaces");
-    // SELECT keyspace_name, table_name FROM system_schema.tables LIMIT 2; 
-    execute_cql_select(cass, "SELECT keyspace_name, table_name FROM system_schema.tables LIMIT 2");
+    execute_cql_select(cass, "SELECT * FROM system_schema.keyspaces"); // show all keyspaces
+    execute_cql_select(cass, "SELECT keyspace_name, table_name FROM system_schema.tables LIMIT 2"); // show all tables
+    execute_cql_select(cass, "CREATE KEYSPACE IF NOT EXISTS hellocassdra_keyspace with replication={'class':'SimpleStrategy','replication_factor':1}");
+    std::string create_table_cql = R"(CREATE TABLE hellocassdra_keyspace.user_profiles (
+                         user_id text PRIMARY KEY,
+                         first_name text,
+                         last_name text,
+                         year_of_birth int
+                         ) WITH COMPACT STORAGE  
+                         )";  
+    execute_cql_select(cass, create_table_cql);  
     cass.set_keyspace("hellocassdra_keyspace");
     batch_insert_cassandra(cass);
 
