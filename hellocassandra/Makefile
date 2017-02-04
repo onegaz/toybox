@@ -1,5 +1,5 @@
 THRIFT_ROOT=/home/onega/src/thrift-0.9.3
-CPPFLAGS = -I gen-cpp -I $(THRIFT_ROOT)/lib/cpp/src/thrift
+CPPFLAGS = -std=c++11 -I gen-cpp -I $(THRIFT_ROOT)/lib/cpp/src/thrift
 LDFLAGS = -lthrift 
 all: hellocassandra
 

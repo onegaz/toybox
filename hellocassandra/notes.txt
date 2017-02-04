@@ -224,3 +224,56 @@ num 0
 CqlResult(type=1, rows=[CqlRow(key=, columns=[Column(name=user_id, value=user1, timestamp=<null>, ttl=<null>), Column(name=first_name, value=first1, timestamp=<null>, ttl=<null>), Column(name=last_name, value=last1, timestamp=<null>, ttl=<null>), Column(name=year_of_birth, value=�, timestamp=<null>, ttl=<null>)])], num=<null>, schema=CqlMetadata(name_types={first_name: UTF8Type, last_name: UTF8Type, user_id: UTF8Type, year_of_birth: UTF8Type}, value_types={first_name: org.apache.cassandra.db.marshal.UTF8Type, last_name: org.apache.cassandra.db.marshal.UTF8Type, user_id: org.apache.cassandra.db.marshal.UTF8Type, year_of_birth: org.apache.cassandra.db.marshal.Int32Type}, default_name_type=UTF8Type, default_value_type=UTF8Type))
 ./hellocassandra exit
 
+[onega@localhost hellocassandra]$ make && ./hellocassandra
+g++ -o hellocassandra -g -std=c++11 -I gen-cpp -I /home/onega/src/thrift-0.9.3/lib/cpp/src/thrift hellocassandra.cpp gen-cpp/cassandra_types.cpp gen-cpp/cassandra_constants.cpp gen-cpp/Cassandra.cpp -lthrift 
+./hellocassandra pid 19172 start
+num 0, rows 6
+system_auth		class+org.apache.cassandra.locator.SimpleStrategyreplication_factor1	
+system_schema		class*org.apache.cassandra.locator.LocalStrategy	
+system_distributed		class+org.apache.cassandra.locator.SimpleStrategyreplication_factor3	
+system		class*org.apache.cassandra.locator.LocalStrategy	
+system_traces		class+org.apache.cassandra.locator.SimpleStrategyreplication_factor2	
+hellocassdra_keyspace		class+org.apache.cassandra.locator.SimpleStrategyreplication_factor1	
+
+num 0, rows 2
+system_auth	resource_role_permissons_index	
+system_auth	role_members	
+
+BEGIN BATCH
+insert into user_profiles (user_id, first_name, last_name, year_of_birth) values( 'user1486239995-972336', 'first972336', 'last1486239995-972336', 2017);
+insert into user_profiles (user_id, first_name, last_name, year_of_birth) values( 'user1486239995-972337', 'first972337', 'last1486239995-972337', 2017);
+insert into user_profiles (user_id, first_name, last_name, year_of_birth) values( 'user1486239995-972338', 'first972338', 'last1486239995-972338', 2017);
+insert into user_profiles (user_id, first_name, last_name, year_of_birth) values( 'user1486239995-972339', 'first972339', 'last1486239995-972339', 2017);
+insert into user_profiles (user_id, first_name, last_name, year_of_birth) values( 'user1486239995-972340', 'first972340', 'last1486239995-972340', 2017);
+APPLY BATCH;
+
+num 0, rows 0
+batch_insert_cassandra end
+num 0, rows 24
+user1486239857-312454	first312454	last1486239857-312454	�	
+user1486239995-972337	first972337	last1486239995-972337	�	
+user1486239857-312457	first312457	last1486239857-312457	�	
+user1486238637-925161	first925161	last1486238637-925161	�	
+user1486238637-925160	first925160	last1486238637-925160	�	
+user1486239275-320765	first320765	last1486239275-320765	�	
+user1486239995-972339	first972339	last1486239995-972339	�	
+user1486238637-925157	first925157	last1486238637-925157	�	
+user1486238637-925158	first925158	last1486238637-925158	�	
+user1	first1	last1	�	
+user1486238261	first593060	last1486238261-593060	�	
+user1486239275-320762	first320762	last1486239275-320762	�	
+user1486239857-312456	first312456	last1486239857-312456	�	
+user1486239995-972340	first972340	last1486239995-972340	�	
+user1486239857-312453	first312453	last1486239857-312453	�	
+user1486239857-312455	first312455	last1486239857-312455	�	
+user1486239275-320763	first320763	last1486239275-320763	�	
+user1486237270	first33774	last1486237270-33774	�	
+user1486239275-320764	first320764	last1486239275-320764	�	
+user1486238516	first774998	last1486238516-774998	�	
+user1486239275-320761	first320761	last1486239275-320761	�	
+user1486239995-972336	first972336	last1486239995-972336	�	
+user1486238637-925159	first925159	last1486238637-925159	�	
+user1486239995-972338	first972338	last1486239995-972338	�	
+
+./hellocassandra exit
+[onega@localhost hellocassandra]$ 

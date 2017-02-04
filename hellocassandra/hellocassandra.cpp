@@ -4,16 +4,42 @@
 #include "transport/TBufferTransports.h"
 #include "protocol/TBinaryProtocol.h"
 #include <iostream>
+#include <sys/time.h>
+#include <sstream>
 
 using namespace apache::thrift;
 using namespace apache::thrift::transport;
 using namespace apache::thrift::protocol;
 using namespace org::apache::cassandra;
 
+void batch_insert_cassandra(CassandraClient& cass) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);  
+    auto get_insert_cql = [](int seconds, int tv_usec) {
+      std::stringstream ss;
+      ss << "insert into user_profiles (user_id, first_name, last_name, year_of_birth) ";
+      ss << "values( "; // values('user1', 'first1', 'last1', 2017);
+      ss << "'user" << seconds <<"-"<<tv_usec <<"', 'first"<< tv_usec << "', 'last" << seconds 
+      <<"-" << tv_usec << "', "
+      << 2017
+      << ")";
+      return ss.str();
+    };
+    std::stringstream ss;
+    ss << "BEGIN BATCH" << std::endl;
+    for(int i=0; i<5; i++)
+      ss << get_insert_cql(tv.tv_sec, tv.tv_usec+i) << ";" << std::endl;
+    ss << "APPLY BATCH;" << std::endl;
+    std::cout << ss.str() << std::endl;    
+    CqlResult _return;
+    cass.execute_cql3_query( _return, ss.str(), Compression::NONE, ConsistencyLevel::ONE);
+    std::cout << "num " << _return.num << ", rows " << _return.rows.size() << std::endl;
+    std::cout << __func__ << " end"    << std::endl;
+}
+
 int main(int argc, char *argv[]){
   std::cout << argv[0] << " pid " << getpid()<< " start" << std::endl;
   // todo yaml-cpp/yaml.h 
-  // find all keyspace/table from cassandra
   try{
       unsigned short rpc_port = 9160; // see rpc_port: 9160 in apache-cassandra-3.9/conf/cassandra.yaml
 // ./conf/cassandra.yaml:637:# Whether to start the thrift rpc server.
@@ -34,14 +60,30 @@ int main(int argc, char *argv[]){
     boost::shared_ptr<TProtocol> p = boost::shared_ptr<TBinaryProtocol>(new TBinaryProtocol(tr));
     CassandraClient cass(p);
     tr->open();
+    auto execute_cql_select = [](CassandraClient& cass, const std::string& query) {
+      CqlResult _return;
+      // std::string query="select * from hellocassdra_keyspace.user_profiles";
+      cass.execute_cql3_query( _return, query, Compression::NONE, ConsistencyLevel::ONE);
+      std::cout << "num " << _return.num << ", rows " << _return.rows.size() << std::endl;
+      // _return.printTo(std::cout);
+      for(auto row: _return.rows) {
+        for( auto column: row.columns) {
+          std::cout << column.value << "\t";
+        }
+        std::cout << std::endl;
+      }
+      // std::cout << _return << std::endl;   
+      std::cout << std::endl;   
+    };
+    // SELECT * FROM system_schema.keyspaces;
+    execute_cql_select(cass, "SELECT * FROM system_schema.keyspaces");
+    // SELECT keyspace_name, table_name FROM system_schema.tables LIMIT 2; 
+    execute_cql_select(cass, "SELECT keyspace_name, table_name FROM system_schema.tables LIMIT 2");
+    cass.set_keyspace("hellocassdra_keyspace");
+    batch_insert_cassandra(cass);
 
-//    cass.set_keyspace("hellocassdra_keyspace");
-    CqlResult _return;
     std::string query="select * from hellocassdra_keyspace.user_profiles";
-    cass.execute_cql3_query( _return, query, Compression::NONE, ConsistencyLevel::ONE);
-    std::cout << "num " << _return.num << std::endl;
-    _return.printTo(std::cout);
-    std::cout << std::endl;
+    execute_cql_select(cass, query);
 
     tr->close();
   }catch(const TTransportException& te){
