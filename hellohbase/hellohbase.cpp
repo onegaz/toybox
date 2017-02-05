@@ -4,7 +4,6 @@
 #include <transport/TSocket.h>  
 #include <transport/TBufferTransports.h>
 #include <protocol/TBinaryProtocol.h>  
-#include <string>  
 #include <sstream>
 #include <sys/types.h>
 #include <unistd.h>
@@ -55,29 +54,25 @@ int read_hbase() {
     boost::shared_ptr<apache::thrift::transport::TSocket> socket(new apache::thrift::transport::TSocket(hbase_thrift2_server_address, port));  
     boost::shared_ptr<apache::thrift::transport::TTransport> transport(new apache::thrift::transport::TBufferedTransport(socket));  
     boost::shared_ptr<apache::thrift::protocol::TProtocol> protocol(new apache::thrift::protocol::TBinaryProtocol(transport));  
-    try { 
-        transport->open();  
-        apache::hadoop::hbase::thrift2::THBaseServiceClient  client(protocol);  
-        if (row.length()) {
-            apache::hadoop::hbase::thrift2::TResult tresult;  
-            apache::hadoop::hbase::thrift2::TGet get;
-            std::vector<apache::hadoop::hbase::thrift2::TColumnValue> cvs;
-            get.__set_row(row);  
-            bool has_row = client.exists(table_name, get);   
-            if (has_row) {
-                client.get(tresult, table_name, get);
-                for(auto &it: tresult.columnValues)
-                    std::cout << it << std::endl;
-            }
-            else 
-                std::cout << row << " is not found" << std::endl;
+    transport->open();  
+    apache::hadoop::hbase::thrift2::THBaseServiceClient  client(protocol);  
+    if (row.length()) {
+        apache::hadoop::hbase::thrift2::TResult tresult;  
+        apache::hadoop::hbase::thrift2::TGet get;
+        std::vector<apache::hadoop::hbase::thrift2::TColumnValue> cvs;
+        get.__set_row(row);  
+        bool has_row = client.exists(table_name, get);   
+        if (has_row) {
+            client.get(tresult, table_name, get);
+            for(auto &it: tresult.columnValues)
+                std::cout << it << std::endl;
         }
-        if (scan)
-            scan_table(client, table_name);
-        transport->close();  
-     } catch (const apache::thrift::TException &tx) {
-        std::cerr << "ERROR(exception): " << tx.what() << std::endl;
-     }
+        else 
+            std::cout << row << " is not found" << std::endl;
+    }
+    if (scan)
+        scan_table(client, table_name);
+    transport->close();  
     std::cout << __func__ << " end" << std::endl;
     return 0; 
 }
@@ -87,37 +82,33 @@ int write_hbase(){
     boost::shared_ptr<apache::thrift::transport::TSocket> socket(new apache::thrift::transport::TSocket(hbase_thrift2_server_address, port));  
     boost::shared_ptr<apache::thrift::transport::TTransport> transport(new apache::thrift::transport::TBufferedTransport(socket));  
     boost::shared_ptr<apache::thrift::protocol::TProtocol> protocol(new apache::thrift::protocol::TBinaryProtocol(transport));  
-    try {
-        char buf[128];
-        transport->open();  
-        apache::hadoop::hbase::thrift2::THBaseServiceClient  client(protocol);  
-        apache::hadoop::hbase::thrift2::TResult tresult;  
-        apache::hadoop::hbase::thrift2::TGet get;
-        std::vector<apache::hadoop::hbase::thrift2::TPut> puts; 
-        for(int i = 0; i < 2; i++) { 
-            for(int j = 0; j < 3; j++) {
-                apache::hadoop::hbase::thrift2::TPut put;
-                std::vector<apache::hadoop::hbase::thrift2::TColumnValue> cvs;
-                //put data
-                sprintf(buf, "pid-%d-%d", getpid(), j);
-                const std::string thisrow(buf); 
-                put.__set_row(thisrow);
-                apache::hadoop::hbase::thrift2::TColumnValue tcv;
-                tcv.__set_family("cf");
-                tcv.__set_qualifier("a");
-                sprintf(buf, "value from %s %d", __func__, i*1000+ j);
-                tcv.__set_value(buf);
-                cvs.insert(cvs.end(), tcv);
-                put.__set_columnValues(cvs);
-                puts.insert(puts.end(), put);
-            }
-            client.putMultiple(table_name, puts);
-            puts.clear();
+    char buf[128];
+    transport->open();  
+    apache::hadoop::hbase::thrift2::THBaseServiceClient  client(protocol);  
+    apache::hadoop::hbase::thrift2::TResult tresult;  
+    apache::hadoop::hbase::thrift2::TGet get;
+    std::vector<apache::hadoop::hbase::thrift2::TPut> puts; 
+    for(int i = 0; i < 2; i++) { 
+        for(int j = 0; j < 3; j++) {
+            apache::hadoop::hbase::thrift2::TPut put;
+            std::vector<apache::hadoop::hbase::thrift2::TColumnValue> cvs;
+            //put data
+            sprintf(buf, "pid-%d-%d", getpid(), j);
+            const std::string thisrow(buf); 
+            put.__set_row(thisrow);
+            apache::hadoop::hbase::thrift2::TColumnValue tcv;
+            tcv.__set_family("cf");
+            tcv.__set_qualifier("a");
+            sprintf(buf, "value from %s %d", __func__, i*1000+ j);
+            tcv.__set_value(buf);
+            cvs.insert(cvs.end(), tcv);
+            put.__set_columnValues(cvs);
+            puts.insert(puts.end(), put);
         }
-        transport->close();  
-     } catch (const apache::thrift::TException &tx) {
-        std::cerr << "ERROR(exception): " << tx.what() << std::endl;
-     }
+        client.putMultiple(table_name, puts);
+        puts.clear();
+    }
+    transport->close();  
     std::cout << __func__ << " end" << std::endl;
     return 0;
 }
@@ -202,12 +193,18 @@ int main(int argc, char **argv) {
         std::cout << desc << std::endl;
         return 0;
     }
+    try {
     if (vm.count("list"))
         list_hbase_tables();
     if(vm.count("put"))
         write_hbase();
     scan = vm.count("scan");
     read_hbase();
+     } catch (const apache::thrift::TException &tx) {
+        std::cerr << "ERROR(exception): " << tx.what() << std::endl;
+        std::cout << "Make sure hbase thrift2 server is started" << std::endl;
+        std::cout << "~/bin/hbase-1.3.0/bin/hbase thrift2 -threadpool start " << std::endl;
+     }    
     std::cout << get_self_path() << " pid " << getpid() << " exit. Built with g++ "<< __GNUC__<<"." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__ <<std::endl;
     return 0;  
 }  
