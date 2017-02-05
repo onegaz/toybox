@@ -1,0 +1,334 @@
+[onega@localhost java]$ ./startjob.sh 
+17/02/01 11:31:09 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+17/02/01 11:31:10 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+17/02/01 11:31:11 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 0 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+17/02/01 11:31:12 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 1 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+17/02/01 11:31:13 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 2 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+17/02/01 11:31:14 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 3 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+17/02/01 11:31:15 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 4 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+17/02/01 11:31:16 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 5 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+17/02/01 11:31:17 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 6 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+17/02/01 11:31:18 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 7 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+17/02/01 11:31:19 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 8 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+17/02/01 11:31:20 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 9 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+^C
+rm: Call From localhost/127.0.0.1 to localhost:9000 failed on connection exception: java.net.ConnectException: Connection refused; For more details see:  http://wiki.apache.org/hadoop/ConnectionRefused
+
+[onega@localhost ~]$ /home/onega/bin/hadoop-2.7.3/sbin/start-yarn.sh 
+starting yarn daemons
+starting resourcemanager, logging to /home/onega/bin/hadoop-2.7.3/logs/yarn-onega-resourcemanager-localhost.localdomain.out
+localhost: starting nodemanager, logging to /home/onega/bin/hadoop-2.7.3/logs/yarn-onega-nodemanager-localhost.localdomain.out
+[onega@localhost ~]$ /home/onega/bin/hadoop-2.7.3/sbin/start-dfs.sh 
+17/02/01 11:34:06 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Starting namenodes on [localhost]
+localhost: starting namenode, logging to /home/onega/bin/hadoop-2.7.3/logs/hadoop-onega-namenode-localhost.localdomain.out
+localhost: starting datanode, logging to /home/onega/bin/hadoop-2.7.3/logs/hadoop-onega-datanode-localhost.localdomain.out
+Starting secondary namenodes [0.0.0.0]
+0.0.0.0: starting secondarynamenode, logging to /home/onega/bin/hadoop-2.7.3/logs/hadoop-onega-secondarynamenode-localhost.localdomain.out
+17/02/01 11:34:25 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+[onega@localhost ~]$ jps
+20915 NodeManager
+21619 DataNode
+4756 HMaster
+11001 ThriftServer
+21867 SecondaryNameNode
+22076 ZooKeeperMainServer
+5165 Main
+20765 ResourceManager
+22030 Jps
+21423 NameNode
+
+[onega@localhost java]$ javac -cp $(/home/onega/bin/hadoop-2.7.3/bin/hadoop classpath) hellohadoop.java -Xlint:deprecation -d $PWD
+[onega@localhost java]$ jar cvf hellohadoop.jar org/myorg/*
+added manifest
+adding: org/myorg/hellohadoop.class(in = 2354) (out= 1092)(deflated 53%)
+adding: org/myorg/hellohadoop$Map.class(in = 1881) (out= 785)(deflated 58%)
+adding: org/myorg/hellohadoop$Reduce.class(in = 1653) (out= 690)(deflated 58%)
+[onega@localhost java]$ ./startjob.sh 
+17/02/01 12:22:42 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+17/02/01 12:22:42 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Total number of applications (application-types: [] and states: [SUBMITTED, ACCEPTED, RUNNING]):0
+                Application-Id	    Application-Name	    Application-Type	      User	     Queue	             State	       Final-State	       Progress	                       Tracking-URL
+rm: `/output1/*': No such file or directory
+17/02/01 12:22:52 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+17/02/01 12:22:53 INFO input.FileInputFormat: Total input paths to process : 1
+17/02/01 12:22:53 INFO mapreduce.JobSubmitter: number of splits:1
+17/02/01 12:22:53 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1485977618666_0006
+17/02/01 12:22:54 INFO impl.YarnClientImpl: Submitted application application_1485977618666_0006
+17/02/01 12:22:54 INFO mapreduce.Job: The url to track the job: http://localhost:8088/proxy/application_1485977618666_0006/
+17/02/01 12:22:54 INFO mapreduce.Job: Running job: job_1485977618666_0006
+17/02/01 12:23:03 INFO mapreduce.Job: Job job_1485977618666_0006 running in uber mode : false
+17/02/01 12:23:03 INFO mapreduce.Job:  map 0% reduce 0%
+17/02/01 12:23:08 INFO mapreduce.Job:  map 100% reduce 0%
+17/02/01 12:23:16 INFO mapreduce.Job:  map 100% reduce 100%
+17/02/01 12:23:17 INFO mapreduce.Job: Job job_1485977618666_0006 completed successfully
+17/02/01 12:23:17 INFO mapreduce.Job: Counters: 49
+	File System Counters
+		FILE: Number of bytes read=15788
+		FILE: Number of bytes written=269145
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=9794
+		HDFS: Number of bytes written=3716
+		HDFS: Number of read operations=6
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Data-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=3370
+		Total time spent by all reduces in occupied slots (ms)=3973
+		Total time spent by all map tasks (ms)=3370
+		Total time spent by all reduce tasks (ms)=3973
+		Total vcore-milliseconds taken by all map tasks=3370
+		Total vcore-milliseconds taken by all reduce tasks=3973
+		Total megabyte-milliseconds taken by all map tasks=3450880
+		Total megabyte-milliseconds taken by all reduce tasks=4068352
+	Map-Reduce Framework
+		Map input records=226
+		Map output records=1131
+		Map output bytes=13520
+		Map output materialized bytes=15788
+		Input split bytes=111
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=239
+		Reduce shuffle bytes=15788
+		Reduce input records=1131
+		Reduce output records=239
+		Spilled Records=2262
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=144
+		CPU time spent (ms)=1530
+		Physical memory (bytes) snapshot=410570752
+		Virtual memory (bytes) snapshot=4211531776
+		Total committed heap usage (bytes)=315621376
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=9683
+	File Output Format Counters 
+		Bytes Written=3716
+[onega@localhost java]$ 
+
+[onega@localhost hadoop-2.7.3]$ /home/onega/bin/hadoop-2.7.3/bin/hadoop checknative -a
+17/02/01 13:07:06 WARN bzip2.Bzip2Factory: Failed to load/initialize native-bzip2 library system-native, will use pure-Java version
+17/02/01 13:07:06 INFO zlib.ZlibFactory: Successfully loaded & initialized native-zlib library
+Native library checking:
+hadoop:  true /home/onega/bin/hadoop-2.7.3/lib/native/libhadoop.so.1.0.0
+zlib:    true /lib64/libz.so.1
+snappy:  false 
+lz4:     true revision:99
+bzip2:   false 
+openssl: true /lib64/libcrypto.so
+17/02/01 13:07:06 INFO util.ExitUtil: Exiting with status 1
+
+sudo yum install bzip2
+
+[onega@localhost ~]$ java -XshowSettings:properties
+Property settings:
+    awt.toolkit = sun.awt.X11.XToolkit
+    file.encoding = UTF-8
+    file.encoding.pkg = sun.io
+    file.separator = /
+    java.awt.graphicsenv = sun.awt.X11GraphicsEnvironment
+    java.awt.printerjob = sun.print.PSPrinterJob
+    java.class.path = .
+    java.class.version = 52.0
+    java.endorsed.dirs = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/endorsed
+    java.ext.dirs = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/ext
+        /usr/java/packages/lib/ext
+    java.home = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre
+    java.io.tmpdir = /tmp
+    java.library.path = 
+        /usr/local/lib
+        /usr/local/lib64
+        /usr/lib64
+        /usr/local/lib
+        /usr/local/lib64
+        /usr/lib64
+        /usr/java/packages/lib/amd64
+        /usr/lib64
+        /lib64
+        /lib
+        /usr/lib
+    java.runtime.name = OpenJDK Runtime Environment
+    java.runtime.version = 1.8.0_60-b27
+    java.specification.name = Java Platform API Specification
+    java.specification.vendor = Oracle Corporation
+    java.specification.version = 1.8
+    java.vendor = Oracle Corporation
+    java.vendor.url = http://java.oracle.com/
+    java.vendor.url.bug = http://bugreport.sun.com/bugreport/
+    java.version = 1.8.0_60
+    java.vm.info = mixed mode
+    java.vm.name = OpenJDK 64-Bit Server VM
+    java.vm.specification.name = Java Virtual Machine Specification
+    java.vm.specification.vendor = Oracle Corporation
+    java.vm.specification.version = 1.8
+    java.vm.vendor = Oracle Corporation
+    java.vm.version = 25.60-b23
+    line.separator = \n 
+    os.arch = amd64
+    os.name = Linux
+    os.version = 3.10.0-123.el7.x86_64
+    path.separator = :
+    sun.arch.data.model = 64
+    sun.boot.class.path = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/resources.jar
+        /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/rt.jar
+        /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/sunrsasign.jar
+        /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/jsse.jar
+        /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/jce.jar
+        /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/charsets.jar
+        /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/jfr.jar
+        /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/classes
+    sun.boot.library.path = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/amd64
+    sun.cpu.endian = little
+    sun.cpu.isalist = 
+    sun.desktop = gnome
+    sun.io.unicode.encoding = UnicodeLittle
+    sun.java.launcher = SUN_STANDARD
+    sun.jnu.encoding = UTF-8
+    sun.management.compiler = HotSpot 64-Bit Tiered Compilers
+    sun.os.patch.level = unknown
+    user.country = US
+    user.dir = /home/onega
+    user.home = /home/onega
+    user.language = en
+    user.name = onega
+    user.timezone = 
+
+Usage: java [-options] class [args...]
+           (to execute a class)
+   or  java [-options] -jar jarfile [args...]
+           (to execute a jar file)
+where options include:
+    -d32	  use a 32-bit data model if available
+    -d64	  use a 64-bit data model if available
+    -server	  to select the "server" VM
+                  The default VM is server,
+                  because you are running on a server-class machine.
+
+
+    -cp <class search path of directories and zip/jar files>
+    -classpath <class search path of directories and zip/jar files>
+                  A : separated list of directories, JAR archives,
+                  and ZIP archives to search for class files.
+    -D<name>=<value>
+                  set a system property
+    -verbose:[class|gc|jni]
+                  enable verbose output
+    -version      print product version and exit
+    -version:<value>
+                  Warning: this feature is deprecated and will be removed
+                  in a future release.
+                  require the specified version to run
+    -showversion  print product version and continue
+    -jre-restrict-search | -no-jre-restrict-search
+                  Warning: this feature is deprecated and will be removed
+                  in a future release.
+                  include/exclude user private JREs in the version search
+    -? -help      print this help message
+    -X            print help on non-standard options
+    -ea[:<packagename>...|:<classname>]
+    -enableassertions[:<packagename>...|:<classname>]
+                  enable assertions with specified granularity
+    -da[:<packagename>...|:<classname>]
+    -disableassertions[:<packagename>...|:<classname>]
+                  disable assertions with specified granularity
+    -esa | -enablesystemassertions
+                  enable system assertions
+    -dsa | -disablesystemassertions
+                  disable system assertions
+    -agentlib:<libname>[=<options>]
+                  load native agent library <libname>, e.g. -agentlib:hprof
+                  see also, -agentlib:jdwp=help and -agentlib:hprof=help
+    -agentpath:<pathname>[=<options>]
+                  load native agent library by full pathname
+    -javaagent:<jarpath>[=<options>]
+                  load Java programming language agent, see java.lang.instrument
+    -splash:<imagepath>
+                  show splash screen with specified image
+See http://www.oracle.com/technetwork/java/javase/documentation/index.html for more details.
+
+[onega@localhost java]$ jps
+4295 org.eclipse.equinox.launcher_1.4.0.v20161219-1356.jar
+6223 Jps
+[onega@localhost java]$ $HADOOP_HOME/sbin/start-dfs.sh
+Starting namenodes on [localhost]
+localhost: starting namenode, logging to /home/onega/bin/hadoop-2.7.3/logs/hadoop-onega-namenode-localhost.localdomain.out
+localhost: starting datanode, logging to /home/onega/bin/hadoop-2.7.3/logs/hadoop-onega-datanode-localhost.localdomain.out
+Starting secondary namenodes [0.0.0.0]
+0.0.0.0: starting secondarynamenode, logging to /home/onega/bin/hadoop-2.7.3/logs/hadoop-onega-secondarynamenode-localhost.localdomain.out
+[onega@localhost java]$ jps
+7585 Jps
+6916 NameNode
+4295 org.eclipse.equinox.launcher_1.4.0.v20161219-1356.jar
+7112 DataNode
+7373 SecondaryNameNode
+[onega@localhost java]$ jps
+6916 NameNode
+7621 Jps
+4295 org.eclipse.equinox.launcher_1.4.0.v20161219-1356.jar
+7112 DataNode
+7373 SecondaryNameNode
+[onega@localhost java]$ jps
+7667 Jps
+6916 NameNode
+4295 org.eclipse.equinox.launcher_1.4.0.v20161219-1356.jar
+7112 DataNode
+7373 SecondaryNameNode
+[onega@localhost java]$ $HADOOP_HOME/sbin/start-yarn.sh
+starting yarn daemons
+resourcemanager running as process 4148. Stop it first.
+localhost: starting nodemanager, logging to /home/onega/bin/hadoop-2.7.3/logs/yarn-onega-nodemanager-localhost.localdomain.out
+[onega@localhost java]$ jps
+6916 NameNode
+4295 org.eclipse.equinox.launcher_1.4.0.v20161219-1356.jar
+7112 DataNode
+7883 NodeManager
+7373 SecondaryNameNode
+8077 Jps
+[onega@localhost java]$ 
+[onega@localhost java]$ $HADOOP_HOME/sbin/start-yarn.sh
+starting yarn daemons
+starting resourcemanager, logging to /home/onega/bin/hadoop-2.7.3/logs/yarn-onega-resourcemanager-localhost.localdomain.out
+localhost: starting nodemanager, logging to /home/onega/bin/hadoop-2.7.3/logs/yarn-onega-nodemanager-localhost.localdomain.out
+[onega@localhost java]$ jps
+15683 Jps
+15348 NodeManager
+15197 ResourceManager
+
+eclipse .classpath file example: https://bz.apache.org/bugzilla/attachment.cgi?id=6823
+
+[onega@localhost java]$ firefox file:///home/onega/github/onegaz/toybox/hellohadoop/java/deps/index.html
+
+[onega@localhost java]$ jdeps -cp $(/home/onega/bin/hadoop-2.7.3/bin/hadoop classpath) hellohadoop.jar
+hellohadoop.jar -> /home/onega/bin/hadoop-2.7.3/share/hadoop/common/hadoop-common-2.7.3.jar
+hellohadoop.jar -> /home/onega/bin/hadoop-2.7.3/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.7.3.jar
+hellohadoop.jar -> /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/rt.jar
+   org.myorg (hellohadoop.jar)
+      -> java.io                                            
+      -> java.lang                                          
+      -> java.lang.management                               
+      -> java.lang.reflect                                  
+      -> java.net                                           
+      -> java.util                                          
+      -> java.util.regex                                    
+      -> org.apache.hadoop.conf                             hadoop-common-2.7.3.jar
+      -> org.apache.hadoop.fs                               hadoop-common-2.7.3.jar
+      -> org.apache.hadoop.io                               hadoop-common-2.7.3.jar
+      -> org.apache.hadoop.mapreduce                        hadoop-mapreduce-client-core-2.7.3.jar
+      -> org.apache.hadoop.mapreduce.lib.input              hadoop-mapreduce-client-core-2.7.3.jar
+      -> org.apache.hadoop.mapreduce.lib.output             hadoop-mapreduce-client-core-2.7.3.jar
+      -> org.apache.hadoop.util                             hadoop-common-2.7.3.jar
+      -> sun.management                                     JDK internal API (rt.jar)
