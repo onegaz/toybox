@@ -1,0 +1,2 @@
+#!/bin/bash
+/home/onega/bin/apache-flume-1.7.0-bin/bin/flume-ng agent --conf conf --conf-file /home/onega/workspace/flume/helloflume.properties --name a1 -Dflume.root.logger=DEBUG,console -Dorg.apache.flume.log.printconfig=true -Dorg.apache.flume.log.rawdata=true
