@@ -132,8 +132,6 @@ bool MiniWxApp::OnInit()
 	return true;
 }
 
-
-
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 : wxFrame( NULL, -1, title, pos, size )
 {
@@ -277,7 +275,7 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 	
 	std::string body = R"(on macOS Sierra Version 10.12.5
 	g++ -o miniwx -std=c++11 $(/usr/local/opt/wxwidgets/bin/wx-config --cppflags --libs) miniwx.cpp
-	LM-SJC-11005140:wxwnd onzhang$ otool -L miniwx
+	localhost:wxwnd $ otool -L miniwx
 	miniwx:
 		/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit (compatibility version 1.0.0, current version 275.0.0)
 		/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon (compatibility version 2.0.0, current version 157.0.0)
