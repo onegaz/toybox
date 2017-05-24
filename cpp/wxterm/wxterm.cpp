@@ -1,3 +1,7 @@
+#include <spawn.h>
+#include <poll.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <wx/wx.h>
 #include <wx/clipbrd.h>
 #include <wx/gbsizer.h>
@@ -34,20 +38,30 @@ class MiniWxApp : public wxApp
 {
 public:
 	virtual bool OnInit();
-	std::mutex g_pages_mutex;
+	void runcmd(const std::string& cmdline);
+	std::mutex gui_mutex;
 	std::stringstream ss;
 	void output(const char* buf)
 	{
 		{
-			std::lock_guard<std::mutex> guard(g_pages_mutex);
+			std::lock_guard<std::mutex> guard(gui_mutex);
 			ss << buf;			
+		}
+		wxCommandEvent event( wxEVT_MY_EVENT );
+		wxPostEvent( GetTopWindow (), event );
+	}
+	void output(const std::string& buf)
+	{
+		{
+			std::lock_guard<std::mutex> guard(gui_mutex);
+			ss << buf;
 		}
 		wxCommandEvent event( wxEVT_MY_EVENT );
 		wxPostEvent( GetTopWindow (), event );
 	}
 	std::string get_output()
 	{
-		std::lock_guard<std::mutex> guard(g_pages_mutex);
+		std::lock_guard<std::mutex> guard(gui_mutex);
 		std::string msg = ss.str();
 		ss.str("");
 		return msg;
@@ -170,9 +184,10 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 			wxCommandEventHandler(MyFrame::OnListItemSelection), NULL, this);
 	
 	m_cmdline = new wxTextCtrl(this, wxID_ANY,
-			wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxHSCROLL); // 
+			wxEmptyString, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxTE_PROCESS_ENTER); //
  	m_cmdline->SetWindowStyle(m_cmdline->GetWindowStyle() & ~wxTE_DONTWRAP | wxTE_BESTWRAP);
-	
+ 	m_cmdline->Connect(wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler(MyFrame::OnRunClick),NULL, this);
+
 	m_output = new wxTextCtrl(this, wxID_ANY,
 			wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxHSCROLL);
  	m_output->SetWindowStyle(m_output->GetWindowStyle() & ~wxTE_DONTWRAP | wxTE_BESTWRAP);
@@ -240,6 +255,95 @@ void RunShellCommand(const std::string& cmd_in)
 	}
 }
 
+void MiniWxApp::runcmd(const std::string& cmdline)
+{
+	int exit_code=0;
+	int cout_pipe[2];
+	int cerr_pipe[2];
+	posix_spawn_file_actions_t action;
+
+	if(pipe(cout_pipe) || pipe(cerr_pipe))
+	{
+		output("pipe returned error.\n");
+		return;
+	}
+
+	posix_spawn_file_actions_init(&action);
+	posix_spawn_file_actions_addclose(&action, cout_pipe[0]);
+	posix_spawn_file_actions_addclose(&action, cerr_pipe[0]);
+	posix_spawn_file_actions_adddup2(&action, cout_pipe[1], 1);
+	posix_spawn_file_actions_adddup2(&action, cerr_pipe[1], 2);
+
+	posix_spawn_file_actions_addclose(&action, cout_pipe[1]);
+	posix_spawn_file_actions_addclose(&action, cerr_pipe[1]);
+
+	std::string command = cmdline;
+	std::string argsmem[] = {"sh","-c"}; // allows non-const access to literals
+	char * args[] = {&argsmem[0][0],&argsmem[1][0],&command[0],nullptr};
+	pid_t pid=0;
+
+	if(posix_spawnp(&pid, args[0], &action, NULL, &args[0], NULL) != 0)
+	{
+		std::stringstream ss;
+		ss << __func__ << "posix_spawnp returned error " << strerror(errno) << "\n";
+		output(ss.str());
+		return;
+	}
+	close(cout_pipe[1]), close(cerr_pipe[1]); // close child-side of pipes
+	// Read from pipes
+	std::string buffer(4096,' ');
+	std::vector<pollfd> plist = { {cout_pipe[0],POLLIN}, {cerr_pipe[0],POLLIN} };
+	int timeout_milliseconds = 5000;
+	while(true)
+	{
+		int rval = poll(&plist[0],plist.size(), timeout_milliseconds);
+		int readcnt = 0;
+		if ( plist[0].revents&POLLIN)
+		{
+			int bytes_read = read(cout_pipe[0], &buffer[0], buffer.length());
+			readcnt += bytes_read;
+			std::cout << buffer.substr(0, static_cast<size_t>(bytes_read));
+			output(buffer.substr(0, static_cast<size_t>(bytes_read)));
+		}
+		else if ( plist[1].revents&POLLIN )
+		{
+			int bytes_read = read(cerr_pipe[0], &buffer[0], buffer.length());
+			readcnt += bytes_read;
+			output(buffer.substr(0, static_cast<size_t>(bytes_read)));
+		}
+		pid_t wpid = waitpid(pid, &exit_code, WNOHANG);
+		if (wpid == pid)
+		{
+			std::stringstream ss;
+			ss <<"cppcheck exit code " << exit_code << std::endl;
+			output(ss.str());
+			break;
+		} else if (wpid == -1)
+		{
+			std::stringstream ss;
+			ss <<"waitpid error when waiting for pid " << pid << " cppcheck." << std::endl;
+			output(ss.str());
+			break;
+		}
+		if(rval < 0)
+		{
+			std::stringstream ss;
+			ss <<"poll error " << rval << " on pid " << pid << std::endl;
+			output(ss.str());
+			break;
+		}
+		if(rval == 0)
+		{
+			std::stringstream ss;
+			ss <<"poll timeout error " << rval << " on pid " << pid << std::endl;
+			output(ss.str());
+			break;
+		}
+	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(234));
+	posix_spawn_file_actions_destroy(&action);
+}
+
 void MyFrame::OnRunClick(wxCommandEvent&)
 {
 	if(m_cmdline->GetNumberOfLines()<1)
@@ -248,7 +352,7 @@ void MyFrame::OnRunClick(wxCommandEvent&)
 	AddCommandToHistory();
 	wxString cmdstr = m_cmdline->GetValue();
 	AddEmptyLine();
-	std::thread t(RunShellCommand, cmdstr.ToStdString());
+	std::thread t(&MiniWxApp::runcmd, &wxGetApp(), cmdstr.ToStdString());
 	t.detach();
 }
 
