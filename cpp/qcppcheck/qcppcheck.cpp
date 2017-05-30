@@ -21,11 +21,30 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QDesktopWidget>
-#include <QtCore/QStandardPaths> // /usr/local/opt/qt@5.7/include/QtCore/QStandardPaths
+#include <QtCore/QStandardPaths> // /usr/local/opt/qt/include/QtCore/QStandardPaths
 #include <QtGui/QKeyEvent>
+#include <QtCore/QSettings>
+#include <QtCore/QFileInfo>
 #include <boost/version.hpp>
 #include <boost/config.hpp>
 #include "qcppcheck.h"
+
+QString get_cfg_path()
+{
+	static QString app_settings_path;
+	if(app_settings_path.length()<1)
+	{
+		QString applicationFilePath = QCoreApplication::applicationFilePath();
+		QFileInfo fi(applicationFilePath);
+		QString name = fi.fileName();
+	    QString homedir = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),
+	                                                QStandardPaths::LocateDirectory);
+	    if(!homedir.endsWith(QDir::separator()))
+	        homedir.append(QDir::separator());
+	    app_settings_path = homedir + QString(".") + name + QString(".ini");
+	}
+    return app_settings_path;
+}
 
 MainWnd::MainWnd(QWidget *parent, Qt::WindowFlags flags) :
 		QMainWindow(parent, flags) {
@@ -47,7 +66,10 @@ MainWnd::MainWnd(QWidget *parent, Qt::WindowFlags flags) :
 	button_run = new QPushButton("Run", this->centralWidget()); 
 	QObject::connect(button_run, SIGNAL(clicked()),this, SLOT(clickedSlot()));
 	
-	cppcheck_path = new QLineEdit(this->centralWidget());
+    QSettings settings(get_cfg_path(), QSettings::NativeFormat);
+    QString sText = settings.value("cppcheck_path", "cppcheck").toString();
+
+	cppcheck_path = new QLineEdit(sText, this->centralWidget());
 	cppcheck_srcpath = new QLineEdit(this->centralWidget());
 	cppcheck_errors = new QPlainTextEdit(this->centralWidget());
 	
@@ -84,7 +106,6 @@ MainWnd::MainWnd(QWidget *parent, Qt::WindowFlags flags) :
 	this->centralWidget()->setLayout(layout);
 	layout->setColumnStretch(1, 100);
 	cppcheck_options->setText("--force");
-	cppcheck_path->setText("~/oss/cppcheck-1.79/bin/cppcheck");
 	cppcheck_srcpath->setText(getcwd(nullptr, 0));  
 	QSize wndsize = QDesktopWidget().availableGeometry(this).size() * 0.7;
 	resize(wndsize);
@@ -238,10 +259,17 @@ void MainWnd::clickedSlot() {
 	
 	if (clickedButton == button_cppcheck) 
 	{
-		QString file1Name =QFileDialog::getOpenFileName(this,
-	    tr("choose cppcheck"), QStandardPaths::locate(QStandardPaths::ApplicationsLocation, QString(), QStandardPaths::LocateDirectory),
-	     tr("*"));
-		cppcheck_path->setText(file1Name);
+		QString file1Name = QFileDialog::getOpenFileName(this,
+			tr("choose cppcheck"),
+			QStandardPaths::locate(QStandardPaths::ApplicationsLocation, QString(),
+								QStandardPaths::LocateDirectory),
+			tr("*"));
+		if (file1Name.length())
+		{
+			cppcheck_path->setText(file1Name);
+		    QSettings settings(get_cfg_path(), QSettings::NativeFormat);
+		    settings.setValue("cppcheck_path", file1Name);
+		}
 		return;
 	} 	
 	
@@ -256,6 +284,7 @@ void MainWnd::clickedSlot() {
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
+    std::cout << get_cfg_path().toStdString() << std::endl;
     MainWnd w;
     w.show();
     return app.exec();
