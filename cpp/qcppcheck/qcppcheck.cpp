@@ -162,6 +162,8 @@ void runcppcheck(const std::string& cmdline, MainWnd* wnd)
 	std::string buffer(4096,' ');
 	std::vector<pollfd> plist = { {cout_pipe[0],POLLIN}, {cerr_pipe[0],POLLIN} };
 	int timeout_milliseconds = 5000;
+	std::string to_find_occurrences_of = "(error)";
+	int cppcheck_error_report_count = 0;
 	while(true)
 	{
 		int rval = poll(&plist[0],plist.size(), timeout_milliseconds);
@@ -177,11 +179,20 @@ void runcppcheck(const std::string& cmdline, MainWnd* wnd)
 			int bytes_read = read(cerr_pipe[0], &buffer[0], buffer.length());
 			readcnt += bytes_read;
 			wnd->output(buffer.substr(0, static_cast<size_t>(bytes_read)));
+
+			std::string::size_type start = 0;
+			std::string base_string = buffer.substr(0, static_cast<size_t>(bytes_read));
+
+			while ((start = base_string.find(to_find_occurrences_of, start)) != std::string::npos) {
+			    ++cppcheck_error_report_count;
+			    start += to_find_occurrences_of.length(); // see the note
+			}
 		}
 		pid_t wpid = waitpid(pid, &exit_code, WNOHANG);
 		if (wpid == pid)
 		{
 			std::stringstream ss;
+			ss <<"cppcheck reported " << cppcheck_error_report_count << " errors\n";
 			ss <<"cppcheck exit code " << exit_code << std::endl;
 			wnd->output(ss.str());		
 			break;
