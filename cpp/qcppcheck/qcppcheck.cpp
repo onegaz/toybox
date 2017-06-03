@@ -161,7 +161,7 @@ void runcppcheck(const std::string& cmdline, MainWnd* wnd)
 	// Read from pipes
 	std::string buffer(4096,' ');
 	std::vector<pollfd> plist = { {cout_pipe[0],POLLIN}, {cerr_pipe[0],POLLIN} };
-	int timeout_milliseconds = 5000;
+	int timeout_milliseconds = 9000;
 	std::string to_find_occurrences_of = "(error)";
 	int cppcheck_error_report_count = 0;
 	while(true)
@@ -213,9 +213,9 @@ void runcppcheck(const std::string& cmdline, MainWnd* wnd)
 		if(rval == 0)
 		{
 			std::stringstream ss;
-			ss <<"poll timeout error " << rval << " on pid " << pid << std::endl;
+			ss <<"poll timeout " << rval << " on pid " << pid << std::endl;
 			wnd->output(ss.str());			
-			break;	
+//			break;
 		}
 	} 
 	std::this_thread::sleep_for(std::chrono::milliseconds(234));
