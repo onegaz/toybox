@@ -149,8 +149,8 @@ void runcppcheck(const std::string& cmdline, MainWnd* wnd)
 	std::string argsmem[] = {"sh","-c"}; // allows non-const access to literals
 	char * args[] = {&argsmem[0][0],&argsmem[1][0],&command[0],nullptr};	
 	pid_t pid=0;
-	
-	if(posix_spawnp(&pid, args[0], &action, NULL, &args[0], NULL) != 0)
+	extern char **environ;
+	if(posix_spawnp(&pid, args[0], &action, NULL, &args[0], environ) != 0)
 	{
 		std::stringstream ss;
 		ss << __func__ << "posix_spawnp returned error " << strerror(errno) << "\n";
@@ -163,7 +163,19 @@ void runcppcheck(const std::string& cmdline, MainWnd* wnd)
 	std::vector<pollfd> plist = { {cout_pipe[0],POLLIN}, {cerr_pipe[0],POLLIN} };
 	int timeout_milliseconds = 9000;
 	std::string to_find_occurrences_of = "(error)";
-	int cppcheck_error_report_count = 0;
+	size_t cppcheck_error_report_count = 0;
+
+	auto count_substr = [](const std::string& base_string, const std::string& to_find_occurrences_of)
+	{
+		size_t substr_count = 0;
+		std::string::size_type start = 0;
+		while ((start = base_string.find(to_find_occurrences_of, start)) != std::string::npos) {
+		    ++substr_count;
+		    start += to_find_occurrences_of.length(); // see the note
+		}
+		return substr_count;
+	};
+
 	while(true)
 	{
 		int rval = poll(&plist[0],plist.size(), timeout_milliseconds);
@@ -180,13 +192,9 @@ void runcppcheck(const std::string& cmdline, MainWnd* wnd)
 			readcnt += bytes_read;
 			wnd->output(buffer.substr(0, static_cast<size_t>(bytes_read)));
 
-			std::string::size_type start = 0;
-			std::string base_string = buffer.substr(0, static_cast<size_t>(bytes_read));
-
-			while ((start = base_string.find(to_find_occurrences_of, start)) != std::string::npos) {
-			    ++cppcheck_error_report_count;
-			    start += to_find_occurrences_of.length(); // see the note
-			}
+			cppcheck_error_report_count += count_substr(
+					buffer.substr(0, static_cast<size_t>(bytes_read)),
+					to_find_occurrences_of);
 		}
 		pid_t wpid = waitpid(pid, &exit_code, WNOHANG);
 		if (wpid == pid)
@@ -215,7 +223,6 @@ void runcppcheck(const std::string& cmdline, MainWnd* wnd)
 			std::stringstream ss;
 			ss <<"poll timeout " << rval << " on pid " << pid << std::endl;
 			wnd->output(ss.str());			
-//			break;
 		}
 	} 
 	std::this_thread::sleep_for(std::chrono::milliseconds(234));
