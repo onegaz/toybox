@@ -68,9 +68,11 @@ MainWnd::MainWnd(QWidget *parent, Qt::WindowFlags flags) :
 	
     QSettings settings(get_cfg_path(), QSettings::NativeFormat);
     QString sText = settings.value("cppcheck_path", "cppcheck").toString();
-
 	cppcheck_path = new QLineEdit(sText, this->centralWidget());
-	cppcheck_srcpath = new QLineEdit(this->centralWidget());
+
+	sText = settings.value("cppcheck_srcpath", QString(getcwd(nullptr, 0))).toString();
+	cppcheck_srcpath = new QLineEdit(sText, this->centralWidget());
+
 	cppcheck_errors = new QPlainTextEdit(this->centralWidget());
 	
 	int rowspan=1, colspan=1; int row = 0; int col = 0;
@@ -79,7 +81,8 @@ MainWnd::MainWnd(QWidget *parent, Qt::WindowFlags flags) :
 	layout->addWidget(cppcheck_path, row, col, rowspan, colspan);
 	
 	QLabel* cppcheck_opt_label = new QLabel("options", this->centralWidget());
-	cppcheck_options = new QLineEdit(this->centralWidget());
+	sText = settings.value("cppcheck_options", "--force").toString();
+	cppcheck_options = new QLineEdit(sText, this->centralWidget());
 	row++; col = 0;
 	layout->addWidget(cppcheck_opt_label, row, col);
 	col++;
@@ -105,8 +108,6 @@ MainWnd::MainWnd(QWidget *parent, Qt::WindowFlags flags) :
 	
 	this->centralWidget()->setLayout(layout);
 	layout->setColumnStretch(1, 100);
-	cppcheck_options->setText("--force");
-	cppcheck_srcpath->setText(getcwd(nullptr, 0));  
 	QSize wndsize = QDesktopWidget().availableGeometry(this).size() * 0.7;
 	resize(wndsize);
 }
@@ -129,6 +130,7 @@ void runcppcheck(const std::string& cmdline, MainWnd* wnd)
 	int cout_pipe[2];
 	int cerr_pipe[2];
 	posix_spawn_file_actions_t action;
+    auto t1 = std::chrono::high_resolution_clock::now();
 
 	if(pipe(cout_pipe) || pipe(cerr_pipe))
 	{
@@ -199,8 +201,12 @@ void runcppcheck(const std::string& cmdline, MainWnd* wnd)
 		pid_t wpid = waitpid(pid, &exit_code, WNOHANG);
 		if (wpid == pid)
 		{
+		    auto t2 = std::chrono::high_resolution_clock::now();
+		    auto cmd_duration = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1);
+
 			std::stringstream ss;
-			ss <<"cppcheck reported " << cppcheck_error_report_count << " errors\n";
+			ss <<"cppcheck found " << cppcheck_error_report_count << " errors in "
+					<< cmd_duration.count() << " seconds\n";
 			ss <<"cppcheck exit code " << exit_code << std::endl;
 			wnd->output(ss.str());		
 			break;
@@ -255,7 +261,10 @@ void MainWnd::clickedSlot() {
 	      << "Platform: " << BOOST_PLATFORM << std::endl
 	      << "Library: " << BOOST_STDLIB << std::endl
 		  << "Boost " << BOOST_LIB_VERSION << std::endl
-		  << "QT " << std::hex << QT_VERSION;
+		  << "QT " << std::hex << QT_VERSION << std::endl
+		  << "PATH=" << getenv("PATH") << std::endl
+		  << "LD_LIBRARY_PATH=" << getenv("LD_LIBRARY_PATH") << std::endl
+		  ;
 		output(ss.str());
 		return;
 	}
@@ -270,6 +279,9 @@ void MainWnd::clickedSlot() {
 		ss 	<< cppcheck_path->text().toLatin1().data() 
 			<< " " << cppcheck_options->text().toLatin1().data() 
 			<< " " << cppcheck_srcpath->text().toLatin1().data();
+	    QSettings settings(get_cfg_path(), QSettings::NativeFormat);
+	    settings.setValue("cppcheck_options", cppcheck_options->text());
+	    settings.setValue("cppcheck_srcpath", cppcheck_srcpath->text());
 		std::thread t(runcppcheck, ss.str(), this);
 		t.detach();
 		return;
@@ -302,7 +314,6 @@ void MainWnd::clickedSlot() {
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
-    std::cout << get_cfg_path().toStdString() << std::endl;
     MainWnd w;
     w.show();
     return app.exec();
