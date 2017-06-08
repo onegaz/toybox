@@ -6,6 +6,7 @@
 #include <wx/clipbrd.h>
 #include <wx/gbsizer.h>
 #include <wx/stdpaths.h>
+#include <wx/dirdlg.h>
 #include <chrono>
 #include <ctime>
 #include <sstream>
@@ -82,6 +83,7 @@ public:
 	void OnRunClick(wxCommandEvent&);
 	void OnClearClick(wxCommandEvent&);
 	void OnReset(wxCommandEvent&);
+	void OnCd(wxCommandEvent&);
 	void OnListItemSelection(wxCommandEvent& event)
 	{
 		if (wxNOT_FOUND!=m_cmd_history->GetSelection())
@@ -118,6 +120,8 @@ public:
 	wxListBox *m_cmd_history;
 	wxTextCtrl *m_cmdline;
 	wxTextCtrl *m_output;
+	wxTextCtrl *m_pwd;
+	wxButton *m_cd;
 	wxButton *m_run;
 	wxButton *m_clear;
 	wxButton *m_reset;
@@ -168,6 +172,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 			wxDefaultSize, 0);
 	m_exit = new wxButton(this, wxID_ANY, wxT("Exit"), wxDefaultPosition,
 			wxDefaultSize, 0);
+	m_cd = new wxButton(this, wxID_ANY, wxT("PWD"), wxDefaultPosition,
+			wxDefaultSize, 0);
 	m_run->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
 			wxCommandEventHandler(MyFrame::OnRunClick), NULL, this);
 	m_clear->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
@@ -178,19 +184,23 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 			wxCommandEventHandler(MyFrame::OnAbout), NULL, this);
 	m_exit->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
 			wxCommandEventHandler(MyFrame::OnQuit), NULL, this);
+	m_cd->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
+				wxCommandEventHandler(MyFrame::OnCd), NULL, this);
 			
 	m_cmd_history = new wxListBox(this, wxID_ANY);
 	m_cmd_history->Connect(wxEVT_LISTBOX_DCLICK,
 			wxCommandEventHandler(MyFrame::OnListItemSelection), NULL, this);
 	
 	m_cmdline = new wxTextCtrl(this, wxID_ANY,
-			wxEmptyString, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxTE_PROCESS_ENTER); //
+			wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_PROCESS_ENTER); // wxHSCROLL|
  	m_cmdline->SetWindowStyle(m_cmdline->GetWindowStyle() & ~wxTE_DONTWRAP | wxTE_BESTWRAP);
  	m_cmdline->Connect(wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler(MyFrame::OnRunClick),NULL, this);
 
 	m_output = new wxTextCtrl(this, wxID_ANY,
 			wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxHSCROLL);
  	m_output->SetWindowStyle(m_output->GetWindowStyle() & ~wxTE_DONTWRAP | wxTE_BESTWRAP);
+	m_pwd = new wxTextCtrl(this, wxID_ANY,
+			wxEmptyString, wxDefaultPosition, wxDefaultSize);
 	
 	wxGridBagSizer *m_fgsizer = new wxGridBagSizer;
 	int row = 0;
@@ -199,7 +209,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	m_fgsizer->Add(m_cmd_history, wxGBPosition(row,1), wxGBSpan(2,1), wxGROW);
 	row++;
 	m_fgsizer->AddGrowableRow(row, 1);
-	
+	row++;
+	m_fgsizer->Add(m_cd,  wxGBPosition(row,0));
+	m_fgsizer->Add(m_pwd,  wxGBPosition(row,1), wxGBSpan(1,1), wxGROW);
 	row++;
 	m_fgsizer->Add(m_run, wxGBPosition(row,0));
 	m_fgsizer->Add(m_cmdline, wxGBPosition(row,1), wxGBSpan(3,1), wxGROW);
@@ -364,6 +376,22 @@ void MyFrame::OnClearClick(wxCommandEvent&)
 void MyFrame::OnReset(wxCommandEvent&)
 {
 	m_output->SetValue(wxEmptyString);
+}
+
+void MyFrame::OnCd(wxCommandEvent&)
+{
+	wxDirDialog dialog(this, wxT("change working directory"), getcwd(NULL, 0), wxDD_NEW_DIR_BUTTON);
+	if (dialog.ShowModal() == wxID_OK)
+	{
+	     wxString path = dialog.GetPath();
+	     m_pwd->SetValue(path);
+	     int ret = chdir(path.ToStdString().c_str());
+	     if (ret)
+	     {
+	    	 path.Append(" failed to change");
+	    	 m_pwd->SetValue(path);
+	     }
+	}
 }
 
 void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
