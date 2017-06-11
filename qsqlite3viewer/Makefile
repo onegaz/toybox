@@ -9,4 +9,4 @@ qsqlite3viewer:qsqlite3viewer.cpp mainwnd.cpp mainwnd_moc.cpp
 
 
 clean:
-	rm qsqlite3viewer
+	@if [ -f qsqlite3viewer ]; then rm qsqlite3viewer; fi;

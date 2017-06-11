@@ -8,7 +8,8 @@ CPPFLAGS = -I$(HADOOP_INSTALL)/include -pthread -std=c++11
 all: wordcount hellostreaming
 
 clean:
-	rm wordcount
+	@if [ -f wordcount ]; then rm wordcount; fi;
+	@if [ -f hellostreaming ]; then rm hellostreaming; fi;
 
 wordcount: hellohadoop.cpp
 	$(CXX) -o $@ $(CPPFLAGS) hellohadoop.cpp -lhadooppipes -lhadooputils -pthread -lcrypto -L/home/onega/bin/hadoop-2.7.3/lib/native

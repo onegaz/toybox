@@ -7,7 +7,7 @@ LDFLAGS = -L/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.60-2.b27.el7_1.x86_64/jre/lib/
 all: hellohdfs
 
 clean:
-		rm hellohdfs
+		@if [ -f hellohdfs ]; then rm hellohdfs; fi;
 
 hellohdfs: hellohdfs.cpp
 		$(CXX) -o $@ -I$(HADOOP_HDFS_HOME)/include -std=c++11 $^ -lhdfs -ljvm -L$(HADOOP_HDFS_HOME)/lib/native $(LDFLAGS)

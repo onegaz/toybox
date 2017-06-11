@@ -11,4 +11,4 @@ findduplicates: mainwnd.cpp findduplicates.cpp digest_thread.cpp
 	$(CXX) -o $@ -g -std=c++11 -pthread $(CPPFLAGS) $^ -lssl -lcrypto $(LDFLAGS) -lboost_filesystem -lboost_program_options -lboost_system
 	
 clean:
-	rm 	findduplicates
+	@if [ -f findduplicates ]; then rm findduplicates; fi;
