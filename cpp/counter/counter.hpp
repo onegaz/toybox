@@ -87,12 +87,23 @@ struct crtp_counter
     {
     	static const char gcc_prefix[] = "static const char* crtp_counter<T>::get_type_name() [with T = ";
     	static const char gcc_postfix[] = "]";
-    	static char name[sizeof(BOOST_CURRENT_FUNCTION)-sizeof(gcc_prefix)];
+    	static const char clang_prefix[] = "static const char *crtp_counter<";
+    	static const char clang_postfix[] = ">::get_type_name()";
+    	static char name[sizeof(BOOST_CURRENT_FUNCTION)-sizeof(clang_prefix)];
     	if (!name[0])
     	{
-    		printf("%s\n", BOOST_CURRENT_FUNCTION);
-    		strcpy(name, BOOST_CURRENT_FUNCTION + sizeof(gcc_prefix)-1);
-    		name[strlen(name)-strlen(gcc_postfix)] = 0;
+    		// printf("%s\n", BOOST_CURRENT_FUNCTION);
+    		if (strstr(BOOST_CURRENT_FUNCTION, gcc_prefix)==nullptr)
+    		{
+        		strcpy(name, BOOST_CURRENT_FUNCTION + sizeof(clang_prefix)-1);
+        		char* endpos = strstr (name, clang_postfix);
+        		endpos[0] = 0;
+    		}
+    		else
+    		{
+        		strcpy(name, BOOST_CURRENT_FUNCTION + sizeof(gcc_prefix)-1);
+        		name[strlen(name)-strlen(gcc_postfix)] = 0;
+    		}
     	}
     	return name;
     }

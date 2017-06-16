@@ -3,6 +3,8 @@
 #include <vector>
 #include <algorithm>
 #include <memory>
+#include <boost/version.hpp>
+#include <boost/config.hpp>
 #include "counter.hpp"
 
 class Base : public crtp_counter<Base>
@@ -46,5 +48,12 @@ int main()
 	std::for_each(derived2_objs.begin(), derived2_objs.end(), std::default_delete<Derived2>());
 	cout << "Object counters after dtor\n";
 	crtp_counter_store<2048>::dump();
+
+	cout  << "Use Curiously Recurring Template Pattern (CRTP) to count live objects\n"
+		  << "Build with Compiler: " << BOOST_COMPILER << std::endl
+		  << "Platform: " << BOOST_PLATFORM << std::endl
+		  << "Library: " << BOOST_STDLIB << std::endl
+		  << "Boost " << BOOST_LIB_VERSION << std::endl
+		  ;
 	return 0;
 }
