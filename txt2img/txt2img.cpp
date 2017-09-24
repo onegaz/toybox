@@ -47,7 +47,7 @@ public:
     }
 };
 
-int main(int argc, char* argv[])
+int main1(int argc, char* argv[])
 {
     std::string srcfile;
     std::string outfile = "/tmp/txt2img.png";
