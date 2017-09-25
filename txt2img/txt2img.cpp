@@ -7,45 +7,63 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
-
+#include "text_to_img.hpp"
+#include "pngwriter_text_to_img.hpp"
 // dependencies on MacOS
 // https://github.com/pngwriter/pngwriter
 // brew install freetype
 // alternative boost::freetype - extension for boost::gil
 
-class text_to_img
+void txt_to_lines(const std::string& line, int num_per_line, std::deque<std::string>& lines)
 {
-public:
-    virtual void convert(const std::string& ttf, int width, int font_size, int line_space,
-                         const std::deque<std::string>& lines,
-                         const std::string& outfile) = 0;
-    virtual ~text_to_img() = default;
-};
+    int nstart = 0;
+    char buf[1024];
+    int pos = 0;
+    int num = 0;
+    auto append_line = [&]() {
+        buf[nstart] = 0;
+        lines.emplace_back(buf);
+        num = 0;
+        nstart = 0;
+    };
 
-class pngwriter_text_to_img : public text_to_img
-{
-public:
-    void convert(const std::string& ttf, int width, int font_size, int line_space,
-                 const std::deque<std::string>& lines,
-                 const std::string& outfile) override
+    while (pos < line.length())
     {
-        int height = (font_size + line_space) * lines.size();
-        int top = height;
-        int backgroundcolour = 65535;
-        pngwriter one(width, height, backgroundcolour, outfile.c_str());
-        for (auto& aline : lines)
+        num++;
+        if (line[pos] > 127)
         {
-            top -= font_size + line_space;
-
-            if (top < 0)
-                break;
-
-            one.plot_text_utf8(const_cast<char*>(ttf.c_str()), font_size, 10, top, 0,
-                               const_cast<char*>(aline.c_str()), 0.0, 0.0, 1.0);
+            buf[nstart++] = line[pos++];
+            if (pos < line.length())
+                buf[nstart++] = line[pos++];
         }
-        one.close();
+        else
+        {
+            buf[nstart++] = line[pos++];
+        }
+        // avoid extreme short line like only Punctuation
+        if (nstart >= num_per_line && line.length() - pos > 3)
+        {
+            append_line();
+        }
     }
-};
+
+    if (num > 0)
+    {
+        append_line();
+    }
+}
+
+std::deque<std::string> file_to_lines(const std::string& srcfile, int num_per_line)
+{
+    std::ifstream intext(srcfile.c_str());
+    std::string line;
+    std::deque<std::string> lines;
+    while (std::getline(intext, line))
+    {
+    	txt_to_lines(line, num_per_line, lines);
+    }
+    return lines;
+}
 
 int main1(int argc, char* argv[])
 {
@@ -96,49 +114,8 @@ int main1(int argc, char* argv[])
         return 0;
     }
 
-    int top = height;
-    std::ifstream intext(srcfile.c_str());
-    std::string line;
     int num_per_line = width * 18 / (font_size * 10);
-    std::deque<std::string> lines;
-    while (std::getline(intext, line))
-    {
-        int nstart = 0;
-        char buf[1024];
-        int pos = 0;
-        int num = 0;
-        auto append_line = [&]() {
-            buf[nstart] = 0;
-            lines.emplace_back(buf);
-            num = 0;
-            nstart = 0;
-        };
-
-        while (pos < line.length())
-        {
-            num++;
-            if (line[pos] > 127)
-            {
-                buf[nstart++] = line[pos++];
-                if (pos < line.length())
-                    buf[nstart++] = line[pos++];
-            }
-            else
-            {
-                buf[nstart++] = line[pos++];
-            }
-            // avoid extreme short line like only Punctuation
-            if (num >= num_per_line && line.length() - pos > 3)
-            {
-                append_line();
-            }
-        }
-
-        if (num > 0)
-        {
-            append_line();
-        }
-    }
+    std::deque<std::string> lines = file_to_lines(srcfile, num_per_line);
     std::unique_ptr<text_to_img> t2i(new pngwriter_text_to_img);
     t2i->convert(ttf, width, font_size, line_space, lines, outfile);
 

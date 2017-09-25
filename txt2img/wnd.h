@@ -22,14 +22,14 @@ public:
     virtual ~MainWnd();
 public slots:
 	void clickedSlot();
-//	void customEvent(QEvent* e);
-public:
-	static const int UPDATE_CUSTOM_EVENT=1001;
-//	void output(const std::string& msg);
-
+	void clickedAbout();
+	void clickedRun();
 private:
-  	QPushButton *button_tff;
-  	QLineEdit *tff_path;
+	void CreateButtons();
+        void saveSettings();
+
+        QPushButton *button_tff;
+        QLineEdit *tff_path;
   	QPushButton *button_srcpath;
   	QLineEdit *src_path;
 
@@ -41,11 +41,14 @@ private:
   	QLineEdit *m_bgcolor;
 
   	QPlainTextEdit* src_text;
+  	QPushButton *button_append;
+  	QPushButton *button_copy;
+  	QPushButton *button_clear;
 
     QPushButton *button_about;
     QPushButton *button_run;
     QPushButton *button_exit;
-    std::stringstream m_output;
+//    std::stringstream m_output;
 };
 
 #endif /* MAINWND_H_ */

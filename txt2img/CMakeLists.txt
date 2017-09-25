@@ -4,7 +4,7 @@ project(txt2img)
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11 -fPIC")
 else()
         message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
@@ -42,7 +42,7 @@ link_directories(${freetype2_dir}/lib)
 
 
 
-add_executable(${PROJECT_NAME} txt2img.cpp wnd.cpp)
+add_executable(${PROJECT_NAME} txt2img.cpp wnd.cpp pngwriter_text_to_img.cpp imageviewer.cpp)
 
 target_link_libraries (txt2img pngwriter freetype pthread boost_system boost_program_options
 	Qt5::Widgets Qt5::Core )

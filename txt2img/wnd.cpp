@@ -16,6 +16,10 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <string>
+#include <deque>
+#include <boost/version.hpp>
+#include <boost/config.hpp>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
@@ -23,11 +27,14 @@
 #include <QtWidgets/QDesktopWidget>
 #include <QtCore/QStandardPaths> // /usr/local/opt/qt/include/QtCore/QStandardPaths
 #include <QtGui/QKeyEvent>
+#include <QtGui/QClipboard>
 #include <QtCore/QSettings>
 #include <QtCore/QFileInfo>
-#include <boost/version.hpp>
-#include <boost/config.hpp>
+
+#include "text_to_img.hpp"
+#include "pngwriter_text_to_img.hpp"
 #include "wnd.h"
+#include "imageviewer.hpp"
 
 QString get_cfg_path()
 {
@@ -46,41 +53,49 @@ QString get_cfg_path()
     return app_settings_path;
 }
 
+void MainWnd::CreateButtons()
+{
+    button_about = new QPushButton("About", this->centralWidget());
+    QObject::connect(button_about, SIGNAL(clicked()), this, SLOT(clickedAbout()));
+    button_run = new QPushButton("Run", this->centralWidget());
+    QObject::connect(button_run, SIGNAL(clicked()), this, SLOT(clickedRun()));
+    button_exit = new QPushButton("Exit", this->centralWidget());
+    QObject::connect(button_exit, SIGNAL(clicked()), this, SLOT(clickedSlot()));
+    button_tff = new QPushButton("Font File", this->centralWidget());
+    QObject::connect(button_tff, SIGNAL(clicked()), this, SLOT(clickedSlot()));
+    button_srcpath = new QPushButton("Source", this->centralWidget());
+    QObject::connect(button_srcpath, SIGNAL(clicked()), this, SLOT(clickedSlot()));
+    button_dstpath = new QPushButton("Save to", this->centralWidget());
+    QObject::connect(button_dstpath, SIGNAL(clicked()), this, SLOT(clickedSlot()));
+    button_append = new QPushButton("Append", this->centralWidget());
+    QObject::connect(button_append, SIGNAL(clicked()), this, SLOT(clickedSlot()));
+    button_copy = new QPushButton("Copy", this->centralWidget());
+    QObject::connect(button_copy, SIGNAL(clicked()), this, SLOT(clickedSlot()));
+    button_clear = new QPushButton("Clear", this->centralWidget());
+    QObject::connect(button_clear, SIGNAL(clicked()), this, SLOT(clickedSlot()));
+}
+
 MainWnd::MainWnd(QWidget *parent, Qt::WindowFlags flags) :
 		QMainWindow(parent, flags) {
 	this->setCentralWidget(new QWidget(this->centralWidget()));
 	QGridLayout* layout = new QGridLayout();
 
-	button_about = new QPushButton("About", this->centralWidget());
-	QObject::connect(button_about, SIGNAL(clicked()),this, SLOT(clickedSlot()));
-	button_run = new QPushButton("Run", this->centralWidget());
-	QObject::connect(button_run, SIGNAL(clicked()),this, SLOT(clickedSlot()));
-	button_exit = new QPushButton("Exit", this->centralWidget());
-	QObject::connect(button_exit, SIGNAL(clicked()),this, SLOT(clickedSlot()));
-
-
-	button_tff = new QPushButton("Font File", this->centralWidget());
-	QObject::connect(button_tff, SIGNAL(clicked()),this, SLOT(clickedSlot()));
-
-	button_srcpath = new QPushButton("Source", this->centralWidget());
-	QObject::connect(button_srcpath, SIGNAL(clicked()),this, SLOT(clickedSlot()));
-	button_dstpath = new QPushButton("Save to", this->centralWidget());
-	QObject::connect(button_dstpath, SIGNAL(clicked()),this, SLOT(clickedSlot()));
-
-
+	CreateButtons();
     QSettings settings(get_cfg_path(), QSettings::NativeFormat);
-    QString sText = settings.value("font_path", "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc").toString();
+    QString sText = settings.value("tff_path", "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc").toString();
     tff_path = new QLineEdit(sText, this->centralWidget());
 
-	sText = settings.value("src_path", QString(getcwd(nullptr, 0))).toString();
+	sText = settings.value("src_path", "").toString();
 	src_path = new QLineEdit(sText, this->centralWidget());
-	sText = settings.value("dst_path", QString(getcwd(nullptr, 0))).toString();
+
+	sText = QString("%1/txt2img.png").arg(QDir::homePath());
+	sText = settings.value("dst_path", sText).toString();
 	dst_path = new QLineEdit(sText, this->centralWidget());
-	sText = settings.value("m_font_size", QString(getcwd(nullptr, 0))).toString();
+	sText = settings.value("m_font_size", "12").toString();
 	m_font_size = new QLineEdit(sText, this->centralWidget());
-	sText = settings.value("m_width", QString(getcwd(nullptr, 0))).toString();
+	sText = settings.value("m_width", "960").toString();
 	m_width = new QLineEdit(sText, this->centralWidget());
-	sText = settings.value("m_bgcolor", QString(getcwd(nullptr, 0))).toString();
+	sText = settings.value("m_bgcolor", "65535").toString();
 	m_bgcolor = new QLineEdit(sText, this->centralWidget());
 
 	QLabel* txt_label = new QLabel("Text", this->centralWidget());
@@ -121,7 +136,15 @@ MainWnd::MainWnd(QWidget *parent, Qt::WindowFlags flags) :
 	row++; col = 0;
 	layout->addWidget(txt_label, row, col);
 	col++;
-	layout->addWidget(src_text, row, col, rowspan=1, colspan=6);
+	layout->addWidget(src_text, row, col, rowspan=5, colspan=6);
+	row++; col = 0;
+	layout->addWidget(button_append, row, col);
+	row++; col = 0;
+	layout->addWidget(button_copy, row, col);
+	row++; col = 0;
+	layout->addWidget(button_clear, row, col);
+	row++; col = 0; // extra row for src_text
+	layout->rowStretch(row);
 
 	QHBoxLayout *lastRowLayout = new QHBoxLayout;
 	lastRowLayout->addWidget(button_about);
@@ -129,7 +152,7 @@ MainWnd::MainWnd(QWidget *parent, Qt::WindowFlags flags) :
 	lastRowLayout->addWidget(button_exit);
 
 	row++; col = 0;
-	layout->addLayout(lastRowLayout,row,0, 1, 7);
+	layout->addLayout(lastRowLayout,row, col=0, rowspan=1, colspan=7);
 
 	this->centralWidget()->setLayout(layout);
 	layout->setColumnStretch(6, 100);
@@ -140,26 +163,128 @@ MainWnd::MainWnd(QWidget *parent, Qt::WindowFlags flags) :
 MainWnd::~MainWnd() {
 }
 
+void MainWnd::clickedAbout()
+{
+    std::ostringstream ss;
+    ss << QCoreApplication::applicationFilePath().toStdString() << " ";
+    ss << "pid " << QCoreApplication::applicationPid() << std::endl;
+    ss << "Build with Compiler: " << BOOST_COMPILER << std::endl
+      << "Platform: " << BOOST_PLATFORM << std::endl
+      << "Library: " << BOOST_STDLIB << std::endl
+	  << "Boost " << BOOST_LIB_VERSION << std::endl
+	  << "QT " << std::hex << QT_VERSION << std::endl
+	  << "PATH=" << getenv("PATH") << std::endl
+	  << "LD_LIBRARY_PATH=" << getenv("LD_LIBRARY_PATH") << std::endl
+	  ;
+	QMessageBox::about(this, "About", ss.str().c_str());
+}
+
+void MainWnd::saveSettings()
+{
+    QSettings settings(get_cfg_path(), QSettings::NativeFormat);
+    settings.setValue("src_path", src_path->text());
+    settings.setValue("dst_path", dst_path->text());
+    settings.setValue("m_width", m_width->text());
+    settings.setValue("m_font_size", m_font_size->text());
+    settings.setValue("tff_path", tff_path->text());
+}
+
+void MainWnd::clickedRun()
+{
+	saveSettings();
+	int width = m_width->text().toInt();
+	int fs = m_font_size->text().toInt();
+    int num_per_line = width * 14 / (fs * 10)-2;
+    int ls = 4;
+    std::deque<std::string> lines;
+    if (src_text->toPlainText().isEmpty()==false)
+    {
+    	txt_to_lines(src_text->toPlainText().toStdString(), num_per_line, lines);
+    }
+    else if (src_path->text().isEmpty()==false)
+    	lines = file_to_lines(src_path->text().toStdString(), num_per_line);
+
+    if (lines.empty())
+    	return;
+
+    std::unique_ptr<text_to_img> t2i(new pngwriter_text_to_img);
+    t2i->convert(tff_path->text().toStdString(), width, fs, ls, lines,
+    		dst_path->text().toStdString());
+    ImageViewer imageViewer(dst_path->text());
+    imageViewer.exec();
+}
+
 void MainWnd::clickedSlot() {
     QPushButton *clickedButton = qobject_cast<QPushButton *>(sender());
-    if (clickedButton == button_about) {
-	    std::ostringstream ss;
-	    ss << QCoreApplication::applicationFilePath().toStdString() << " ";
-	    ss << "pid " << QCoreApplication::applicationPid() << std::endl;
-	    ss << "Build with Compiler: " << BOOST_COMPILER << std::endl
-	      << "Platform: " << BOOST_PLATFORM << std::endl
-	      << "Library: " << BOOST_STDLIB << std::endl
-		  << "Boost " << BOOST_LIB_VERSION << std::endl
-		  << "QT " << std::hex << QT_VERSION << std::endl
-		  << "PATH=" << getenv("PATH") << std::endl
-		  << "LD_LIBRARY_PATH=" << getenv("LD_LIBRARY_PATH") << std::endl
-		  ;
-		QMessageBox::about(this, "About", ss.str().c_str());
+	if (clickedButton == button_srcpath)
+	{
+		QString file1Name = QFileDialog::getOpenFileName(this,
+			tr("choose a text file"),
+			QStandardPaths::locate(QStandardPaths::ApplicationsLocation, QString(),
+								QStandardPaths::LocateDirectory),
+			tr("*"));
+		if (file1Name.length())
+		{
+			src_path->setText(file1Name);
+		    QSettings settings(get_cfg_path(), QSettings::NativeFormat);
+		    settings.setValue("src_path", file1Name);
+		}
 		return;
 	}
+
+	if (clickedButton == button_dstpath)
+	{
+		QString fileName = QFileDialog::getSaveFileName(this,
+		        tr("Save as png file"), "",
+		        tr("png (*.png)"));
+		if (fileName.isEmpty()==false)
+			dst_path->setText(fileName);
+		return;
+	}
+
+	if (clickedButton == button_tff)
+	{
+		QString file1Name = QFileDialog::getOpenFileName(this,
+			tr("choose a font file"),
+			"/usr/share/fonts/opentype/noto",
+			tr("*"));
+		if (file1Name.length())
+		{
+			tff_path->setText(file1Name);
+		    QSettings settings(get_cfg_path(), QSettings::NativeFormat);
+		    settings.setValue("tff_path", file1Name);
+		}
+		return;
+	}
+
 	if (clickedButton == button_exit)
 	{
 		close();
+		return;
+	}
+
+	if (clickedButton == button_clear)
+	{
+		src_text->clear();
+		return;
+	}
+
+	if (clickedButton == button_copy)
+	{
+		auto clipboard = QApplication::clipboard();
+	    clipboard->setText(src_text->toPlainText());
+		return;
+	}
+
+	if (clickedButton == button_append)
+	{
+		QString cbtxt = QApplication::clipboard()->text();
+		if (!cbtxt.isEmpty())
+		{
+			src_text->moveCursor (QTextCursor::End);
+			src_text->insertPlainText (cbtxt);
+			src_text->moveCursor (QTextCursor::End);
+		}
 		return;
 	}
 }
