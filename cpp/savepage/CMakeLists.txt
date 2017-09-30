@@ -1,13 +1,18 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.5)
 project (savepage)
 set(CMAKE_CXX_STANDARD 11) 
 set(CMAKE_AUTOMOC TRUE)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-find_package(Qt5 REQUIRED COMPONENTS core widgets gui)
-include_directories(/usr/local/opt/qt5/include)
+
+find_package(Qt5Widgets)
+find_package(Qt5Gui)
+find_package(Qt5Core)
+find_package(Threads)
+
 add_executable(${CMAKE_PROJECT_NAME} savepage.cpp)
 
-target_link_libraries(${CMAKE_PROJECT_NAME} 
-    /usr/local/opt/qt5/lib/QtWidgets.framework/Versions/5/QtWidgets 
-    /usr/local/opt/qt5/lib/QtGui.framework/Versions/5/QtGui 
-    /usr/local/opt/qt5/lib/QtCore.framework/Versions/5/QtCore)
+target_link_libraries (${CMAKE_PROJECT_NAME} 
+	Qt5::Widgets Qt5::Gui Qt5::Core ${CMAKE_THREAD_LIBS_INIT})
+	
+# CMAKE_PREFIX_PATH=~/Qt/5.9/gcc_64/lib/cmake cmake ~/oss/toybox/cpp/savepage
+# Qt5_DIR=~/Qt/5.9/gcc_64 make
