@@ -20,6 +20,7 @@
 #include <deque>
 #include <boost/version.hpp>
 #include <boost/config.hpp>
+#include <boost/predef.h>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
