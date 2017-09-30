@@ -31,21 +31,20 @@ if(WIN32)
 endif()
 
 find_package(Qt5Widgets)
+find_package(Qt5Gui)
 find_package(Qt5Core)
-#find_package(Qt5 REQUIRED COMPONENTS core widgets gui)
-include_directories("$ENV{Qt5_DIR}/include")
+find_package(Threads)
+#include_directories("$ENV{Qt5_DIR}/include")
 
 include_directories("${pngwriter_dir}/src")
 include_directories("${freetype2_dir}/include/freetype2")
 link_directories(${pngwriter_dir})
 link_directories(${freetype2_dir}/lib)
 
-
-
 add_executable(${PROJECT_NAME} txt2img.cpp wnd.cpp pngwriter_text_to_img.cpp imageviewer.cpp)
 
-target_link_libraries (txt2img pngwriter freetype pthread boost_system boost_program_options
-	Qt5::Widgets Qt5::Core )
+target_link_libraries (txt2img pngwriter freetype boost_system boost_program_options
+	Qt5::Widgets Qt5::Core ${CMAKE_THREAD_LIBS_INIT} )
 
 # CMAKE_PREFIX_PATH=~/Qt/5.9/gcc_64/lib/cmake cmake ~/oss/toybox/txt2img
 # Qt5_DIR=~/Qt/5.9/gcc_64 CMAKE_PREFIX_PATH=~/Qt/5.9/gcc_64/lib/cmake cmake ~/oss/toybox/txt2img && make VERBOSE=1
