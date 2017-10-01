@@ -4,9 +4,8 @@
 class text_to_img
 {
 public:
-    virtual void convert(const std::string& ttf, int width, int font_size, int line_space,
-                         const std::deque<std::string>& lines,
-                         const std::string& outfile) = 0;
+    virtual void convert() = 0;                        // convert txt file
+    virtual void convert(const std::string& text) = 0; // convert text
     virtual ~text_to_img() = default;
 };
 

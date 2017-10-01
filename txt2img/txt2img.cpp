@@ -1,6 +1,7 @@
 #include <boost/predef.h>
 #include <pngwriter.h>
 #include <boost/program_options.hpp>
+#include <array>
 #include <deque>
 #include <fstream>
 #include <functional>
@@ -53,6 +54,8 @@ void txt_to_lines(const std::string& line, int num_per_line,
         append_line();
     }
 }
+
+
 
 std::deque<std::string> file_to_lines(const std::string& srcfile, int num_per_line)
 {
@@ -117,8 +120,8 @@ int main1(int argc, char* argv[])
 
     int num_per_line = width * 18 / (font_size * 10);
     std::deque<std::string> lines = file_to_lines(srcfile, num_per_line);
-    std::unique_ptr<text_to_img> t2i(new pngwriter_text_to_img);
-    t2i->convert(ttf, width, font_size, line_space, lines, outfile);
+//    std::unique_ptr<text_to_img> t2i(new pngwriter_text_to_img);
+//    t2i->convert(ttf, width, font_size, line_space, lines, outfile);
 
 #if BOOST_OS_WINDOWS
     std::cout << "start " << outfile << std::endl;

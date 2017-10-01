@@ -181,7 +181,8 @@ MainWnd::MainWnd(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     resize(wndsize);
 }
 
-MainWnd::~MainWnd() {
+MainWnd::~MainWnd()
+{
 }
 
 void MainWnd::clickedAbout()
@@ -211,25 +212,26 @@ void MainWnd::saveSettings()
 
 void MainWnd::clickedRun()
 {
-    saveSettings();
     int width = m_width->text().toInt();
     int fs = m_font_size->text().toInt();
-    int num_per_line = width * 14 / (fs * 10) - 2;
     int ls = 4;
-    std::deque<std::string> lines;
-    if (src_text->toPlainText().isEmpty() == false)
+    QFileInfo check_file(src_path->text());
+    if (check_file.exists() == false || check_file.isFile() == false)
     {
-        txt_to_lines(src_text->toPlainText().toStdString(), num_per_line, lines);
+        if (src_text->toPlainText().isEmpty())
+            return;
     }
-    else if (src_path->text().isEmpty() == false)
-        lines = file_to_lines(src_path->text().toStdString(), num_per_line);
+    saveSettings();
+    std::unique_ptr<pngwriter_text_to_img> t2i = std::make_unique<pngwriter_text_to_img>(
+        tff_path->text().toStdString(), width, fs, ls, m_bgcolor->text().toInt(),
+        src_path->text().toStdString(), dst_path->text().toStdString());
 
-    if (lines.empty())
-        return;
-
-    std::unique_ptr<text_to_img> t2i(new pngwriter_text_to_img);
-    t2i->convert(tff_path->text().toStdString(), width, fs, ls, lines,
-                 dst_path->text().toStdString());
+    if (src_text->toPlainText().isEmpty())
+        t2i->convert(); //
+    else
+    {
+        t2i->convert(src_text->toPlainText().toStdString());
+    }
     ImageViewer imageViewer(dst_path->text());
     imageViewer.exec();
 }
