@@ -6,6 +6,8 @@
 #include <vector>
 #include <boost/program_options.hpp>
 
+bool verbose_mode=true;
+
 void partition_integer(int num, int pos, std::vector<int>& result, int& cnt)
 {
     if (pos < 1)
@@ -23,9 +25,12 @@ void partition_integer(int num, int pos, std::vector<int>& result, int& cnt)
         {
             ++cnt;
             result[pos] = value;
-            std::copy(result.begin(), result.end(),
-                      std::ostream_iterator<int>(std::cout, " "));
-            std::cout << "\n";
+            if (verbose_mode)
+            {
+                std::copy(result.begin(), result.end(),
+                          std::ostream_iterator<int>(std::cout, " "));
+                std::cout << "\n";
+            }
             return;
         }
         return;
@@ -50,6 +55,7 @@ int main(int argc, char* argv[])
     namespace po = boost::program_options;
     desc.add_options()
       ("help,h", "Print help messages")
+	  ("verbose", "Enable verbose mode: print partitions")
       ("num", po::value<int>(&num),  "integer to partition")
 	  ("groups", po::value<int>(&groups),  "groups")
 	  ;
@@ -60,6 +66,9 @@ int main(int argc, char* argv[])
             po::command_line_parser(argc, argv).options(desc).allow_unregistered().run(),
             vm);
         po::notify(vm);
+
+        verbose_mode = vm.count("verbose");
+
         if (vm.count("help"))
         {
             std::cout << argv[0] << " usage:" << std::endl << desc << std::endl;
