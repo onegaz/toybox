@@ -4,6 +4,7 @@
 #include <iterator>
 #include <numeric>
 #include <vector>
+#include <boost/program_options.hpp>
 
 void partition_integer(int num, int pos, std::vector<int>& result, int& cnt)
 {
@@ -30,7 +31,7 @@ void partition_integer(int num, int pos, std::vector<int>& result, int& cnt)
         return;
     }
 
-    for (int i = min_val; i < num; i++)
+    for (int i = min_val; i <= (num-sum)/(groups - pos); i++)
     {
         result[pos] = i;
         partition_integer(num, pos + 1, result, cnt);
@@ -44,6 +45,33 @@ int main(int argc, char* argv[])
     int num = 10;
     int groups = 3;
     int count = 0;
+    boost::program_options::variables_map vm;
+    boost::program_options::options_description desc;
+    namespace po = boost::program_options;
+    desc.add_options()
+      ("help,h", "Print help messages")
+      ("num", po::value<int>(&num),  "integer to partition")
+	  ("groups", po::value<int>(&groups),  "groups")
+	  ;
+
+    try
+    {
+        po::store(
+            po::command_line_parser(argc, argv).options(desc).allow_unregistered().run(),
+            vm);
+        po::notify(vm);
+        if (vm.count("help"))
+        {
+            std::cout << argv[0] << " usage:" << std::endl << desc << std::endl;
+            return 0;
+        }
+    }
+    catch (po::error& e)
+    {
+        std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+        std::cerr << desc << std::endl;
+        return __LINE__;
+    }
 
     std::vector<int> result(groups);
     std::fill(result.begin(), result.end(), 0);
