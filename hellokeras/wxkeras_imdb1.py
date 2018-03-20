@@ -217,3 +217,11 @@ if __name__ == '__main__':
     app = wx.App(0)
     frame = MyFrame()
     app.MainLoop()
+
+"""
+sudo pip install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04 wxPython
+sudo apt-get install libsdl-ttf2.0-0
+sudo pip3 install -U keras
+sudo pip3 install -U tensorflow
+sudo pip3 install -U sklearn matplotlib h5py
+"""
