@@ -137,6 +137,17 @@ class MyFrame(wx.Frame):
         panel.Fit()
         self.Show()
 
+def best_epoch(model_history):
+    highest_val_acc = 0
+    best_epoch_num = 0
+    for i in range(0, len(model_history.history['val_acc'])):
+        if model_history.history['val_acc'][i]>highest_val_acc:
+            highest_val_acc = model_history.history['val_acc'][i]
+            best_epoch_num = i
+    # print('best epoch is {} best val_acc {}'.format(best_epoch, highest_val_acc))
+    # print('val_acc ', model_history.history['val_acc'])
+    return best_epoch_num
+
 class TrainingThread(threading.Thread):
     def __init__(self, parent):
         """
@@ -188,15 +199,13 @@ class TrainingThread(threading.Thread):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         
-        filepath=output_dir+"/weights.02.hdf5"
         # slightly higher than bidirectional LSTM and about the same as stacked biLSTM
         # but epochs are a third as long, or one-sixth as long, respectively
-#         if not os.path.isfile(filepath):
         self._parent.history=model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1, validation_data=(x_valid, y_valid), callbacks=[modelcheckpoint])
-#         else:
-#             print(filepath + ' already exists, skip training')
-            
-        model.load_weights(output_dir+"/weights.02.hdf5")
+
+        weights_filepath = output_dir+"/weights.{:02d}.hdf5".format(best_epoch(self._parent.history)+1);
+        print("Using " + weights_filepath)
+        model.load_weights(weights_filepath)
         y_hat = model.predict_proba(x_valid)
         for cfg in model.get_config():
             print(cfg)
