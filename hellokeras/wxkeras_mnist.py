@@ -40,39 +40,28 @@ class MyPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         self.grid = wx.grid.Grid(self, -1)
-        self.grid.CreateGrid(14, 3)
+        configs=[['output_dir', 'model_output/mnist']]
+        configs.append(['epochs', '4'])
+        configs.append(['batch_size', '128'])
+        configs.append(['filters_1', '32'])
+        configs.append(['kernel_size_1_1', '3'])
+        configs.append(['kernel_size_1_2', '3'])
+        configs.append(['filters_2', '64'])
+        configs.append(['kernel_size_2_1', '3'])
+        configs.append(['kernel_size_2_2', '3'])
+        configs.append(['pool_size_1_1', '2'])
+        configs.append(['pool_size_1_2', '2'])
+        configs.append(['dropout_1', '0.2'])
+        configs.append(['dense_1', '128'])
+        configs.append(['dropout_2', '0.5'])
+        
+        self.grid.CreateGrid(len(configs), 3)
         self.grid.SetColLabelValue(0, 'Name')    
         self.grid.SetColLabelValue(1, 'Default')
         self.grid.SetColLabelValue(2, 'Value')
-        row=0
-        self.set_row(row, 'output_dir', 'model_output/mnist')
-        row=row+1
-        self.set_row(row, 'epochs', 4)
-        row=row+1
-        self.set_row(row, 'batch_size', 128)
-        row=row+1
-        self.set_row(row, 'filters_1', 32)
-        row=row+1
-        self.set_row(row, 'kernel_size_1_1', 3)
-        row=row+1
-        self.set_row(row, 'kernel_size_1_2', 3)        
-        row=row+1
-        self.set_row(row, 'filters_2', 64)
-        row=row+1
-        self.set_row(row, 'kernel_size_2_1', 3)
-        row=row+1
-        self.set_row(row, 'kernel_size_2_2', 3)
-        row=row+1
-        self.set_row(row, 'pool_size_1_1', 2)
-        row=row+1
-        self.set_row(row, 'pool_size_1_2', 2)
-        row=row+1
-        self.set_row(row, 'dropout_1', '0.2')
-        row=row+1
-        self.set_row(row, 'dense_1', 128)
-        row=row+1
-        self.set_row(row, 'dropout_2', '0.5')
-             
+        for i in range(0, len(configs)):
+            self.set_row(i, configs[i][0], configs[i][1])
+
         selectBtn = wx.Button(self, label="Start")
         selectBtn.Bind(wx.EVT_BUTTON, self.onStart)
         self.y_hat=None #placeholder
@@ -277,4 +266,54 @@ sudo apt-get install libsdl-ttf2.0-0
 sudo pip3 install -U keras
 sudo pip3 install -U tensorflow
 sudo pip3 install -U sklearn matplotlib h5py
+
+~/oss/toybox/hellokeras$ ./wxkeras_mnist.py 
+/usr/local/lib/python3.5/dist-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d_1 (Conv2D)            (None, 26, 26, 32)        320       
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 24, 24, 64)        18496     
+_________________________________________________________________
+max_pooling2d_1 (MaxPooling2 (None, 12, 12, 64)        0         
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 12, 12, 64)        0         
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 9216)              0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 128)               1179776   
+_________________________________________________________________
+dropout_2 (Dropout)          (None, 128)               0         
+_________________________________________________________________
+dense_2 (Dense)              (None, 10)                1290      
+=================================================================
+Total params: 1,199,882
+Trainable params: 1,199,882
+Non-trainable params: 0
+_________________________________________________________________
+tensorboard --logdir=/home/onzhang/oss/toybox/hellokeras/tensorboard_log
+2018-03-21 08:56:55.048105: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+Train on 60000 samples, validate on 10000 samples
+Epoch 1/3
+60000/60000 [==============================] - 83s 1ms/step - loss: 0.2715 - acc: 0.9163 - val_loss: 0.0588 - val_acc: 0.9810
+Epoch 2/3
+60000/60000 [==============================] - 83s 1ms/step - loss: 0.0919 - acc: 0.9729 - val_loss: 0.0409 - val_acc: 0.9863
+Epoch 3/3
+60000/60000 [==============================] - 84s 1ms/step - loss: 0.0669 - acc: 0.9797 - val_loss: 0.0334 - val_acc: 0.9886
+epochs=3, batch_size=128 Test loss: 0.0334485370472481, Test accuracy: 0.9886
+python version 3.5.2, tensorflow version 1.6.0, keras version 2.1.5
+Model took 250 seconds to train
+Best weights filepath: model_output/mnist/weights.03.hdf5
+{'class_name': 'Conv2D', 'config': {'kernel_regularizer': None, 'bias_constraint': None, 'kernel_constraint': None, 'name': 'conv2d_1', 'trainable': True, 'dtype': 'float32', 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'batch_input_shape': (None, 28, 28, 1), 'dilation_rate': (1, 1), 'kernel_initializer': {'class_name': 'VarianceScaling', 'config': {'mode': 'fan_avg', 'seed': None, 'scale': 1.0, 'distribution': 'uniform'}}, 'bias_regularizer': None, 'padding': 'valid', 'use_bias': True, 'filters': 32, 'strides': (1, 1), 'data_format': 'channels_last', 'activation': 'relu', 'activity_regularizer': None, 'kernel_size': (3, 3)}}
+{'class_name': 'Conv2D', 'config': {'kernel_regularizer': None, 'bias_constraint': None, 'kernel_constraint': None, 'name': 'conv2d_2', 'trainable': True, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'dilation_rate': (1, 1), 'filters': 64, 'kernel_initializer': {'class_name': 'VarianceScaling', 'config': {'mode': 'fan_avg', 'seed': None, 'scale': 1.0, 'distribution': 'uniform'}}, 'bias_regularizer': None, 'padding': 'valid', 'use_bias': True, 'strides': (1, 1), 'data_format': 'channels_last', 'activation': 'relu', 'activity_regularizer': None, 'kernel_size': (3, 3)}}
+{'class_name': 'MaxPooling2D', 'config': {'padding': 'same', 'name': 'max_pooling2d_1', 'trainable': True, 'pool_size': (2, 2), 'data_format': 'channels_last', 'strides': (2, 2)}}
+{'class_name': 'Dropout', 'config': {'seed': None, 'noise_shape': None, 'name': 'dropout_1', 'rate': 0.2, 'trainable': True}}
+{'class_name': 'Flatten', 'config': {'name': 'flatten_1', 'trainable': True}}
+{'class_name': 'Dense', 'config': {'kernel_regularizer': None, 'bias_regularizer': None, 'kernel_constraint': None, 'name': 'dense_1', 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'units': 128, 'kernel_initializer': {'class_name': 'VarianceScaling', 'config': {'mode': 'fan_avg', 'seed': None, 'scale': 1.0, 'distribution': 'uniform'}}, 'bias_constraint': None, 'trainable': True, 'use_bias': True, 'activity_regularizer': None, 'activation': 'relu'}}
+{'class_name': 'Dropout', 'config': {'seed': None, 'noise_shape': None, 'name': 'dropout_2', 'rate': 0.5, 'trainable': True}}
+{'class_name': 'Dense', 'config': {'kernel_regularizer': None, 'bias_regularizer': None, 'kernel_constraint': None, 'name': 'dense_2', 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'units': 10, 'kernel_initializer': {'class_name': 'VarianceScaling', 'config': {'mode': 'fan_avg', 'seed': None, 'scale': 1.0, 'distribution': 'uniform'}}, 'bias_constraint': None, 'trainable': True, 'use_bias': True, 'activity_regularizer': None, 'activation': 'softmax'}}
+
 """
