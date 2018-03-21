@@ -37,7 +37,12 @@ class MyPanel(wx.Panel):
         wx.Panel.__init__(self, parent)
         self.grid = wx.grid.Grid(self, -1)
         self.grid.CreateGrid(14, 3)
-
+        self.grid.SetColLabelValue(0, 'Name')    
+        self.grid.SetColLabelValue(1, 'Default')
+        self.grid.SetColLabelValue(2, 'Value')
+        self.grid.SetColSize(0, 150)
+        self.grid.SetColSize(1, 200)
+        self.grid.SetColSize(2, 200)
         row=0
         self.set_row(row, 'output_dir', 'model_output/cnn-biLSTM')
         row=row+1
@@ -82,7 +87,7 @@ class MyPanel(wx.Panel):
         bagSizer.Add(selectBtn, pos=(0,1),
                      flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL,
                      border=1)      
-        bagSizer.AddGrowableCol(1, 0)
+        bagSizer.AddGrowableCol(0, 0)
         bagSizer.Add(self.canvas, flag=wx.ALL|wx.EXPAND, pos=(1,0), span=(1,2))
         bagSizer.AddGrowableRow(0, 0)
         bagSizer.AddGrowableRow(1, 0)
