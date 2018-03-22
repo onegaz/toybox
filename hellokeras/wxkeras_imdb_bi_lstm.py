@@ -33,38 +33,34 @@ class TrainingDoneEvent(wx.PyCommandEvent):
         return self._value
 
 class MyPanel(wx.Panel):
+    def prepare_defaults(self):
+        configs=[]
+        configs.append(['output_dir', 'model_output/biLSTM'])
+        configs.append(['epochs', '6'])
+        configs.append(['batch_size', '128'])
+        configs.append(['n_dim', '64'])
+        configs.append(['n_unique_words', '10000'])
+        configs.append(['max_review_length', '200'])
+        configs.append(['pad_type', 'pre'])
+        configs.append(['trunc_type', 'pre'])
+        configs.append(['drop_embed', '0.2'])
+        configs.append(['n_lstm', '256'])
+        configs.append(['drop_lstm', '0.2'])
+        return configs        
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         self.grid = wx.grid.Grid(self, -1)
-        self.grid.CreateGrid(11, 3)
+        configs = self.prepare_defaults()
+        self.grid.CreateGrid(len(configs), 3)
+#         self.grid.CreateGrid(11, 3)
         self.grid.SetColLabelValue(0, 'Name')    
         self.grid.SetColLabelValue(1, 'Default')
         self.grid.SetColLabelValue(2, 'Value')
         self.grid.SetColSize(0, 150)
         self.grid.SetColSize(1, 200)
         self.grid.SetColSize(2, 200)
-        row=0
-        self.set_row(row, 'output_dir', 'model_output/biLSTM')
-        row=row+1
-        self.set_row(row, 'epochs', 6)
-        row=row+1
-        self.set_row(row, 'batch_size', 128)
-        row=row+1
-        self.set_row(row, 'n_dim', 64)
-        row=row+1
-        self.set_row(row, 'n_unique_words', 10000)
-        row=row+1
-        self.set_row(row, 'max_review_length', 200)        
-        row=row+1
-        self.set_row(row, 'pad_type', 'pre')        
-        row=row+1
-        self.set_row(row, 'trunc_type', 'pre')
-        row=row+1
-        self.set_row(row, 'drop_embed', 0.2)                
-        row=row+1
-        self.set_row(row, 'n_lstm', 256)                
-        row=row+1
-        self.set_row(row, 'drop_lstm', 0.2)    
+        for i in range(0, len(configs)):
+            self.set_row(i, configs[i][0], configs[i][1])
         selectBtn = wx.Button(self, label="Start")
         selectBtn.Bind(wx.EVT_BUTTON, self.onStart)
         self.y_hat=None #placeholder
