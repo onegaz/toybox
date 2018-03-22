@@ -33,44 +33,36 @@ class TrainingDoneEvent(wx.PyCommandEvent):
         return self._value
 
 class MyPanel(wx.Panel):
+    def prepare_default_values(self):
+        configs=[['output_dir', 'model_output/cnn-biLSTM']]
+        configs.append(['epochs', '4'])
+        configs.append(['batch_size', '128'])
+        configs.append(['n_dim', '4'])
+        configs.append(['n_unique_words', '10000'])
+        configs.append(['max_review_length', '100'])
+        configs.append(['pad_type', 'pre'])
+        configs.append(['trunc_type', 'pre'])
+        configs.append(['drop_embed', '0.2'])
+        configs.append(['n_conv', '64'])
+        configs.append(['k_conv', '3'])
+        configs.append(['mp_size', '4'])
+        configs.append(['n_lstm', '64'])
+        configs.append(['drop_lstm', '0.2'])
+        return configs
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         self.grid = wx.grid.Grid(self, -1)
-        self.grid.CreateGrid(14, 3)
+        configs = self.prepare_default_values()
+        self.grid.CreateGrid(len(configs), 3)
         self.grid.SetColLabelValue(0, 'Name')    
         self.grid.SetColLabelValue(1, 'Default')
         self.grid.SetColLabelValue(2, 'Value')
         self.grid.SetColSize(0, 150)
         self.grid.SetColSize(1, 200)
         self.grid.SetColSize(2, 200)
-        row=0
-        self.set_row(row, 'output_dir', 'model_output/cnn-biLSTM')
-        row=row+1
-        self.set_row(row, 'epochs', 3)
-        row=row+1
-        self.set_row(row, 'batch_size', 128)
-        row=row+1
-        self.set_row(row, 'n_dim', 64)
-        row=row+1
-        self.set_row(row, 'n_unique_words', 10000)
-        row=row+1
-        self.set_row(row, 'max_review_length', 100)        
-        row=row+1
-        self.set_row(row, 'pad_type', 'pre')        
-        row=row+1
-        self.set_row(row, 'trunc_type', 'pre')
-        row=row+1
-        self.set_row(row, 'drop_embed', 0.2)                
-        row=row+1
-        self.set_row(row, 'n_conv', 64)                
-        row=row+1
-        self.set_row(row, 'k_conv', 3)                
-        row=row+1
-        self.set_row(row, 'mp_size', 4)                
-        row=row+1
-        self.set_row(row, 'n_lstm', 64)                
-        row=row+1
-        self.set_row(row, 'drop_lstm', 0.2)    
+        for i in range(0, len(configs)):
+            self.set_row(i, configs[i][0], configs[i][1])
+   
         selectBtn = wx.Button(self, label="Start")
         selectBtn.Bind(wx.EVT_BUTTON, self.onStart)
         self.y_hat=None #placeholder
@@ -229,4 +221,50 @@ sudo apt-get install libsdl-ttf2.0-0
 sudo pip3 install -U keras
 sudo pip3 install -U tensorflow
 sudo pip3 install -U sklearn matplotlib h5py
+
+~/oss/toybox/hellokeras$ ./wxkeras_imdb1.py
+/usr/local/lib/python3.5/dist-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+WARNING:tensorflow:From /usr/local/lib/python3.5/dist-packages/tensorflow/python/util/deprecation.py:497: calling conv1d (from tensorflow.python.ops.nn_ops) with data_format=NHWC is deprecated and will be removed in a future version.
+Instructions for updating:
+`NHWC` for data_format is deprecated, use `NWC` instead
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+embedding_1 (Embedding)      (None, 100, 4)            40000     
+_________________________________________________________________
+spatial_dropout1d_1 (Spatial (None, 100, 4)            0         
+_________________________________________________________________
+conv1d_1 (Conv1D)            (None, 98, 64)            832       
+_________________________________________________________________
+max_pooling1d_1 (MaxPooling1 (None, 24, 64)            0         
+_________________________________________________________________
+bidirectional_1 (Bidirection (None, 128)               66048     
+_________________________________________________________________
+dense_1 (Dense)              (None, 1)                 129       
+=================================================================
+Total params: 107,009
+Trainable params: 107,009
+Non-trainable params: 0
+_________________________________________________________________
+Train on 25000 samples, validate on 25000 samples
+Epoch 1/4
+2018-03-21 09:47:16.468106: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+25000/25000 [==============================] - 16s 620us/step - loss: 0.5524 - acc: 0.6788 - val_loss: 0.3747 - val_acc: 0.8312
+Epoch 2/4
+25000/25000 [==============================] - 14s 556us/step - loss: 0.3377 - acc: 0.8555 - val_loss: 0.3531 - val_acc: 0.8428
+Epoch 3/4
+25000/25000 [==============================] - 14s 557us/step - loss: 0.2828 - acc: 0.8830 - val_loss: 0.3828 - val_acc: 0.8292
+Epoch 4/4
+25000/25000 [==============================] - 14s 558us/step - loss: 0.2478 - acc: 0.9033 - val_loss: 0.3714 - val_acc: 0.8357
+Using model_output/cnn-biLSTM/weights.02.hdf5
+{'class_name': 'Embedding', 'config': {'input_length': 100, 'batch_input_shape': (None, 100), 'embeddings_initializer': {'class_name': 'RandomUniform', 'config': {'maxval': 0.05, 'minval': -0.05, 'seed': None}}, 'dtype': 'float32', 'trainable': True, 'activity_regularizer': None, 'name': 'embedding_1', 'embeddings_regularizer': None, 'embeddings_constraint': None, 'output_dim': 4, 'mask_zero': False, 'input_dim': 10000}}
+{'class_name': 'SpatialDropout1D', 'config': {'rate': 0.2, 'noise_shape': None, 'name': 'spatial_dropout1d_1', 'trainable': True, 'seed': None}}
+{'class_name': 'Conv1D', 'config': {'dilation_rate': (1,), 'bias_regularizer': None, 'padding': 'valid', 'use_bias': True, 'kernel_size': (3,), 'kernel_regularizer': None, 'kernel_constraint': None, 'name': 'conv1d_1', 'filters': 64, 'trainable': True, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'bias_constraint': None, 'strides': (1,), 'activation': 'relu', 'kernel_initializer': {'class_name': 'VarianceScaling', 'config': {'scale': 1.0, 'mode': 'fan_avg', 'distribution': 'uniform', 'seed': None}}, 'activity_regularizer': None}}
+{'class_name': 'MaxPooling1D', 'config': {'padding': 'valid', 'strides': (4,), 'trainable': True, 'name': 'max_pooling1d_1', 'pool_size': (4,)}}
+{'class_name': 'Bidirectional', 'config': {'name': 'bidirectional_1', 'merge_mode': 'concat', 'trainable': True, 'layer': {'class_name': 'LSTM', 'config': {'recurrent_regularizer': None, 'unroll': False, 'recurrent_initializer': {'class_name': 'Orthogonal', 'config': {'gain': 1.0, 'seed': None}}, 'use_bias': True, 'kernel_regularizer': None, 'unit_forget_bias': True, 'stateful': False, 'bias_constraint': None, 'recurrent_dropout': 0.0, 'implementation': 1, 'dropout': 0.2, 'return_state': False, 'go_backwards': False, 'activation': 'tanh', 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'bias_regularizer': None, 'kernel_constraint': None, 'recurrent_constraint': None, 'units': 64, 'recurrent_activation': 'hard_sigmoid', 'name': 'lstm_1', 'activity_regularizer': None, 'trainable': True, 'return_sequences': False, 'kernel_initializer': {'class_name': 'VarianceScaling', 'config': {'scale': 1.0, 'mode': 'fan_avg', 'distribution': 'uniform', 'seed': None}}}}}}
+{'class_name': 'Dense', 'config': {'bias_regularizer': None, 'kernel_constraint': None, 'kernel_initializer': {'class_name': 'VarianceScaling', 'config': {'scale': 1.0, 'mode': 'fan_avg', 'distribution': 'uniform', 'seed': None}}, 'use_bias': True, 'kernel_regularizer': None, 'units': 1, 'bias_constraint': None, 'name': 'dense_1', 'activity_regularizer': None, 'trainable': True, 'activation': 'sigmoid', 'bias_initializer': {'class_name': 'Zeros', 'config': {}}}}
+epochs=4, batch_size=128 roc_auc_score 92.49
+
 """
