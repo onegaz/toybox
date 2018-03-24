@@ -184,6 +184,7 @@ class TrainingThread(threading.Thread):
         dropout_1       = float(hyperparams['dropout_1'])
         dense_1         = int(hyperparams['dense_1'])
         dropout_2       = float(hyperparams['dropout_2'])
+        backend.clear_session()
         # the data, split between train and test sets
         (x_train, y_train), (x_test, y_test) = mnist.load_data()
         
