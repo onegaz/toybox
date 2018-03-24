@@ -16,15 +16,14 @@ from keras.layers import Conv2D, MaxPooling2D
 from keras.callbacks import ModelCheckpoint
 from keras import backend
 import tensorflow
-from keras.callbacks import TensorBoard
+from keras.callbacks import TensorBoard, Callback
 import matplotlib
 matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg
 from matplotlib.figure import Figure
 
-EVT_WORK_DONE_TYPE = wx.NewEventType()
-
 class TrainingDoneEvent(wx.PyCommandEvent):
+    EVT_WORK_DONE_TYPE = wx.NewEventType()
     def __init__(self, etype, eid, value=None):
         wx.PyCommandEvent.__init__(self, etype, eid)
         self._value = value
@@ -36,6 +35,24 @@ class TrainingDoneEvent(wx.PyCommandEvent):
         """
         return self._value
 
+class EarlyStoppingByVal(Callback):
+    def __init__(self, verbose=1):
+        super(Callback, self).__init__()
+        self.val_loss = 999.0
+        self.val_acc = 0.0
+        self.verbose = verbose
+
+    def on_epoch_end(self, epoch, logs={}):
+        val_loss    = logs.get('val_loss')
+        val_acc     = logs.get('val_acc')
+        if val_loss > self.val_loss and val_acc < self.val_acc:
+            if self.verbose > 0:
+                print("Epoch %05d: early stopping" % epoch)
+            self.model.stop_training = True
+        else:
+            self.val_acc = val_acc
+            self.val_loss = val_loss
+            
 class MyPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
@@ -64,7 +81,6 @@ class MyPanel(wx.Panel):
 
         selectBtn = wx.Button(self, label="Start")
         selectBtn.Bind(wx.EVT_BUTTON, self.onStart)
-        self.y_hat=None #placeholder
         self.history=None
         self.figure = Figure()
         self.axes = self.figure.add_subplot(121)
@@ -84,11 +100,10 @@ class MyPanel(wx.Panel):
         bagSizer.AddGrowableRow(1, 0)
         self.SetSizerAndFit(bagSizer)
         
-        EVT_WORK_DONE = wx.PyEventBinder(EVT_WORK_DONE_TYPE, 1)
+        EVT_WORK_DONE = wx.PyEventBinder(TrainingDoneEvent.EVT_WORK_DONE_TYPE, 1)
         self.Bind(EVT_WORK_DONE, self.OnDone)
         self.grid.SetColSize(0, 150)
         self.grid.SetColSize(1, 200)
-#         widt, heig =  self.grid.GetSize()
         self.grid.SetColSize(2, 200)
         self.grid.ForceRefresh()
         
@@ -103,11 +118,6 @@ class MyPanel(wx.Panel):
         worker = TrainingThread(self)
         worker.start()
 
-    def onLongRunDone(self):
-        self.axes.hist(self.y_hat)
-        self.axes.axvline(x=0.5, color='orange')
-        self.canvas.draw()
-        
     def set_row(self, row, txt, default_value):
         col=0
         self.grid.SetCellValue(row, col, txt)
@@ -115,7 +125,6 @@ class MyPanel(wx.Panel):
         self.grid.SetCellValue(row, col, str(default_value))
         self.grid.SetReadOnly(row, col)
     def OnDone(self, evt):
-        self.axes.axvline(x=0.5, color='orange')
         self.plot_model_history(self.history)
         self.canvas.draw()
 #         wx.CallAfter(self.onLongRunDone)
@@ -184,6 +193,7 @@ class TrainingThread(threading.Thread):
         dropout_1       = float(hyperparams['dropout_1'])
         dense_1         = int(hyperparams['dense_1'])
         dropout_2       = float(hyperparams['dropout_2'])
+        
         backend.clear_session()
         # the data, split between train and test sets
         (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -233,13 +243,15 @@ class TrainingThread(threading.Thread):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         
+        early_stopping = EarlyStoppingByVal()
+        
         start = datetime.now()
         history = model.fit(x_train, y_train,
                   batch_size=batch_size,
                   epochs=epochs,
                   verbose=1,
                   validation_data=(x_test, y_test),
-                  callbacks=[modelcheckpoint, tbCallback])
+                  callbacks=[modelcheckpoint, tbCallback, early_stopping])
         training_time = datetime.now() - start
         score = model.evaluate(x_test, y_test, verbose=0)
         print('epochs={}, batch_size={} Test loss: {}, Test accuracy: {}'.format(
@@ -253,7 +265,7 @@ class TrainingThread(threading.Thread):
         print("Best weights filepath: " + weights_filepath)
         for cfg in model.get_config():
             print(cfg)
-        evt = TrainingDoneEvent(EVT_WORK_DONE_TYPE, -1)
+        evt = TrainingDoneEvent(TrainingDoneEvent.EVT_WORK_DONE_TYPE, -1)
         wx.PostEvent(self._parent, evt)
                     
 if __name__ == '__main__':
