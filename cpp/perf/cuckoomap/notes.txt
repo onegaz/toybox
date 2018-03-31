@@ -1,0 +1,29 @@
+#0  cds::details::Allocator<cds::intrusive::cuckoo::details::bucket_entry<cds::intrusive::cuckoo::node<cds::intrusive::cuckoo::list, 0u, cds::opt::none>, cds::intrusive::cuckoo::list>, my_allocator<int> >::NewArray (this=0x7fffffffda9b, nCount=16) at /home/onzhang/oss/libcds/cds/details/allocator.h:63
+#1  0x000000000040ecbe in cds::intrusive::CuckooSet<cds::container::details::make_cuckoo_map<unsigned long, unsigned long, my_traits>::node_type, cds::container::details::make_cuckoo_map<unsigned long, unsigned long, my_traits>::intrusive_traits>::allocate_bucket_tables (this=0x1b63b9e0 <work_thread::cmap>, 
+    nSize=16) at /home/onzhang/oss/libcds/cds/intrusive/cuckoo_set.h:1982
+#2  0x000000000040cb80 in cds::intrusive::CuckooSet<cds::container::details::make_cuckoo_map<unsigned long, unsigned long, my_traits>::node_type, cds::container::details::make_cuckoo_map<unsigned long, unsigned long, my_traits>::intrusive_traits>::CuckooSet (this=0x1b63b9e0 <work_thread::cmap>)
+    at /home/onzhang/oss/libcds/cds/intrusive/cuckoo_set.h:2221
+#3  0x000000000040b534 in cds::container::CuckooMap<unsigned long, unsigned long, my_traits>::CuckooMap (this=0x1b63b9e0 <work_thread::cmap>)
+    at /home/onzhang/oss/libcds/cds/container/cuckoo_map.h:333
+#4  0x0000000000409637 in __static_initialization_and_destruction_0 (__initialize_p=1, __priority=65535) at custom_alloc.cpp:340
+#5  0x00000000004096a7 in _GLOBAL__sub_I__ZN5hash16m_hashE () at custom_alloc.cpp:430
+#6  0x000000000041aa3d in __libc_csu_init ()
+#7  0x00007ffff6f0e7bf in __libc_start_main (main=0x408b22 <main(int, char const**)>, argc=5, argv=0x7fffffffdc78, init=0x41a9f0 <__libc_csu_init>, 
+    fini=<optimized out>, rtld_fini=<optimized out>, stack_end=0x7fffffffdc68) at ../csu/libc-start.c:247
+#8  0x0000000000408879 in _start ()
+
+#0  cds::details::Allocator<cds::intrusive::cuckoo::details::bucket_entry<cds::intrusive::cuckoo::node<cds::intrusive::cuckoo::list, 0u, cds::opt::none>, cds::intrusive::cuckoo::list>, my_allocator<int> >::Construct<>(void*) (this=0x7fffffffda9b, p=0x6297f0) at /home/onzhang/oss/libcds/cds/details/allocator.h:130
+#1  0x000000000041168d in cds::details::Allocator<cds::intrusive::cuckoo::details::bucket_entry<cds::intrusive::cuckoo::node<cds::intrusive::cuckoo::list, 0u, cds::opt::none>, cds::intrusive::cuckoo::list>, my_allocator<int> >::NewArray (this=0x7fffffffda9b, nCount=16)
+    at /home/onzhang/oss/libcds/cds/details/allocator.h:63
+#2  0x000000000040ecbe in cds::intrusive::CuckooSet<cds::container::details::make_cuckoo_map<unsigned long, unsigned long, my_traits>::node_type, cds::container::details::make_cuckoo_map<unsigned long, unsigned long, my_traits>::intrusive_traits>::allocate_bucket_tables (this=0x1b63b9e0 <work_thread::cmap>, 
+    nSize=16) at /home/onzhang/oss/libcds/cds/intrusive/cuckoo_set.h:1982
+#3  0x000000000040cb80 in cds::intrusive::CuckooSet<cds::container::details::make_cuckoo_map<unsigned long, unsigned long, my_traits>::node_type, cds::container::details::make_cuckoo_map<unsigned long, unsigned long, my_traits>::intrusive_traits>::CuckooSet (this=0x1b63b9e0 <work_thread::cmap>)
+    at /home/onzhang/oss/libcds/cds/intrusive/cuckoo_set.h:2221
+#4  0x000000000040b534 in cds::container::CuckooMap<unsigned long, unsigned long, my_traits>::CuckooMap (this=0x1b63b9e0 <work_thread::cmap>)
+    at /home/onzhang/oss/libcds/cds/container/cuckoo_map.h:333
+#5  0x0000000000409637 in __static_initialization_and_destruction_0 (__initialize_p=1, __priority=65535) at custom_alloc.cpp:340
+#6  0x00000000004096a7 in _GLOBAL__sub_I__ZN5hash16m_hashE () at custom_alloc.cpp:430
+#7  0x000000000041aa3d in __libc_csu_init ()
+#8  0x00007ffff6f0e7bf in __libc_start_main (main=0x408b22 <main(int, char const**)>, argc=5, argv=0x7fffffffdc78, init=0x41a9f0 <__libc_csu_init>, 
+    fini=<optimized out>, rtld_fini=<optimized out>, stack_end=0x7fffffffdc68) at ../csu/libc-start.c:247
+#9  0x0000000000408879 in _start ()
