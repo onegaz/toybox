@@ -1,0 +1,86 @@
+~/bin/flink-1.4.2$ bin/start-local.sh 
+Warning: this file is deprecated and will be removed in 1.5.
+Starting cluster.
+Starting jobmanager daemon on host work2017-VirtualBox.
+Starting taskmanager daemon on host work2017-VirtualBox.
+
+java -classpath /home/onzhang/bin/flink-1.4.2/lib/flink-dist_2.11-1.4.2.jar:. SocketWindowWordCount
+No port specified. Please run 'SocketWindowWordCount --hostname <hostname> --port <port>', where hostname (localhost by default) and port is the address of the text server
+To start a simple text server, run 'netcat -l <port>' and type the input text into the command line
+
+nc -l 12345
+package org.apache.flink.streaming.examples.socket;
+
+import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.ReduceFunction;
+import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.util.Collector;
+
+java -classpath /home/onzhang/bin/flink-1.4.2/lib/flink-dist_2.11-1.4.2.jar:. SocketWindowWordCount --hostname localhost --port 12345
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.apache.flink.core.memory.HybridMemorySegment (file:/home/onzhang/bin/flink-1.4.2/lib/flink-dist_2.11-1.4.2.jar) to field java.nio.Buffer.address
+WARNING: Please consider reporting this to the maintainers of org.apache.flink.core.memory.HybridMemorySegment
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+Connected to JobManager at Actor[akka://flink/user/jobmanager_1#-1228135675] with leader session id 284fccf8-1537-4622-8cf3-4f260953300c.
+03/31/2018 14:20:28	Job execution switched to status RUNNING.
+03/31/2018 14:20:28	Source: Socket Stream(1/1) switched to SCHEDULED 
+03/31/2018 14:20:28	Flat Map(1/4) switched to SCHEDULED 
+03/31/2018 14:20:28	Flat Map(2/4) switched to SCHEDULED 
+03/31/2018 14:20:28	Flat Map(3/4) switched to SCHEDULED 
+03/31/2018 14:20:28	Flat Map(4/4) switched to SCHEDULED 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(1/4) switched to SCHEDULED 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(2/4) switched to SCHEDULED 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(3/4) switched to SCHEDULED 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(4/4) switched to SCHEDULED 
+03/31/2018 14:20:28	Sink: Unnamed(1/1) switched to SCHEDULED 
+03/31/2018 14:20:28	Source: Socket Stream(1/1) switched to DEPLOYING 
+03/31/2018 14:20:28	Flat Map(1/4) switched to DEPLOYING 
+03/31/2018 14:20:28	Flat Map(2/4) switched to DEPLOYING 
+03/31/2018 14:20:28	Flat Map(3/4) switched to DEPLOYING 
+03/31/2018 14:20:28	Flat Map(4/4) switched to DEPLOYING 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(1/4) switched to DEPLOYING 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(2/4) switched to DEPLOYING 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(3/4) switched to DEPLOYING 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(4/4) switched to DEPLOYING 
+03/31/2018 14:20:28	Sink: Unnamed(1/1) switched to DEPLOYING 
+03/31/2018 14:20:28	Source: Socket Stream(1/1) switched to RUNNING 
+03/31/2018 14:20:28	Flat Map(1/4) switched to RUNNING 
+03/31/2018 14:20:28	Flat Map(2/4) switched to RUNNING 
+03/31/2018 14:20:28	Flat Map(4/4) switched to RUNNING 
+03/31/2018 14:20:28	Flat Map(3/4) switched to RUNNING 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(1/4) switched to RUNNING 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(2/4) switched to RUNNING 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(3/4) switched to RUNNING 
+03/31/2018 14:20:28	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(4/4) switched to RUNNING 
+03/31/2018 14:20:28	Sink: Unnamed(1/1) switched to RUNNING 
+org.apache.flink.api.java.utils.ParameterTool; : 1
+org.apache.flink.streaming.api.environment.StreamExecutionEnvironment; : 1
+package : 1
+org.apache.flink.streaming.api.windowing.time.Time; : 1
+org.apache.flink.streaming.examples.socket; : 1
+org.apache.flink.util.Collector; : 1
+org.apache.flink.streaming.api.datastream.DataStream; : 1
+ : 1
+org.apache.flink.api.common.functions.ReduceFunction; : 1
+import : 7
+org.apache.flink.api.common.functions.FlatMapFunction; : 1
+
+03/31/2018 14:22:55	Flat Map(4/4) switched to FINISHED 
+03/31/2018 14:22:55	Source: Socket Stream(1/1) switched to FINISHED 
+03/31/2018 14:22:55	Flat Map(3/4) switched to FINISHED 
+03/31/2018 14:22:55	Flat Map(1/4) switched to FINISHED 
+03/31/2018 14:22:55	Flat Map(2/4) switched to FINISHED 
+03/31/2018 14:22:55	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(2/4) switched to FINISHED 
+03/31/2018 14:22:55	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(4/4) switched to FINISHED 
+03/31/2018 14:22:55	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(1/4) switched to FINISHED 
+03/31/2018 14:22:55	TriggerWindow(TumblingProcessingTimeWindows(5000), ReducingStateDescriptor{serializer=org.apache.flink.api.java.typeutils.runtime.PojoSerializer@74f3d31f, reduceFunction=SocketWindowWordCount$1@1e9e725a}, ProcessingTimeTrigger(), WindowedStream.reduce(WindowedStream.java:241))(3/4) switched to FINISHED 
+03/31/2018 14:22:55	Sink: Unnamed(1/1) switched to FINISHED 
+03/31/2018 14:22:55	Job execution switched to status FINISHED.
+
