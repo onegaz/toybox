@@ -1,0 +1,159 @@
+~/oss/toybox/hellospark/SimpleApp$ /home/onzhang/bin/apache-maven-3.5.3/bin/mvn package[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for edu.berkeley:simple-project:jar:1.0
+[WARNING] 'build.plugins.plugin.version' for org.apache.maven.plugins:maven-jar-plugin is missing. @ line 21, column 12
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] --------------------< edu.berkeley:simple-project >---------------------
+[INFO] Building Simple Project 1.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ simple-project ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] skip non existing resourceDirectory /home/onzhang/oss/toybox/hellospark/SimpleApp/src/main/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ simple-project ---
+[INFO] Changes detected - recompiling the module!
+[WARNING] File encoding has not been set, using platform encoding UTF-8, i.e. build is platform dependent!
+[INFO] Compiling 1 source file to /home/onzhang/oss/toybox/hellospark/SimpleApp/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ simple-project ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] skip non existing resourceDirectory /home/onzhang/oss/toybox/hellospark/SimpleApp/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ simple-project ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ simple-project ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ simple-project ---
+[INFO] Building jar: /home/onzhang/oss/toybox/hellospark/SimpleApp/target/simple-project-1.0.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 2.040 s
+[INFO] Finished at: 2018-04-01T11:14:13-07:00
+[INFO] ------------------------------------------------------------------------
+
+~/oss/toybox/hellospark/SimpleApp$ apt list --installed | grep jdk
+openjdk-9-jre/xenial,now 9~b114-0ubuntu1 amd64 [installed]
+openjdk-9-jre-headless/xenial,now 9~b114-0ubuntu1 amd64 [installed,automatic]
+
+~/oss/toybox/hellospark/SimpleApp$ ~/bin/spark-2.2.1-bin-hadoop2.7/bin/spark-submit target/simple-project-1.0.jar --class SimpleApp
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+18/04/01 11:14:39 INFO SparkContext: Running Spark version 2.2.1
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.apache.hadoop.security.authentication.util.KerberosUtil (file:/home/onzhang/bin/spark-2.2.1-bin-hadoop2.7/jars/hadoop-auth-2.7.3.jar) to method sun.security.krb5.Config.getInstance()
+WARNING: Please consider reporting this to the maintainers of org.apache.hadoop.security.authentication.util.KerberosUtil
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+18/04/01 11:14:39 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+18/04/01 11:14:39 WARN Utils: Your hostname, work2017-VirtualBox resolves to a loopback address: 127.0.1.1; using 10.0.2.15 instead (on interface enp0s3)
+18/04/01 11:14:39 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+18/04/01 11:14:39 INFO SparkContext: Submitted application: Simple Application
+18/04/01 11:14:39 INFO SecurityManager: Changing view acls to: onzhang
+18/04/01 11:14:39 INFO SecurityManager: Changing modify acls to: onzhang
+18/04/01 11:14:39 INFO SecurityManager: Changing view acls groups to: 
+18/04/01 11:14:39 INFO SecurityManager: Changing modify acls groups to: 
+18/04/01 11:14:39 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(onzhang); groups with view permissions: Set(); users  with modify permissions: Set(onzhang); groups with modify permissions: Set()
+18/04/01 11:14:39 INFO Utils: Successfully started service 'sparkDriver' on port 34999.
+18/04/01 11:14:39 INFO SparkEnv: Registering MapOutputTracker
+18/04/01 11:14:39 INFO SparkEnv: Registering BlockManagerMaster
+18/04/01 11:14:39 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+18/04/01 11:14:39 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+18/04/01 11:14:39 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-79435bc3-1d96-4f25-9539-299b7b30c1d2
+18/04/01 11:14:39 INFO MemoryStore: MemoryStore started with capacity 434.4 MB
+18/04/01 11:14:39 INFO SparkEnv: Registering OutputCommitCoordinator
+18/04/01 11:14:39 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+18/04/01 11:14:39 INFO SparkUI: Bound SparkUI to 0.0.0.0, and started at http://10.0.2.15:4040
+18/04/01 11:14:39 INFO SparkContext: Added JAR file:/home/onzhang/oss/toybox/hellospark/SimpleApp/target/simple-project-1.0.jar at spark://10.0.2.15:34999/jars/simple-project-1.0.jar with timestamp 1522606479916
+18/04/01 11:14:39 INFO Executor: Starting executor ID driver on host localhost
+18/04/01 11:14:40 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 46069.
+18/04/01 11:14:40 INFO NettyBlockTransferService: Server created on 10.0.2.15:46069
+18/04/01 11:14:40 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+18/04/01 11:14:40 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 10.0.2.15, 46069, None)
+18/04/01 11:14:40 INFO BlockManagerMasterEndpoint: Registering block manager 10.0.2.15:46069 with 434.4 MB RAM, BlockManagerId(driver, 10.0.2.15, 46069, None)
+18/04/01 11:14:40 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 10.0.2.15, 46069, None)
+18/04/01 11:14:40 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 10.0.2.15, 46069, None)
+18/04/01 11:14:40 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir ('file:/home/onzhang/oss/toybox/hellospark/SimpleApp/spark-warehouse/').
+18/04/01 11:14:40 INFO SharedState: Warehouse path is 'file:/home/onzhang/oss/toybox/hellospark/SimpleApp/spark-warehouse/'.
+18/04/01 11:14:40 INFO StateStoreCoordinatorRef: Registered StateStoreCoordinator endpoint
+18/04/01 11:14:41 INFO FileSourceStrategy: Pruning directories with: 
+18/04/01 11:14:41 INFO FileSourceStrategy: Post-Scan Filters: 
+18/04/01 11:14:41 INFO FileSourceStrategy: Output Data Schema: struct<value: string>
+18/04/01 11:14:41 INFO FileSourceScanExec: Pushed Filters: 
+18/04/01 11:14:42 INFO CodeGenerator: Code generated in 125.41765 ms
+18/04/01 11:14:42 INFO MemoryStore: Block broadcast_0 stored as values in memory (estimated size 164.8 KB, free 434.2 MB)
+18/04/01 11:14:42 INFO MemoryStore: Block broadcast_0_piece0 stored as bytes in memory (estimated size 23.3 KB, free 434.2 MB)
+18/04/01 11:14:42 INFO BlockManagerInfo: Added broadcast_0_piece0 in memory on 10.0.2.15:46069 (size: 23.3 KB, free: 434.4 MB)
+18/04/01 11:14:42 INFO SparkContext: Created broadcast 0 from cache at SimpleApp.java:8
+18/04/01 11:14:42 INFO FileSourceScanExec: Planning scan with bin packing, max size: 4194304 bytes, open cost is considered as scanning 4194304 bytes.
+18/04/01 11:14:42 INFO CodeGenerator: Code generated in 12.773875 ms
+18/04/01 11:14:42 INFO CodeGenerator: Code generated in 17.539059 ms
+Exception in thread "main" java.lang.IllegalArgumentException
+	at org.apache.xbean.asm5.ClassReader.<init>(Unknown Source)
+	at org.apache.xbean.asm5.ClassReader.<init>(Unknown Source)
+	at org.apache.xbean.asm5.ClassReader.<init>(Unknown Source)
+	at org.apache.spark.util.ClosureCleaner$.getClassReader(ClosureCleaner.scala:46)
+	at org.apache.spark.util.FieldAccessFinder$$anon$3$$anonfun$visitMethodInsn$2.apply(ClosureCleaner.scala:443)
+	at org.apache.spark.util.FieldAccessFinder$$anon$3$$anonfun$visitMethodInsn$2.apply(ClosureCleaner.scala:426)
+	at scala.collection.TraversableLike$WithFilter$$anonfun$foreach$1.apply(TraversableLike.scala:733)
+	at scala.collection.mutable.HashMap$$anon$1$$anonfun$foreach$2.apply(HashMap.scala:103)
+	at scala.collection.mutable.HashMap$$anon$1$$anonfun$foreach$2.apply(HashMap.scala:103)
+	at scala.collection.mutable.HashTable$class.foreachEntry(HashTable.scala:230)
+	at scala.collection.mutable.HashMap.foreachEntry(HashMap.scala:40)
+	at scala.collection.mutable.HashMap$$anon$1.foreach(HashMap.scala:103)
+	at scala.collection.TraversableLike$WithFilter.foreach(TraversableLike.scala:732)
+	at org.apache.spark.util.FieldAccessFinder$$anon$3.visitMethodInsn(ClosureCleaner.scala:426)
+	at org.apache.xbean.asm5.ClassReader.a(Unknown Source)
+	at org.apache.xbean.asm5.ClassReader.b(Unknown Source)
+	at org.apache.xbean.asm5.ClassReader.accept(Unknown Source)
+	at org.apache.xbean.asm5.ClassReader.accept(Unknown Source)
+	at org.apache.spark.util.ClosureCleaner$$anonfun$org$apache$spark$util$ClosureCleaner$$clean$14.apply(ClosureCleaner.scala:257)
+	at org.apache.spark.util.ClosureCleaner$$anonfun$org$apache$spark$util$ClosureCleaner$$clean$14.apply(ClosureCleaner.scala:256)
+	at scala.collection.immutable.List.foreach(List.scala:381)
+	at org.apache.spark.util.ClosureCleaner$.org$apache$spark$util$ClosureCleaner$$clean(ClosureCleaner.scala:256)
+	at org.apache.spark.util.ClosureCleaner$.clean(ClosureCleaner.scala:156)
+	at org.apache.spark.SparkContext.clean(SparkContext.scala:2294)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2068)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2094)
+	at org.apache.spark.rdd.RDD$$anonfun$collect$1.apply(RDD.scala:936)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:112)
+	at org.apache.spark.rdd.RDD.withScope(RDD.scala:362)
+	at org.apache.spark.rdd.RDD.collect(RDD.scala:935)
+	at org.apache.spark.sql.execution.SparkPlan.executeCollect(SparkPlan.scala:278)
+	at org.apache.spark.sql.Dataset$$anonfun$count$1.apply(Dataset.scala:2435)
+	at org.apache.spark.sql.Dataset$$anonfun$count$1.apply(Dataset.scala:2434)
+	at org.apache.spark.sql.Dataset$$anonfun$55.apply(Dataset.scala:2842)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:65)
+	at org.apache.spark.sql.Dataset.withAction(Dataset.scala:2841)
+	at org.apache.spark.sql.Dataset.count(Dataset.scala:2434)
+	at SimpleApp.main(SimpleApp.java:10)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.apache.spark.deploy.SparkSubmit$.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:775)
+	at org.apache.spark.deploy.SparkSubmit$.doRunMain$1(SparkSubmit.scala:180)
+	at org.apache.spark.deploy.SparkSubmit$.submit(SparkSubmit.scala:205)
+	at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:119)
+	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+18/04/01 11:14:42 INFO SparkContext: Invoking stop() from shutdown hook
+18/04/01 11:14:42 INFO SparkUI: Stopped Spark web UI at http://10.0.2.15:4040
+18/04/01 11:14:42 INFO MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint stopped!
+18/04/01 11:14:42 INFO MemoryStore: MemoryStore cleared
+18/04/01 11:14:42 INFO BlockManager: BlockManager stopped
+18/04/01 11:14:42 INFO BlockManagerMaster: BlockManagerMaster stopped
+18/04/01 11:14:42 INFO OutputCommitCoordinator$OutputCommitCoordinatorEndpoint: OutputCommitCoordinator stopped!
+18/04/01 11:14:42 INFO SparkContext: Successfully stopped SparkContext
+18/04/01 11:14:42 INFO ShutdownHookManager: Shutdown hook called
+18/04/01 11:14:42 INFO ShutdownHookManager: Deleting directory /tmp/spark-03abaaa6-d3d3-403b-86a7-a9c4aaebaf89
+
+sudo apt install openjdk-8-jre
+sudo apt install openjdk-8-jdk
