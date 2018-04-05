@@ -1,0 +1,10 @@
+{
+	"partitions": [
+		{
+			"topic": "javaclient.MainApp",
+			"partition": 0,
+			"offset": -1
+		}
+	],
+	"version": 1
+}
