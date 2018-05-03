@@ -3,6 +3,12 @@ Update /home/onega/bin/hbase-1.3.0/conf/hbase-site.xml
 add hbase.zookeeper.znode.parent to resolve the issue /hbase not exist in zookeeper, see http://hbase.apache.org/0.94/book/zookeeper.html
 http://hbase.apache.org/book.html#quickstart
 
+onzhang@work2017-VirtualBox:~/oss/toybox/hellohbase$ /home/onzhang/oss/thrift-0.11.0/compiler/cpp/thrift --gen cpp ~/oss/hbase-2.0.0/hbase-thrift/src/main/resources/org/apache/hadoop/hbase/thrift2/hbase.thrift
+
+bin/hbase-2.0.0/bin/start-hbase.sh
+bin/hbase-2.0.0/bin/hbase thrift2 -threadpool start
+
+
 [onega@localhost ~]$ bin/hbase-1.3.0/bin/start-hbase.sh
 starting master, logging to /home/onega/bin/hbase-1.3.0/bin/../logs/hbase-onega-master-localhost.localdomain.out
 OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
