@@ -1,3 +1,58 @@
+
+http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/SingleCluster.html
+modify etc/hadoop/core-site.xml
+modify etc/hadoop/hdfs-site.xml
+set JAVA_HOME in $(HADOOP_HDFS_HOME)/etc/hadoop/hadoop-env.sh
+Setup passphraseless ssh
+bin/hdfs namenode -format
+sbin/start-dfs.sh
+
+onzhang@work2017-VirtualBox:~/oss/toybox/hellohdfs$ HADOOP_HOME=~/bin/hadoop-3.1.0 JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 LD_LIBRARY_PATH=~/bin/hadoop-3.1.0/lib/native:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server ./hellohdfs
+This program will create /tmp if it does not exist in HDFS, or you can create ahead of time: bin/hdfs dfs -mkdir /tmp
+it took 157 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 27 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 29 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 32 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 34 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 426 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 25 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 431 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 28 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 441 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+Check content with command: bin/hdfs dfs -cat /tmp/testfile.txt
+
+onzhang@work2017-VirtualBox:~/oss/toybox/hellohdfs$ CLASSPATH=$(JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 ~/bin/hadoop-3.1.0/bin/hadoop classpath --glob) JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 LD_LIBRARY_PATH=~/bin/hadoop-3.1.0/lib/native:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server ./hellohdfs
+This program will create /tmp if it does not exist in HDFS, or you can create ahead of time: bin/hdfs dfs -mkdir /tmp
+it took 117 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 23 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 427 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 431 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 22 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 21 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 30 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 427 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 425 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+it took 26 milliseconds to hdfsOpenFile/hdfsWrite/hdfsFlush/hdfsCloseFile
+Check content with command: bin/hdfs dfs -cat /tmp/testfile.txt
+
+onzhang@work2017-VirtualBox:~/oss/toybox/hellohdfs$ CLASSPATH=$(JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 ~/bin/hadoop-3.1.0/bin/hadoop classpath) JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 LD_LIBRARY_PATH=~/bin/hadoop-3.1.0/lib/native:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server ./hellohdfs
+This program will create /tmp if it does not exist in HDFS, or you can create ahead of time: bin/hdfs dfs -mkdir /tmp
+loadFileSystems error:
+(unable to get root cause for java.lang.NoClassDefFoundError)
+(unable to get stack trace for java.lang.NoClassDefFoundError)
+hdfsBuilderConnect(forceNewInstance=0, nn=default, port=0, kerbTicketCachePath=(NULL), userName=(NULL)) error:
+(unable to get root cause for java.lang.NoClassDefFoundError)
+(unable to get stack trace for java.lang.NoClassDefFoundError)
+Failed to connect to HDFS, please start HDFS first: sbin/start-dfs.sh
+Make sure fs.defaultFS is defined in core-site.xml
+
+<configuration>
+<property>
+<name>fs.defaultFS</name>
+<value>hdfs://127.0.0.1:9000</value>
+</property>
+</configuration>
+
 [onega@localhost hadoop-2.7.3]$ JAVA_HOME=/usr/lib/jvm/java bin/hadoop
 Usage: hadoop [--config confdir] [COMMAND | CLASSNAME]
   CLASSNAME            run the class named CLASSNAME
@@ -460,6 +515,7 @@ Failed to open /tmp/testfile.txt for writing!
 [onega@localhost hellohdfs]$
 
 https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/SingleCluster.html
+https://stackoverflow.com/questions/21064140/hadoop-c-hdfs-test-running-exception?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 
 [onega@localhost hadoop-2.7.3]$ cp -p etc/hadoop/core-site.xml etc/hadoop/core-site.xml.orig
 [onega@localhost hadoop-2.7.3]$ cp -p etc/hadoop/hdfs-site.xml etc/hadoop/hdfs-site.xml.orig
