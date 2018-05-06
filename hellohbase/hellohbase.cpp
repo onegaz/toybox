@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <jni.h>
 #include <ctime>
 #include <unistd.h>
 #include <boost/program_options.hpp>
@@ -16,6 +17,8 @@
 #include <utility>
 #include <memory>
 #include <chrono>
+#include <unordered_map>
+#include <type_traits>
 #include <sys/types.h>
 #include <ctime>
 #include <zookeeper.h>
@@ -26,7 +29,8 @@ std::string hbase_thrift2_server_address="localhost";
 std::string zookeeper_server_address="localhost";
 unsigned short port=9090;               // hbase.regionserver.thrift.port
 unsigned short zookeeper_port = 2222;   // hbase.zookeeper.property.clientPort
-std::string table_name="t2";
+std::string table_name="jni_t1";
+std::string column_family = "jni_cf";
 std::string row = "row2";
 int scan = 0;   // flag to enable scan of hbase table
 
@@ -39,6 +43,9 @@ set hbase.zookeeper.property.clientPort
 
 ~/bin/zookeeper-3.4.12/src/c$ ./configure --enable-debug
 ~/bin/zookeeper-3.4.12/src/c$ make
+
+bin/hbase-2.0.0/bin/start-hbase.sh
+bin/hbase-2.0.0/bin/hbase thrift2 -threadpool start
 
 LD_LIBRARY_PATH=~/oss/thrift-0.11.0/lib/cpp/.libs:~/bin/zookeeper-3.4.12/src/c/.libs ./hellohbase --put --scan
 write_hbase start, connect to hbase thrift2 interface localhost:9090
@@ -54,7 +61,7 @@ scan_table end
 read_hbase end
 it took 29 milliseconds to call read_hbase
 /home/onzhang/oss/toybox/hellohbase/hellohbase pid 18283 exit. Built with g++ 5.4.0
-
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 HBASE_HOME=${HOME}/bin/hbase-2.0.0 LD_LIBRARY_PATH=${JAVA_HOME}/jre/lib/amd64/server:~/oss/thrift-0.11.0/lib/cpp/.libs:~/bin/zookeeper-3.4.12/src/c/.libs ./hellohbase --put --scan
 )";
 
 void scan_table(apache::hadoop::hbase::thrift2::THBaseServiceClient& client,
@@ -220,6 +227,226 @@ void list_hbase_tables()
     std::cout << __func__ << " end" << std::endl;
 }
 
+jstring NewJString(JNIEnv* env, const char* str)
+{
+	if(!env || !str)
+		return 0;
+
+	jstring js = env->NewStringUTF(str);
+
+	return js;
+}
+
+std::string exec(const std::string& cmd)
+{
+    std::array<char, 32*1024> buffer;
+    std::string result;
+    std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
+    if (!pipe)
+        throw std::runtime_error("popen() failed!");
+    while (!feof(pipe.get()))
+    {
+        if (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+            result += buffer.data();
+    }
+    return result;
+}
+
+class java_method
+{
+public:
+    java_method(JNIEnv* env, jclass jc, const std::string& name,
+                const std::string& signature) : jc(jc)
+    {
+        mid = env->GetMethodID(jc, name.c_str(), signature.c_str());
+        if (!mid)
+        {
+            std::stringstream strm;
+            strm << "Error GetMethodID " << name << " " << signature;
+            throw std::runtime_error(strm.str());
+        }
+    }
+    operator jmethodID()
+    {
+        return mid;
+    }
+    jclass get_class()
+    {
+    	return jc;
+    }
+private:
+    jmethodID mid{};
+    jclass jc;
+};
+
+class java_static_method
+{
+public:
+	java_static_method(JNIEnv* env, jclass jc, const std::string& name,
+                const std::string& signature) : jc(jc)
+    {
+        mid = env->GetStaticMethodID(jc, name.c_str(), signature.c_str());
+        if (!mid)
+        {
+            std::stringstream strm;
+            strm << "Error GetStaticMethodID " << name << " " << signature;
+            throw std::runtime_error(strm.str());
+        }
+    }
+
+    operator jmethodID()
+    {
+        return mid;
+    }
+
+    jclass get_class()
+    {
+    	return jc;
+    }
+private:
+    jmethodID mid{};
+    jclass jc;
+};
+
+int create_table()
+{
+    JavaVM* vm;
+    JNIEnv* env;
+    JavaVMInitArgs vm_args;
+    jint res;
+    jclass cls;
+    jmethodID mid;
+    jstring jstr;
+    jobjectArray main_args;
+
+    std::stringstream strm;
+    strm << getenv("HBASE_HOME") << "/bin/hbase classpath";
+    std::string class_path = exec(strm.str());
+    strm.str("");
+    strm << "-Djava.class.path=" << class_path;
+    std::array<char, 32 * 1024> class_path_buf;
+    strcpy(class_path_buf.data(), strm.str().c_str());
+
+    JavaVMOption options[1];
+    options[0].optionString = class_path_buf.data();
+
+    vm_args.version = JNI_VERSION_1_8;
+    vm_args.options = options;
+    vm_args.nOptions = std::extent<decltype(options)>::value;
+    vm_args.ignoreUnrecognized = JNI_TRUE;
+
+    res = JNI_CreateJavaVM(&vm, (void**) &env, &vm_args);
+    if (res != JNI_OK)
+    {
+        std::cerr << "JNI_CreateJavaVM error " << res << std::endl;
+        throw std::runtime_error("JNI_CreateJavaVM error!");
+        return 1;
+    }
+
+    std::vector<std::string> java_class_names{
+        "org.apache.hadoop.hbase.HBaseConfiguration",
+        "org.apache.hadoop.conf.Configuration",
+        "org.apache.hadoop.hbase.client.ConnectionFactory",
+        "org.apache.hadoop.hbase.client.Connection",
+        "org.apache.hadoop.hbase.client.Admin",
+        "org.apache.hadoop.hbase.HTableDescriptor",
+        "org.apache.hadoop.hbase.HColumnDescriptor",
+        "org.apache.hadoop.hbase.TableName"};
+
+    std::unordered_map<std::string, jclass> java_classes;
+
+    for (const auto& cls_name : java_class_names)
+    {
+        std::string class_name = cls_name;
+        std::replace(class_name.begin(), class_name.end(), '.', '/');
+        auto cls = env->FindClass(class_name.c_str());
+        if (!cls)
+        {
+            std::cerr << "Check " << strm.str() << std::endl
+                      << "Error calling FindClass " << class_name << std::endl;
+            throw std::runtime_error(cls_name.c_str());
+        }
+        java_classes[cls_name] = cls;
+    }
+
+    auto HBaseConfiguration = java_classes["org.apache.hadoop.hbase.HBaseConfiguration"];
+    auto Configuration = java_classes["org.apache.hadoop.conf.Configuration"];
+    auto ConnectionFactory =
+        java_classes["org.apache.hadoop.hbase.client.ConnectionFactory"];
+    auto Connection = java_classes["org.apache.hadoop.hbase.client.Connection"];
+    auto HTableDescriptor = java_classes["org.apache.hadoop.hbase.HTableDescriptor"];
+
+    auto HBaseConfiguration_create_mid = env->GetStaticMethodID(
+        HBaseConfiguration, "create", "()Lorg/apache/hadoop/conf/Configuration;");
+    if (!HBaseConfiguration_create_mid)
+        throw std::runtime_error(
+            "GetStaticMethodID org.apache.hadoop.hbase.HBaseConfiguration.Create error!");
+// HBase looks for the file named "hbase-site.xml" in all of the DIRECTORIES in the classpath
+    auto conf =
+        env->CallStaticObjectMethod(HBaseConfiguration, HBaseConfiguration_create_mid);
+    if (!conf)
+    {
+        throw std::runtime_error("CallStaticObjectMethod "
+                                 "org.apache.hadoop.hbase.HBaseConfiguration.create "
+                                 "error!");
+    }
+
+    java_static_method createConnection{env, ConnectionFactory, "createConnection",
+                                        "(Lorg/apache/hadoop/conf/Configuration;)Lorg/"
+                                        "apache/hadoop/hbase/client/Connection;"};
+    auto conn = env->CallStaticObjectMethod(ConnectionFactory, createConnection, conf);
+    if (!conn)
+    {
+        throw std::runtime_error("CallStaticObjectMethod createConnection error!");
+    }
+
+    java_method getAdmin{env, Connection, "getAdmin",
+                         "()Lorg/apache/hadoop/hbase/client/Admin;"};
+    auto admin = env->CallObjectMethod(conn, getAdmin);
+    if (!admin)
+        throw std::runtime_error("CallObjectMethod getAdmin error!");
+
+    java_static_method valueOf{env, java_classes["org.apache.hadoop.hbase.TableName"],
+                               "valueOf",
+                               "(Ljava/lang/String;)Lorg/apache/hadoop/hbase/TableName;"};
+    auto table_name_obj = env->CallStaticObjectMethod(valueOf.get_class(), valueOf,
+                                                  env->NewStringUTF(table_name.c_str()));
+    if (!table_name_obj)
+        throw std::runtime_error("TableName.valueOf(args[0]) error!");
+
+    java_method HTableDescriptor_ctor{
+        env, java_classes["org.apache.hadoop.hbase.HTableDescriptor"], "<init>",
+        "(Lorg/apache/hadoop/hbase/TableName;)V"};
+
+    jobject htable = env->NewObject(HTableDescriptor_ctor.get_class(),
+                                    HTableDescriptor_ctor, table_name_obj);
+    if (!htable)
+        throw std::runtime_error("HTableDescriptor htable = new "
+                                 "HTableDescriptor(TableName.valueOf(args[0])); error!");
+    //    Configuration config = HBaseConfiguration.create();
+    java_method HColumnDescriptor_ctor{
+        env, java_classes["org.apache.hadoop.hbase.HColumnDescriptor"], "<init>",
+        "(Ljava/lang/String;)V"};
+    jobject col_descriptor =
+        env->NewObject(HColumnDescriptor_ctor.get_class(), HColumnDescriptor_ctor,
+                       env->NewStringUTF(column_family.c_str()));
+    java_method addFamily{env, java_classes["org.apache.hadoop.hbase.HTableDescriptor"],
+                          "addFamily",
+                          "(Lorg/apache/hadoop/hbase/HColumnDescriptor;)Lorg/apache/"
+                          "hadoop/hbase/HTableDescriptor;"};
+    auto table_desc = env->CallObjectMethod(htable, addFamily, col_descriptor);
+    if (!table_desc)
+        throw std::runtime_error("CallObjectMethod addFamily error!");
+
+    java_method createTable{env, java_classes["org.apache.hadoop.hbase.client.Admin"],
+                            "createTable",
+                            "(Lorg/apache/hadoop/hbase/client/TableDescriptor;)V"};
+
+    env->CallVoidMethod(admin, createTable, htable);
+
+    vm->DestroyJavaVM();
+}
+
 template <typename Func>
 void check_duration(Func ff)
 {
@@ -232,7 +459,16 @@ void check_duration(Func ff)
               << boost::core::demangle(typeid(Func).name()) << std::endl;
 }
 
-int main(int argc, char **argv) {  
+int main(int argc, char **argv)
+{
+    if (!getenv("JAVA_HOME"))
+    	throw std::runtime_error("missing JAVA_HOME!");
+    if (!getenv("HBASE_HOME"))
+    	throw std::runtime_error("missing HBASE_HOME!");
+
+//    create_table();
+//    return 0;
+
     boost::program_options::options_description desc("Allowed options");
     desc.add_options()("help,h", "produce help message")
     ("port", boost::program_options::value<decltype(port)>( &port)->default_value(port), "thrift2 Port number to connect")
