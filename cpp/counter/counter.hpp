@@ -3,33 +3,38 @@
 #include <string.h>
 #include <boost/current_function.hpp>
 #include <iostream>
+#include <atomic>
 
 struct object_counter
 {
-	char name[120];
-	size_t count;
+	char name[120]={};
+	std::atomic<size_t> count_;
 	bool empty() const
 	{
 		return name[0]==0;
 	}
 	void inc()
 	{
-		__sync_fetch_and_add(&count, 1);
+		++count_;
 	}
 	void dec ()
 	{
-		__sync_fetch_and_sub(&count, 1);
+		--count_;
+	}
+	size_t count()
+	{
+		return count_;
 	}
 };
 
 template<int N>
 struct crtp_counter_store
 {
-	int index;
+	int index=0;
 	crtp_counter_store(const char* FN)
 	{
-		static int next_pos=0;
-		index = __sync_fetch_and_add(&next_pos, 1);
+		static std::atomic<size_t> next_pos;
+		index = next_pos++;
 		if (index >= N)
 			index = N - 1;
 		strncpy(get_counter().name, FN, sizeof(get_counter().name)-1);
@@ -63,7 +68,7 @@ struct crtp_counter_store
 			tabs = name_col_width/8 - strlen(get_counter(i).name)/8;
 			for(int j=0; j<tabs; j++)
 				os << "\t";
-			os << get_counter(i).count	<< "\n";
+			os << get_counter(i).count()	<< "\n";
     	}
 		if ( i >= N-1 )
 			os <<"Some counters may be missing, please increase value of N!\n";
