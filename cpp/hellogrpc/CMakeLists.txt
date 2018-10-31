@@ -25,6 +25,6 @@ add_executable(${CMAKE_PROJECT_NAME} hellogrpc.cpp
 	${CMAKE_CURRENT_BINARY_DIR}/api.pb.cc 
 	${CMAKE_CURRENT_BINARY_DIR}/api.grpc.pb.cc)
 
-target_link_libraries (${CMAKE_PROJECT_NAME} grpc++ protobuf Boost::filesystem 
+target_link_libraries (${CMAKE_PROJECT_NAME} grpc++ grpc protobuf Boost::filesystem 
 	Boost::program_options Boost::system
 	${CMAKE_THREAD_LIBS_INIT})
