@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <boost/program_options.hpp>
 #include <boost/core/demangle.hpp>
+#include <boost/container/flat_map.hpp>
 #include <iterator>
 #include <utility>
 #include <memory>
@@ -353,7 +354,7 @@ int create_table()
         "org.apache.hadoop.hbase.HColumnDescriptor",
         "org.apache.hadoop.hbase.TableName"};
 
-    std::unordered_map<std::string, jclass> java_classes;
+    boost::container::flat_map<std::string, jclass> java_classes;
 
     for (const auto& cls_name : java_class_names)
     {
@@ -468,7 +469,7 @@ int main(int argc, char **argv)
 
 //    create_table();
 //    return 0;
-
+    // clang-format off
     boost::program_options::options_description desc("Allowed options");
     desc.add_options()("help,h", "produce help message")
     ("port", boost::program_options::value<decltype(port)>( &port)->default_value(port), "thrift2 Port number to connect")
@@ -485,6 +486,7 @@ int main(int argc, char **argv)
     ( "put", "Insert rows to table if this option is specified")
     ( "list", "list tables of hbase registered in zookeeper")
     ;
+    // clang-format on
     boost::program_options::variables_map vm;
     boost::program_options::store(
         boost::program_options::parse_command_line(argc, argv, desc), vm);
