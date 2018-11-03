@@ -24,6 +24,8 @@ using hellogrpc::HelloReply;
 using hellogrpc::Greeter;
 using grpc::Channel;
 using grpc::ClientContext;
+using grpc::CompletionQueue;
+using grpc::ClientAsyncResponseReader;
 
 Status Process(const std::string& msg, const HelloRequest* request, HelloReply* reply)
 {
@@ -174,10 +176,10 @@ private:
     std::unique_ptr<Server> server_;
 };
 
-class GreeterClient
+class GreeterSyncClient
 {
 public:
-    GreeterClient(std::shared_ptr<Channel> channel) : stub_(Greeter::NewStub(channel))
+    GreeterSyncClient(std::shared_ptr<Channel> channel) : stub_(Greeter::NewStub(channel))
     {
     }
 
@@ -193,6 +195,7 @@ public:
         std::string str((std::istreambuf_iterator<char>(ifs)),
                         std::istreambuf_iterator<char>());
         request.set_content(str);
+
         HelloReply reply;
 
         ClientContext context;
@@ -215,10 +218,89 @@ private:
     std::unique_ptr<Greeter::Stub> stub_;
 };
 
+class GreeterAsyncClient
+{
+public:
+    explicit GreeterAsyncClient(std::shared_ptr<Channel> channel) :
+        stub_(Greeter::NewStub(channel))
+    {
+    }
+
+    void SayHello(const std::string& user, const std::string& filepath)
+    {
+        HelloRequest request;
+        request.set_name(user);
+
+        std::ifstream ifs(filepath.c_str());
+        if (!ifs)
+            std::cerr << "Failed to open " << filepath << "\n";
+
+        std::string str((std::istreambuf_iterator<char>(ifs)),
+                        std::istreambuf_iterator<char>());
+        request.set_content(str);
+
+        AsyncClientCall* call = new AsyncClientCall;
+        call->response_reader =
+            stub_->PrepareAsyncSayHello(&call->context, request, &cq_);
+        call->response_reader->StartCall();
+        call->response_reader->Finish(&call->reply, &call->status, (void*) call);
+    }
+
+    void AsyncCompleteRpc1()
+    {
+        void* got_tag = nullptr;
+        bool ok = false;
+    	CompletionQueue::NextStatus got = CompletionQueue::NextStatus::TIMEOUT;
+    	gpr_timespec deadline;
+    	deadline.clock_type = GPR_TIMESPAN;
+    	deadline.tv_sec = 0;
+    	deadline.tv_nsec = 10000000;
+
+    	got = cq_.AsyncNext<gpr_timespec>(&got_tag, &ok, deadline);
+    }
+
+    void AsyncCompleteRpc()
+    {
+        void* got_tag = nullptr;
+        bool ok = false;
+
+        while (cq_.Next(&got_tag, &ok))
+        {
+            AsyncClientCall* call = static_cast<AsyncClientCall*>(got_tag);
+            GPR_ASSERT(ok);
+            if (call->status.ok())
+                std::cout << "Greeter received: " << call->reply.message() << std::endl;
+            else
+                std::cout << "RPC failed" << std::endl;
+            delete call;
+        }
+        std::cout << "RPC shutdown" << std::endl;
+    }
+
+    void Stop()
+    {
+    	cq_.Shutdown();
+    }
+
+private:
+    struct AsyncClientCall
+    {
+        HelloReply reply;
+        ClientContext context;
+        Status status;
+        std::unique_ptr<ClientAsyncResponseReader<HelloReply>> response_reader;
+    };
+
+    std::unique_ptr<Greeter::Stub> stub_;
+
+    CompletionQueue cq_;
+};
+
 int main(int argc, char** argv)
 {
     int port = 50051;
     int mode = 0;
+    int request_num = 2;
     std::string server_address = "localhost";
     std::string filepath;
     // clang-format off
@@ -227,6 +309,9 @@ int main(int argc, char** argv)
 		("port",
 			boost::program_options::value<decltype(port)>(&port)->default_value(port),
 			"Port number to connect")
+		("request_num",
+			boost::program_options::value<decltype(request_num)>(&request_num)->default_value(request_num),
+			"Number of requests send by client")
 		("server",
 			boost::program_options::value<decltype(server_address)>(&server_address)->default_value(server_address),
 			"rpc Server address")
@@ -259,10 +344,32 @@ int main(int argc, char** argv)
         ServerAsyncImpl server(port);
         server.Run();
     }
-    GreeterClient greeter(grpc::CreateChannel(server_address + ":" + std::to_string(port),
-                                              grpc::InsecureChannelCredentials()));
-    std::string reply = greeter.SayHello(filepath, filepath);
-    std::cout << reply << std::endl;
 
+    std::string server_end_point = server_address + ":" + std::to_string(port);
+    if (mode == 3)
+    {
+        GreeterSyncClient greeter(grpc::CreateChannel(server_end_point,
+                                                  grpc::InsecureChannelCredentials()));
+        std::string reply = greeter.SayHello(filepath, filepath);
+        std::cout << reply << std::endl;
+
+    }
+
+    if (mode == 4)
+    {
+        GreeterAsyncClient greeter(
+            grpc::CreateChannel(server_end_point, grpc::InsecureChannelCredentials()));
+
+        std::thread thread_(&GreeterAsyncClient::AsyncCompleteRpc, &greeter);
+
+        for (int i = 0; i < request_num; i++)
+        {
+            greeter.SayHello(filepath, filepath); // The actual RPC call!
+        }
+
+        std::cout << "Stopping GreeterAsyncClient..." << std::endl << std::endl;
+        greeter.Stop();
+        thread_.join(); // blocks forever
+    }
     return 0;
 }
