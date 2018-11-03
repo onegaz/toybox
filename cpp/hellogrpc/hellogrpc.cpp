@@ -29,19 +29,19 @@ using grpc::ClientAsyncResponseReader;
 
 Status Process(const std::string& msg, const HelloRequest* request, HelloReply* reply)
 {
-	static std::atomic_size_t count;
-	std::string saveas = "test" + std::to_string(count++)+".out";
+    static std::atomic_size_t count;
+    std::string saveas = "test" + std::to_string(count++) + ".out";
     std::stringstream strm;
     strm << msg << " Received " << request->name()
-         << ", content size: " << request->content().size() << ", save as "
-		 << saveas << "\n";
+         << ", content size: " << request->content().size() << ", save as " << saveas
+         << "\n";
 
     reply->set_message(strm.str());
     if (request->content().size())
     {
         std::ofstream ofs(saveas.c_str());
         if (!ofs)
-        	return Status::CANCELLED; // should return some error message, see Status ctor
+            return Status(grpc::StatusCode::INTERNAL, "Failed to open file");
 
         ofs.write(request->content().data(), request->content().size());
         return Status::OK;
@@ -119,9 +119,7 @@ private:
         {
             if (status_ == CREATE)
             {
-
                 status_ = PROCESS;
-
                 service_->RequestSayHello(&ctx_, &request_, &responder_, cq_, cq_, this);
             }
             else if (status_ == PROCESS)
@@ -145,7 +143,6 @@ private:
         ServerContext ctx_;
         HelloRequest request_;
         HelloReply reply_;
-
         ServerAsyncResponseWriter<HelloReply> responder_;
 
         enum CallStatus
@@ -197,9 +194,7 @@ public:
         request.set_content(str);
 
         HelloReply reply;
-
         ClientContext context;
-
         Status status = stub_->SayHello(&context, request, &reply);
 
         if (status.ok())
@@ -364,12 +359,12 @@ int main(int argc, char** argv)
 
         for (int i = 0; i < request_num; i++)
         {
-            greeter.SayHello(filepath, filepath); // The actual RPC call!
+            greeter.SayHello(filepath, filepath);
         }
 
         std::cout << "Stopping GreeterAsyncClient..." << std::endl << std::endl;
         greeter.Stop();
-        thread_.join(); // blocks forever
+        thread_.join();
     }
     return 0;
 }
