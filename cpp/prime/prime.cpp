@@ -16,6 +16,7 @@
 #include <boost/config.hpp>
 #include <thread>
 #include <future>
+
 using namespace std;
 // https://en.wikipedia.org/wiki/Sieve_of_Sundaram
 vector<int> sieve_of_sundaram(int n) {
@@ -80,7 +81,7 @@ int main(int argc, char** argv) {
 		boost::timer::auto_cpu_timer verify_timer;
 		size_t min_batch_per_thread = 32768;
 		size_t thread_count = primes.size()/min_batch_per_thread;
-		thread_count = std::min(thread_count, hardware_concurrency);
+		thread_count = std::min(thread_count, static_cast<decltype(thread_count)>(hardware_concurrency));
 		size_t thread_load = primes.size()/std::max( static_cast<size_t>(1), thread_count);
 		auto check_prime_func=[=](const vector<int>& primes, size_t start) {
 			for(size_t i=0; i<thread_load; i++) {

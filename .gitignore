@@ -3,3 +3,8 @@ typings
 build
 releases
 /.metadata/
+RemoteSystemsTempFiles
+bld
+.settings
+.pydevproject
+a.out

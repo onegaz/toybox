@@ -1,7 +1,10 @@
 all: hellokafka
 
+SNAPPY_HOME=~/oss/snappy
+
 hellokafka: hellokafka.cpp
-	g++ -o $@ -g -pthread -I/home/onega/src/libkafka-asio/lib -I/home/onega/src/snappy -std=c++11 $^ -L/home/onega/src/snappy/.libs -lsnappy -lboost_program_options -lboost_system -lz
+	g++ -o $@ -g -pthread -I ~/oss/libkafka-asio/lib -I ${SNAPPY_HOME} -std=c++11 $^ \
+		${SNAPPY_HOME}/libsnappy.a -lboost_program_options -lboost_system -lz
 
 clean:
 	@if [ -f hellokafka ]; then rm hellokafka; fi;

@@ -571,3 +571,17 @@ consumer_thread 24873 exit
 produce_messages exit from tid 24871 message_count is 4
 boost::asio thread 24870 exit
 /home/onega/github/onegaz/toybox/hellokafka/hellokafka pid 24869 exit. Built with g++ 4.8.5
+
+bin/kafka-run-class.sh kafka.admin.ConsumerGroupCommand --all-topics --bootstrap-server localhost:9092 --describe --group KafkaConsumer.FlinkApp-13360
+Note: This will not show information about old Zookeeper-based consumers.
+Consumer group 'KafkaConsumer.FlinkApp-13360' has no active members.
+
+TOPIC              PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+javaclient.MainApp 0          140             200             60              -               -               -
+
+bin/kafka-run-class.sh kafka.admin.ConsumerGroupCommand --all-topics --bootstrap-server localhost:9092 --list
+Note: This will not show information about old Zookeeper-based consumers.
+KafkaConsumer.FlinkApp-1410
+test
+KafkaConsumer.FlinkApp-13360
+KafkaConsumer.FlinkApp-15451
