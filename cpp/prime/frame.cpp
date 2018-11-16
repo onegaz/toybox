@@ -1,4 +1,5 @@
 #include "frame.h"
+#include "app.h"
 #include <wx/gbsizer.h>
 #include <vector>
 
@@ -25,7 +26,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
     menuBar->Append(menuHelp, "&Help");
     SetMenuBar(menuBar);
     CreateStatusBar();
-    SetStatusText("Welcome to wxWidgets!");
+    SetStatusText("Based on " wxVERSION_STRING);
 
     m_max_num = new wxTextCtrl(this, wxID_ANY,
 			"1000000", wxDefaultPosition, wxDefaultSize);
@@ -49,6 +50,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
         m_item_list->InsertColumn(m_item_list->GetColumnCount(), col);
     }
 
+    Bind(wxEVT_MY_EVENT, &MyFrame::OnDone, this, wxID_ANY);
+
 	wxGridBagSizer *m_fgsizer = new wxGridBagSizer;
 	int row = 0;
 	m_fgsizer->Add(new wxStaticText(this, wxID_ANY, "Max number"), wxGBPosition(row,0));
@@ -57,37 +60,48 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
 	m_fgsizer->Add(m_start, wxGBPosition(row,0), wxGBSpan(1,1), wxGROW);
 	m_fgsizer->Add(m_exit, wxGBPosition(row,1), wxGBSpan(1,1));
 	++row;
-	m_fgsizer->Add(m_item_list, wxGBPosition(row,0), wxGBSpan(1,2), wxGROW);
+	m_fgsizer->Add(m_item_list, wxGBPosition(row,0), wxGBSpan(1,3), wxGROW);
 	m_fgsizer->AddGrowableRow(row, 7);
+	m_fgsizer->AddGrowableCol(2, 7);
 	this->SetSizer(m_fgsizer);
 }
 
 using namespace std;
 // https://en.wikipedia.org/wiki/Sieve_of_Sundaram
-vector<int> sieve_of_sundaram(int n) {
-	vector<int> all(n+1);
-	for(int i=1; i<n/2; i++)
-		for(int j=i; j<n/2; j++) {
-			int pos = i+j+2*i*j;
-			if(pos>=0 && pos<=n)
-				all[pos] = 1;
-			else
-				break;
-		}
-	vector<int> result;
-	if(n>=2)
-		result.push_back(2);
-	for(int i=1; i<n/2; i++)
-		if(all[i]==0)
-			result.push_back(2*i+1);
-	return result;
+std::vector<int> sieve_of_sundaram(int n)
+{
+    vector<int> all(n + 1);
+    for (int i = 1; i < n / 2; i++)
+        for (int j = i; j < n / 2; j++)
+        {
+            int pos = i + j + 2 * i * j;
+            if (pos >= 0 && pos <= n)
+                all[pos] = 1;
+            else
+                break;
+        }
+
+    vector<int> result;
+
+    if (n >= 2)
+        result.push_back(2);
+
+    for (int i = 1; i < n / 2; i++)
+        if (all[i] == 0)
+            result.push_back(2 * i + 1);
+    return result;
 }
 
 void MyFrame::OnStart(wxCommandEvent& event)
 {
 	long val = 65536;
 	m_max_num->GetValue().ToLong(&val);
-    auto primes = sieve_of_sundaram(val);
+	wxGetApp().StartTask(val);
+}
+
+void MyFrame::OnDone(wxCommandEvent& event)
+{
+    auto primes = wxGetApp().m_primes;
     auto cols = m_item_list->GetColumnCount();
 
     for (int n = 0; n < primes.size() / cols; n++)
@@ -107,13 +121,13 @@ void MyFrame::OnStart(wxCommandEvent& event)
 
 void MyFrame::OnExit(wxCommandEvent& event)
 {
-
+	wxGetApp().Stop();
     Close(true);
 }
 
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
-    wxMessageBox("This is a wxWidgets+boost.asio udp sample", "About udp_server",
+    wxMessageBox("This is a wxWidgets program", wxGetApp().GetAppDisplayName(),
                  wxOK | wxICON_INFORMATION);
 }
 

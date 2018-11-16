@@ -2,6 +2,7 @@
 #include "frame.h"
 // clang-format off
 wxIMPLEMENT_APP(MyApp);
+wxDEFINE_EVENT(wxEVT_MY_EVENT, wxCommandEvent);
 // clang-format on
 
 bool MyApp::OnInit()
@@ -20,4 +21,23 @@ void MyApp::Stop()
         m_thread->join();
         m_thread.reset();
     }
+}
+
+void MyApp::StartTask(int n)
+{
+	Stop();
+	m_thread.reset(new std::thread(&MyApp::WorkThreadProc, this, n));
+}
+
+void MyApp::SendUpdateEvent()
+{
+	wxCommandEvent event( wxEVT_MY_EVENT );
+	wxPostEvent( GetTopWindow (), event );
+}
+
+void MyApp::WorkThreadProc(int n)
+{
+	m_primes = sieve_of_sundaram(n);
+	wxCommandEvent event( wxEVT_MY_EVENT );
+	wxPostEvent( GetTopWindow (), event );
 }
