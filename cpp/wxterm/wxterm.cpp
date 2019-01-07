@@ -19,6 +19,8 @@
 #include <mutex>
 #include <memory>
 #include <sstream>
+#include <vector>
+#include <boost/tokenizer.hpp>
 #include <boost/version.hpp>
 #include <boost/config.hpp>
 
@@ -45,14 +47,32 @@ struct Command
 	std::string envs;
 	std::chrono::system_clock::time_point start_time;
 	std::chrono::system_clock::time_point end_time;
-	void change_cwd();
+	std::unique_ptr<char[]> env_array;
+	char* envp[1024]; // assume we pass less than 1024 environment variables
+	void prepare_envs()
+	{
+		boost::char_separator<char> sep("\n");
+		using tokenizer = boost::tokenizer<boost::char_separator<char> >;
+		tokenizer tokens(envs, sep);
+		env_array.reset(new char[envs.length()+1]);
+		char* pbuf = env_array.get();
+		int pos = 0;
+		for (tokenizer::iterator tok_iter = tokens.begin();
+		       tok_iter != tokens.end() && pos < std::extent<decltype(envp)>::value;
+		       ++tok_iter)
+		{
+			strcpy(pbuf, tok_iter->c_str());
+			envp[pos] = pbuf;
+			pos++;
+			pbuf += strlen(pbuf) + 1;
+		}
+	}
 };
 
 class MiniWxApp : public wxApp
 {
 public:
 	bool OnInit() override;
-	//void runcmd(const std::string& cmdline);
 	void runcmd(std::shared_ptr<Command> cmdinfo);
 	std::mutex gui_mutex;
 	std::stringstream ss;
@@ -87,12 +107,6 @@ public:
 };
 
 IMPLEMENT_APP(MiniWxApp)
-
-void Command::change_cwd()
-{
-//	std::lock_guard<std::mutex> guard(gui_mutex);
-
-}
 
 class MyFrame : public wxFrame
 {
@@ -296,6 +310,7 @@ void MiniWxApp::runcmd(std::shared_ptr<Command> cmdinfo)
 			return;
 		}
 	}
+	cmdinfo->prepare_envs();
 
 	posix_spawn_file_actions_init(&action);
 	posix_spawn_file_actions_addclose(&action, cout_pipe[0]);
@@ -311,7 +326,10 @@ void MiniWxApp::runcmd(std::shared_ptr<Command> cmdinfo)
 	char * args[] = {&argsmem[0][0],&argsmem[1][0],&command[0],nullptr};
 	pid_t pid=0;
 
-	if(posix_spawnp(&pid, args[0], &action, NULL, &args[0], NULL) != 0)
+	char* const envp[] = {"A=AA", "B=bb", nullptr};
+	//std::replace( s.begin(), s.end(), 'x', 'y');
+
+	if(posix_spawnp(&pid, args[0], &action, NULL, &args[0], cmdinfo->envp) != 0)
 	{
 		std::stringstream ss;
 		ss << __func__ << "posix_spawnp returned error " << strerror(errno) << "\n";
@@ -386,17 +404,17 @@ void MyFrame::OnRunClick(wxCommandEvent&)
 		return;
 	}
 
-	wxString envs = m_envp->GetValue();
-	wxArrayString envarr;
-	wxStringTokenizer tokenizer(envs, "\n");
-	while ( tokenizer.HasMoreTokens() )
-	{
-	    wxString token = tokenizer.GetNextToken();
-	    // process token here
-	    std::cout << token.ToStdString() << std::endl;
-	    envarr.Add(token);
-	    const char* ascii_str = (const char*)token.mb_str(wxConvUTF8);
-	}
+//	wxString envs = m_envp->GetValue();
+//	wxArrayString envarr;
+//	wxStringTokenizer tokenizer(envs, "\n");
+//	while ( tokenizer.HasMoreTokens() )
+//	{
+//	    wxString token = tokenizer.GetNextToken();
+//	    // process token here
+//	    std::cout << token.ToStdString() << std::endl;
+//	    envarr.Add(token);
+//	    const char* ascii_str = (const char*)token.mb_str(wxConvUTF8);
+//	}
 	AddCommandToHistory();
 	wxString cmdstr = m_cmdline->GetValue();
 	AddEmptyLine();
