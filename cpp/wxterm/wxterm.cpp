@@ -7,6 +7,8 @@
 #include <wx/gbsizer.h>
 #include <wx/stdpaths.h>
 #include <wx/dirdlg.h>
+#include <wx/tokenzr.h>
+#include <wx/arrstr.h>
 #include <chrono>
 #include <ctime>
 #include <sstream>
@@ -15,6 +17,7 @@
 #include <fstream>
 #include <thread>
 #include <mutex>
+#include <memory>
 #include <sstream>
 #include <boost/version.hpp>
 #include <boost/config.hpp>
@@ -35,11 +38,22 @@ std::string get_log_timestamp()
     return ss.str();
 }
 
+struct Command
+{
+	std::string work_dir;
+	std::string cmd;
+	std::string envs;
+	std::chrono::system_clock::time_point start_time;
+	std::chrono::system_clock::time_point end_time;
+	void change_cwd();
+};
+
 class MiniWxApp : public wxApp
 {
 public:
-	virtual bool OnInit();
-	void runcmd(const std::string& cmdline);
+	bool OnInit() override;
+	//void runcmd(const std::string& cmdline);
+	void runcmd(std::shared_ptr<Command> cmdinfo);
 	std::mutex gui_mutex;
 	std::stringstream ss;
 	void output(const char* buf)
@@ -73,6 +87,12 @@ public:
 };
 
 IMPLEMENT_APP(MiniWxApp)
+
+void Command::change_cwd()
+{
+//	std::lock_guard<std::mutex> guard(gui_mutex);
+
+}
 
 class MyFrame : public wxFrame
 {
@@ -114,10 +134,14 @@ public:
 	}
 	void AddEmptyLine()
 	{
-		if(m_output->GetNumberOfLines())
+		std::cout << "GetNumberOfLines " << m_output->GetNumberOfLines()
+				<< " length " << m_output->GetValue().Length() << "\n";
+		// GetNumberOfLines 1 GetValue().Length() 0 when wxTextCtrl is empty
+		if(m_output->GetValue().Length())
 			m_output->AppendText("\n");
 	}
 	wxListBox *m_cmd_history;
+	wxTextCtrl *m_envp;
 	wxTextCtrl *m_cmdline;
 	wxTextCtrl *m_output;
 	wxTextCtrl *m_pwd;
@@ -190,7 +214,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	m_cmd_history = new wxListBox(this, wxID_ANY);
 	m_cmd_history->Connect(wxEVT_LISTBOX_DCLICK,
 			wxCommandEventHandler(MyFrame::OnListItemSelection), NULL, this);
-	
+	m_envp = new wxTextCtrl(this, wxID_ANY,
+	                      wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxHSCROLL);
+	m_envp->SetWindowStyle(m_envp->GetWindowStyle() & ~wxTE_DONTWRAP | wxTE_BESTWRAP);
 	m_cmdline = new wxTextCtrl(this, wxID_ANY,
 			wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_PROCESS_ENTER); // wxHSCROLL|
  	m_cmdline->SetWindowStyle(m_cmdline->GetWindowStyle() & ~wxTE_DONTWRAP | wxTE_BESTWRAP);
@@ -207,6 +233,11 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	
 	m_fgsizer->Add(new wxStaticText(this, wxID_ANY, "history commands"), wxGBPosition(row,0));
 	m_fgsizer->Add(m_cmd_history, wxGBPosition(row,1), wxGBSpan(2,1), wxGROW);
+	row++;
+	m_fgsizer->AddGrowableRow(row, 1);
+	row++;
+	m_fgsizer->Add(new wxStaticText(this, wxID_ANY, "Environment Variables"), wxGBPosition(row,0));
+	m_fgsizer->Add(m_envp, wxGBPosition(row,1), wxGBSpan(2,1), wxGROW);
 	row++;
 	m_fgsizer->AddGrowableRow(row, 1);
 	row++;
@@ -241,33 +272,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	LoadCommandHistory();
 }
 
-void RunShellCommand(const std::string& cmd_in) 
-{
-	FILE * stream;
-	const int max_buffer = 4096;
-	char buffer[max_buffer];
-	std::string cmd = cmd_in;
-	
-	cmd.append(" 2>&1");
-	stream = popen(cmd.c_str(), "r");
-	
-	if (stream) {
-		std::ofstream logfile(wxGetApp().m_cmd_output_path.c_str(), std::fstream::app|std::fstream::ate);
-		logfile << cmd_in << std::endl;
-		
-		while (!feof(stream))
-			if (fgets(buffer, max_buffer, stream) != NULL) 
-			{
-				logfile << buffer;
-				wxGetApp().output(buffer);
-			}
-		pclose(stream);
-		logfile << __func__ << " in thread " << wxThread::GetCurrentId() << std::endl;
-		logfile << std::endl;
-	}
-}
-
-void MiniWxApp::runcmd(const std::string& cmdline)
+void MiniWxApp::runcmd(std::shared_ptr<Command> cmdinfo)
 {
 	int exit_code=0;
 	int cout_pipe[2];
@@ -279,6 +284,18 @@ void MiniWxApp::runcmd(const std::string& cmdline)
 		output("pipe returned error.\n");
 		return;
 	}
+	auto t1 = std::chrono::high_resolution_clock::now();
+	if (!cmdinfo->work_dir.empty())
+	{
+		auto ret = chdir(cmdinfo->work_dir.c_str());
+		if (ret)
+		{
+			std::stringstream ss;
+			ss << "chdir error " << ret << ", check " << cmdinfo->work_dir << "\n";
+			output(ss.str());
+			return;
+		}
+	}
 
 	posix_spawn_file_actions_init(&action);
 	posix_spawn_file_actions_addclose(&action, cout_pipe[0]);
@@ -289,8 +306,8 @@ void MiniWxApp::runcmd(const std::string& cmdline)
 	posix_spawn_file_actions_addclose(&action, cout_pipe[1]);
 	posix_spawn_file_actions_addclose(&action, cerr_pipe[1]);
 
-	std::string command = cmdline;
-	std::string argsmem[] = {"sh","-c"}; // allows non-const access to literals
+	std::string command = cmdinfo->cmd;
+	std::string argsmem[] = {"sh", "-c"}; // allows non-const access to literals
 	char * args[] = {&argsmem[0][0],&argsmem[1][0],&command[0],nullptr};
 	pid_t pid=0;
 
@@ -326,14 +343,19 @@ void MiniWxApp::runcmd(const std::string& cmdline)
 		pid_t wpid = waitpid(pid, &exit_code, WNOHANG);
 		if (wpid == pid)
 		{
+			auto t2 = std::chrono::high_resolution_clock::now();
+			auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+			auto end = std::chrono::system_clock::now();
+			std::time_t end_time = std::chrono::system_clock::to_time_t(end);
 			std::stringstream ss;
-			ss <<"cppcheck exit code " << exit_code << std::endl;
+			ss << std::put_time(std::localtime(&end_time), "%FT%TZ") << " Command exit code "
+					<< exit_code  << " within " << int_ms.count() << " milliseconds" << std::endl;
 			output(ss.str());
 			break;
 		} else if (wpid == -1)
 		{
 			std::stringstream ss;
-			ss <<"waitpid error when waiting for pid " << pid << " cppcheck." << std::endl;
+			ss <<"waitpid error when waiting for pid " << pid << "." << std::endl;
 			output(ss.str());
 			break;
 		}
@@ -358,13 +380,32 @@ void MiniWxApp::runcmd(const std::string& cmdline)
 
 void MyFrame::OnRunClick(wxCommandEvent&)
 {
-	if(m_cmdline->GetNumberOfLines()<1)
+	if(m_cmdline->GetValue().Length() < 1)
+	{
+		wxGetApp().output("Please enter command to run\n");
 		return;
-	
+	}
+
+	wxString envs = m_envp->GetValue();
+	wxArrayString envarr;
+	wxStringTokenizer tokenizer(envs, "\n");
+	while ( tokenizer.HasMoreTokens() )
+	{
+	    wxString token = tokenizer.GetNextToken();
+	    // process token here
+	    std::cout << token.ToStdString() << std::endl;
+	    envarr.Add(token);
+	    const char* ascii_str = (const char*)token.mb_str(wxConvUTF8);
+	}
 	AddCommandToHistory();
 	wxString cmdstr = m_cmdline->GetValue();
 	AddEmptyLine();
-	std::thread t(&MiniWxApp::runcmd, &wxGetApp(), cmdstr.ToStdString());
+	std::shared_ptr<Command> cmdinfo = std::make_shared<Command>();
+	cmdinfo->cmd = cmdstr.ToStdString();
+	cmdinfo->work_dir = m_pwd->GetValue().ToStdString();
+	cmdinfo->envs = m_envp->GetValue().ToStdString();
+
+	std::thread t(&MiniWxApp::runcmd, &wxGetApp(), cmdinfo);
 	t.detach();
 }
 
@@ -398,7 +439,7 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
 	std::stringstream ss;
 	ss  << wxStandardPaths::Get().GetExecutablePath() << " pid " << getpid() << std::endl
-		<< "Command history file: " << wxGetApp().m_cmd_output_path << std::endl
+		<< "Command history file: " << wxGetApp().m_cmd_history_path << std::endl
 		<< "Command output file: " << wxGetApp().m_cmd_output_path << std::endl
 		<< "Compiler: " << BOOST_COMPILER << std::endl
 		<< "Platform: " << BOOST_PLATFORM << std::endl

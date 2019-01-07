@@ -6,9 +6,13 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(wxWidgets REQUIRED core base)
 include(${wxWidgets_USE_FILE})
 find_package(Threads)
+find_package(Boost)
 
 add_executable(${CMAKE_PROJECT_NAME} wxterm.cpp)
 
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC 
+	${Boost_INCLUDE_DIR})
+	
 target_link_libraries (${CMAKE_PROJECT_NAME} 
 	${wxWidgets_LIBRARIES}
 	${CMAKE_THREAD_LIBS_INIT})
