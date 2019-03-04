@@ -170,12 +170,44 @@ public class csvmerge {
 	}	
 	
 	static String maybeAppendComma(String line, int cnt) {
-		int commacnt = (int)line.chars().filter(ch -> ch ==',').count();
+		int commacnt = getCommaCount(line);
+		if (commacnt == cnt)
+			return line;
+		StringBuffer sb = new StringBuffer();
+		sb.append(line);
 		while (commacnt<cnt) {
-			line += ",";
+			//line += ",";
+			sb.append(',');
 			commacnt++;
 		}
-		return line;
+		return sb.toString();
+	}
+	
+	static int getCommaCount(String strCSVRecord) {
+		// ignore comma in double quotes
+		boolean quoted = false;
+		int commaCnt = 0;
+		for(char c : strCSVRecord.toCharArray()){
+			switch(c) {
+			case ',':
+				if (!quoted)
+					commaCnt++;
+				break;
+			case '\"':
+			case '\'':
+				quoted = !quoted;
+				break;
+			default:
+				break;
+			}
+		}
+		return commaCnt;
+	}
+	
+	static int getColumnCount(String strCSVRecord) {
+		// ignore comma in double quotes
+		String[] strParts = strCSVRecord.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+		return strParts.length;
 	}
 	
 	static void mergeCsvFiles(String[] args) {
@@ -207,20 +239,18 @@ public class csvmerge {
 				String[] splitcols = line.split(",", columnkey+2);
 				// System.out.println(splitcols[columnkey]);
 				// System.out.println(splitcols[columnkey+1]);
-				int commacnt = (int)line.chars().filter(ch -> ch ==',').count();
-				int origcnt = commacnt;
-				
-				if (!line.endsWith(","))
-					commacnt++;
-				column_count = Math.max(column_count, commacnt);
+				if (column_count<1)
+					column_count = getColumnCount(line); // find column count from first line
+				//column_count = Math.max(column_count, getColumnCount(line));
 				
 				if (hmap.containsKey(splitcols[columnkey])) {
 					lines_in_both++;
-					fr.write(maybeAppendComma(line, column_count) + hmap.get(splitcols[columnkey]) + System.getProperty("line.separator"));
+					fr.write(maybeAppendComma(line, column_count) + hmap.get(splitcols[columnkey])
+							+ System.getProperty("line.separator"));
 				}
 				else {
 					lines_only_in_base++;
-					fr.write(line + CharBuffer.allocate(commacnt).toString().replace( '\0', ',' )
+					fr.write(line + CharBuffer.allocate(column_count).toString().replace( '\0', ',' )
 							+ System.getProperty("line.separator"));
 				}
 				line = reader.readLine();
@@ -228,12 +258,17 @@ public class csvmerge {
 			reader.close();
 			
 			// for lines only exist in second file
+			StringBuffer sb = new StringBuffer();
+			for(int i=0; i<column_count; i++)
+				sb.append(',');
+			String basePlaceHolder = sb.toString(); // CharBuffer.allocate(column_count).toString().replace('\0', ',')
+			
 			List<String> secondcsv = csvToList(args[1], columnkey);
 			for (String key: secondcsv) {
 				if (!basecsv.containsKey(key)) {
 					lines_not_in_base++;
 					line = hmap.get(key);
-					fr.write(CharBuffer.allocate(column_count).toString().replace('\0', ',') + line
+					fr.write(basePlaceHolder + line
 							+ System.getProperty("line.separator"));
 					System.out.println("Line not in base: " + line);
 				}				
