@@ -205,7 +205,10 @@ bool MyApp::OnInit()
 	m_search_thread = std::thread(&MyApp::SearchTask, this);
 
 	if (vm.count("cui"))
+	{
+		m_search_thread.join();
 		return false;
+	}
 
     auto title = wxString::Format("Hello %s (pid %lu)", wxVERSION_STRING,
                                   wxGetProcessId());
