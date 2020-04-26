@@ -3,7 +3,8 @@
 
 int main()
 {
-    wxString wxHelloWorld = "Hello vcpkg!\n";
+    wxString wxHelloWorld;
+	wxHelloWorld.sprintf(wxT("Hello vcpkg, pid: %lu\n"), wxGetProcessId());
     std::cout << wxHelloWorld;
 }
 
