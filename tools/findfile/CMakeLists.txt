@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.5)
 project (findfile)
 set(CMAKE_CXX_STANDARD 17) 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_BUILD_TYPE Debug)
 
 find_package(wxWidgets  )
 include(${wxWidgets_USE_FILE})

@@ -11,6 +11,7 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
+#include <chrono>
 
 // clang-format off
 wxDECLARE_EVENT(wxEVT_MY_EVENT, wxCommandEvent);
@@ -39,26 +40,32 @@ public:
 
 	std::mutex gui_mutex;
 	std::stringstream ss;
-	void output(const std::string& buf)
-	{
-		{
-			std::lock_guard<std::mutex> guard(gui_mutex);
-			ss << buf;
-		}
-		wxCommandEvent event( wxEVT_MY_EVENT );
-		wxPostEvent( GetTopWindow (), event );
-	}
-	std::string get_output()
+	void output(const std::string& buf);
+	std::string get_output();
+};
+
+std::string MyApp::get_output()
+{
+	std::lock_guard<std::mutex> guard(gui_mutex);
+	std::string msg = ss.str();
+	ss.str("");
+	return msg;
+}
+
+void MyApp::output(const std::string& buf)
+{
 	{
 		std::lock_guard<std::mutex> guard(gui_mutex);
-		std::string msg = ss.str();
-		ss.str("");
-		return msg;
+		ss << buf;
 	}
-};
+	wxCommandEvent event( wxEVT_MY_EVENT );
+	if (GetTopWindow ())
+		wxPostEvent( GetTopWindow (), event );
+}
 
 void MyApp::SearchTask()
 {
+	auto t1 = std::chrono::high_resolution_clock::now();
 	for (const auto& dir_path: m_dir)
 	{
 		std::vector<std::string> files;
@@ -72,7 +79,12 @@ void MyApp::SearchTask()
 			}
 		}
 	}
-	std::cout << "Done\n";
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+    std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
+
+	std::cout << "Done in " << std::to_string(int_ms.count()) << " milliseconds\n";
+	output("Done in " + std::to_string(int_ms.count()) + " milliseconds\n");
 }
 
 void MyApp::GetFilePathList(std::string dir_path, std::vector<std::string>& files)
@@ -123,7 +135,8 @@ bool MyApp::SearchFile(std::string filepath)
 			break;
 	}
 
-	return std::all_of(plain_matches.begin(), plain_matches.end(), [](int i){return i>0;});
+	return std::all_of(plain_matches.begin(), plain_matches.end(), [](int i){return i>0;})
+		&& std::all_of(regex_matches.begin(), regex_matches.end(), [](int i){return i>0;});
 }
 
 class MyFrame : public wxFrame
@@ -184,9 +197,17 @@ bool MyApp::OnInit()
 		("regex_patterns", boost::program_options::value<decltype(m_regex_patterns)>(&m_regex_patterns), "regex patterns")
 		("case", "case sensitive")
 		  ;
+		try
+		{
 		boost::program_options::store(
 				boost::program_options::parse_command_line(argc, argv.operator char**(), desc), vm);
 		boost::program_options::notify(vm);
+		}
+		catch(const std::exception& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+			output(ex.what());
+		}
 
 		for (const auto& regex_text: m_regex_patterns)
 		{
