@@ -3,7 +3,7 @@ project (wxterm)
 set(CMAKE_CXX_STANDARD 11) 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(wxWidgets REQUIRED core base)
+find_package(wxWidgets  )
 include(${wxWidgets_USE_FILE})
 find_package(Threads)
 find_package(Boost)
