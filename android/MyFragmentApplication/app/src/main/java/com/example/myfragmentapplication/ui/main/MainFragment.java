@@ -19,7 +19,7 @@ import com.google.common.flogger.FluentLogger;
 
 public class MainFragment extends Fragment {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
-  private MainViewModel mViewModel;
+  private MainViewModel mainViewModel;
   private TextView textView;
   private TextView buildInfo;
   private AppCompatButton doAction;
@@ -50,7 +50,7 @@ public class MainFragment extends Fragment {
       @Override
       public void onClick(View v) {
         logger.atInfo().log("onClick call mViewModel.doAction");
-        mViewModel.doAction();
+        mainViewModel.doAction();
       }
     });
   }
@@ -61,12 +61,12 @@ public class MainFragment extends Fragment {
     super.onActivityCreated(savedInstanceState);
     // ViewModelProviders deprecated
     // mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-    mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+    mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-    mViewModel.getDemoElement().observe(getViewLifecycleOwner(), new Observer<DemoElement>() {
+    mainViewModel.getDemoElement().observe(getViewLifecycleOwner(), new Observer<DemoElement>() {
       @Override
       public void onChanged(DemoElement demoElement) {
-        textView.setText(mViewModel.getDemoElement().getValue().getMessage());
+        textView.setText(mainViewModel.getDemoElement().getValue().getMessage());
         logger.atInfo().log("DemoElement.onChanged to " + textView.getText());
         if (doAction.getVisibility()==View.GONE) {
           logger.atInfo().log("DemoElement.onChanged make button VISIBLE");
@@ -78,14 +78,10 @@ public class MainFragment extends Fragment {
 
   private static String getBuildString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("BASE_OS=");
-    sb.append(VERSION.BASE_OS);
-    sb.append(", CODENAME=");
-    sb.append(VERSION.CODENAME);
-    sb.append(", RELEASE=");
-    sb.append(VERSION.RELEASE);
-    sb.append(", SDK_INT=");
-    sb.append(VERSION.SDK_INT);
+    sb.append("BASE_OS=").append(VERSION.BASE_OS);
+    sb.append(", CODENAME=").append(VERSION.CODENAME);
+    sb.append(", RELEASE=").append(VERSION.RELEASE);
+    sb.append(", SDK_INT=").append(VERSION.SDK_INT);
     return sb.toString();
   }
 }
