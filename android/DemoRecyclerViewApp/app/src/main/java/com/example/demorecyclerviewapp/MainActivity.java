@@ -21,7 +21,8 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     createDummyData();
     demoView = findViewById(R.id.recycler_view);
-    LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+    LinearLayoutManager layoutManager = new LinearLayoutManager(this,
+            LinearLayoutManager.VERTICAL, false);
     demoView.setLayoutManager(layoutManager);
     RecyclerViewAdapter adapter = new RecyclerViewAdapter(dataModelList);
     demoView.setAdapter(adapter);
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     dataModelList.add(new DataModel("Keyboard", "many keys"));
     dataModelList.add(new DataModel("MS mice", "3 buttons"));
     dataModelList.add(new DataModel("Mac mice", "1 button"));
-    for(int i=0; i<50; i++) {
+    for(int i=0; i<40; i++) {
       dataModelList.add(new DataModel("dummy title " + i, "dummy description " + i));
     }
   }

@@ -10,6 +10,7 @@ import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder> {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+
   private List<DataModel> dataModelList;
   private int onCreateViewHolderCount;
 
