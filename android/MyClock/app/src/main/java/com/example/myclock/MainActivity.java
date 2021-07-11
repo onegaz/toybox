@@ -60,14 +60,18 @@ public class MainActivity extends AppCompatActivity {
 
     static boolean canDrawOverlays(Context context) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && Settings.canDrawOverlays(context)) {
+            logger.atConfig().log("Settings#canDrawOverlays pass");
             return true;
         }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {//USING APP OPS MANAGER
             AppOpsManager manager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
             if (manager != null) {
                 try {
-                    int result = manager.checkOp(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW, Binder.getCallingUid(), context.getPackageName());
-                    return result == AppOpsManager.MODE_ALLOWED;
+                    int result = manager.checkOp(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
+                            Binder.getCallingUid(), context.getPackageName());
+                    boolean ret = result == AppOpsManager.MODE_ALLOWED;
+                    logger.atConfig().log("AppOpsManager#checkOp return %s", ret);
+                    return ret;
                 } catch (Exception ignore) {
                 }
             }
@@ -83,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
             viewToAdd.setLayoutParams(params);
             mgr.addView(viewToAdd, params);
             mgr.removeView(viewToAdd);
+            logger.atConfig().log("#canDrawOverlays Can show invisible overlay view");
             return true;
         } catch (Exception ignore) {
         }

@@ -93,7 +93,8 @@ public class SoftwareInfoWindow {
       PackageInfo packageInfo = context.getPackageManager().getPackageInfo(googleAppPackageName, 0);
       return packageInfo.versionName;
     } catch (NameNotFoundException e) {
-      logger.atWarning().atMostEvery(8, SECONDS).withCause(e).log("%s not found", googleAppPackageName);
+      logger.atWarning().atMostEvery(8, SECONDS).withCause(e)
+              .log("%s not found", googleAppPackageName);
     }
     return "";
   }
@@ -102,13 +103,14 @@ public class SoftwareInfoWindow {
     if (textView == null) {
       textView = popupWindow.findViewById(R.id.titleText);
       if (textView == null) {
-        logger.atWarning().log("Can't find view");
+        logger.atWarning().atMostEvery(8, SECONDS).log("Can't find view");
         return;
       }
     }
-    Calendar c = Calendar.getInstance();
+
     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-    String formattedDate = Build.FINGERPRINT + "    GoogleApp:" + getGoogleAppVersion() + "  " + df.format(c.getTime());
+    String formattedDate = Build.FINGERPRINT + "    GoogleApp:" + getGoogleAppVersion() + "  " +
+            df.format(Calendar.getInstance().getTime());
     textView.setText(formattedDate);
   }
 
